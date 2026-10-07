@@ -55,25 +55,25 @@ noncomputable def birth (n : Nat) : Bool :=
 
 /-- The one-edge prefix E is not a birth. -/
 theorem birth_E : birth E = false := by
-  -- birth 1 = false by the match on 1
-  unfold birth E
-  -- Nat.strongRecOn 1 ... reduces via the match; use the equation
-  sorry
+  unfold birth E Nat.strongRecOn
+  rw [WellFounded.fix_eq]
 
 /-- The root is not a birth. -/
 theorem birth_root : birth root = false := by
-  unfold birth root
-  sorry
+  unfold birth root Nat.strongRecOn
+  rw [WellFounded.fix_eq]
 
 /-- Unfolding lemma for the birth rule at n + 2. -/
 theorem birth_succ_succ (n : Nat) :
     birth (n + 2) =
       (if Exists (fun m : Nat => m < n + 2 /\ birth m = true /\ HasRegAtlas (n + 2) m)
        then false else true) := by
-  unfold birth
-  rw [Nat.strongRecOn]
-  -- The ih m _ applications need to be identified with birth m.
-  -- Nat.strongRecOn_eq or similar; use congr + funext style.
+  unfold birth Nat.strongRecOn
+  rw [WellFounded.fix_eq]
+  -- Reduce the match on n+2 to the third branch
+  simp only []
+  -- Now the goal should be about the two `if Exists ...` being equal.
+  -- Use propext on the conditions.
   sorry
 
 end PrimeMother
