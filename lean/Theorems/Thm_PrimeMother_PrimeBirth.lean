@@ -23,7 +23,7 @@ import Mathlib.Data.Nat.Prime.Defs
 namespace PrimeMother
 
 /-- Auxiliary: births are at least 2. -/
-theorem birth_ge_two {n : ℕ} (h : birth n = true) : 2 ≤ n := by
+theorem birth_ge_two {n : Nat} (h : birth n = true) : 2 ≤ n := by
   match n with
   | 0 => simp [birth] at h
   | 1 => simp [birth] at h
@@ -31,11 +31,11 @@ theorem birth_ge_two {n : ℕ} (h : birth n = true) : 2 ≤ n := by
 
 /-- The birth rule unfolds to: n+2 is born iff no earlier birth divides it
     with quotient ≥ 2. -/
-theorem birth_iff_no_earlier_mother (n : ℕ) :
+theorem birth_iff_no_earlier_mother (n : Nat) :
     birth (n + 2) = true ↔
-      ¬ ∃ m : ℕ, m < n + 2 ∧ birth m = true ∧ HasRegAtlas (n + 2) m := by
+      ¬ ∃ m : Nat, m < n + 2 ∧ birth m = true ∧ HasRegAtlas (n + 2) m := by
   rw [birth_succ_succ]
-  by_cases h : ∃ m : ℕ, m < n + 2 ∧ birth m ∧ HasRegAtlas (n + 2) m
+  by_cases h : ∃ m : Nat, m < n + 2 ∧ birth m ∧ HasRegAtlas (n + 2) m
   · simp only [h, if_true]
     constructor
     · intro hc; exact absurd rfl hc
@@ -49,7 +49,7 @@ theorem birth_iff_no_earlier_mother (n : ℕ) :
     · intro _; rfl
 
 /-- Main theorem: the birth ranks are exactly the primes. -/
-theorem birth_iff_prime : ∀ n : ℕ, 2 ≤ n → (birth n = true ↔ Nat.Prime n) := by
+theorem birth_iff_prime : ∀ n : Nat, 2 ≤ n → (birth n = true ↔ Nat.Prime n) := by
   intro n
   -- Strong induction on n
   induction n using Nat.strong_induction_on with
@@ -64,7 +64,7 @@ theorem birth_iff_prime : ∀ n : ℕ, 2 ≤ n → (birth n = true ↔ Nat.Prime
       by_contra hnp
       -- n+2 ≥ 2 and not prime → composite: ∃ a b, 2 ≤ a ∧ 2 ≤ b ∧ a * b = n+2
       -- Actually use: not prime → ∃ d, d ∣ n+2 ∧ 2 ≤ d ∧ d < n+2
-      have hcomp : ∃ d : ℕ, d ∣ (k + 2) ∧ 2 ≤ d ∧ d < k + 2 := by
+      have hcomp : ∃ d : Nat, d ∣ (k + 2) ∧ 2 ≤ d ∧ d < k + 2 := by
         -- n+2 ≥ 2, not prime → has a nontrivial divisor
         have h2 : 2 ≤ k + 2 := by omega
         -- Use Nat.exists_dvd_of_not_prime2 or similar
