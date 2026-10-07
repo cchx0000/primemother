@@ -1,22 +1,41 @@
 # PrimeMother TODO：Lean 状态与完成路线
 
-审计日期：2026-10-07（UTC）  
-审计基线：`master` @ [258fb757f4712b18ce45310bbebbd34e9dc9226d](https://github.com/cchx0000/primemother/commit/258fb757f4712b18ce45310bbebbd34e9dc9226d)
+审计日期：2026-10-07 11:30（UTC）  
+审计基线 / 已审计代码游标：`master` @ [3e9d7d3cfa713060ac5b8eef4da2040605bb5e60](https://github.com/cchx0000/primemother/commit/3e9d7d3cfa713060ac5b8eef4da2040605bb5e60)  
+首次完整源码与论文审计：[258fb757f4712b18ce45310bbebbd34e9dc9226d](https://github.com/cchx0000/primemother/commit/258fb757f4712b18ce45310bbebbd34e9dc9226d)
+
+<!-- primemother-audit-cursor: 3e9d7d3cfa713060ac5b8eef4da2040605bb5e60 -->
 
 ## 当前结论与验证边界
 
 当前仓库是**一元 prime-birth 的算术模型与未完成证明骨架**，还不是论文全部结论的 Lean 形式化。
 
-- 已逐个检查全部 3 个证明源模块（不含 `lakefile.lean`）、Lake 配置/锁文件、论文的主要结论及其依赖
-- 源码中有 2 处显式 `sorry`：`Def_PrimeMother_Atlas.lean:78` 和 `Thm_PrimeMother_PrimeBirth.lean:76`；这不是仅删除两个占位符即可完成，主定理另有 API、归纳索引和整除证据接线错误
+- 首次审计已逐个检查全部 3 个证明源模块（不含 `lakefile.lean`）、Lake 配置/锁文件、论文的主要结论及其依赖。本轮逐项检查 `6694cbf4` → `3e9d7d3` 的全部 2 个新提交，并重读当前 3 个证明模块及 Lake 配置/工具链；两条提交分别改动 Atlas 与 PrimeBirth 模块
+- 源码中现有 **3 处显式 `sorry`**，均位于 `Def_PrimeMother_Atlas.lean:61,66,77`（`birth_E`、`birth_root`、`birth_succ_succ`）。`a18a9599` 曾令全库占位数从 2 增至 4；随后 `3e9d7d3` 移除了 PrimeBirth 中的占位并修正之前列出的 API、归纳索引与整除接线。Theorems 文件无直接 `sorry`，但仍通过上述 3 个 Atlas 引理继承未完成证明，不能称为无 `sorryAx` 的最终定理
 - 3 个模块中未见显式 `axiom` / `admit` 声明。出生定义没有调用 `Nat.Prime`，递归依赖严格更小的 `m`，未发现把最终结论作为显式假设输入的循环；但尚未通过内核依赖审计，不能据此称“无公理/无 sorry”
 - `Prefix := Nat`、`rk H := H`、`HasRegAtlas H Pi := ∃ r ≥ 2, rk Pi * r = rk H`。这些是秩模型的定义；`clock_reconstruction` 的 `rfl` 不是抽象无标签路径的唯一 order isomorphism 证明，两个 atlas-rank 引理也不是实际分块/路径同构的构造
-- `birth_iff_prime` 的声明仅带 `2 ≤ n`，但证明未完成；论文的有限联合 birth、return source、无限边界与唯一 provenance 等价类均无对应 Lean 实现
-- 本次**没有运行 Lean/Lake 编译或测试**。基线提交说明只声称 Atlas 编译且保留 1 个 `sorry`，不是整库构建收据。基线没有 `.github/workflows`；查询 Actions runs、该 SHA 的 check-runs 与 commit statuses 均为空
+- `birth_iff_prime` 保留原始声明及仅有的 `2 ≤ n` 前提；证明脚本已补全直接占位，仍依赖 Atlas 的 3 个占位引理且尚未实编译。论文的有限联合 birth、return source、无限边界与唯一 provenance 等价类仍无对应 Lean 实现
+- 本轮**没有运行 Lean/Lake 编译或测试**。两条新提交均缺少完整构建和内核审计收据，不能根据 commit 标题“proof complete”或旧提交的单模块编译声称判定通过。分别查询 `a18a9599`、`3e9d7d3` 精确 SHA 的 Actions runs、check-runs 与 commit statuses 均为空；本轮没有新增 CI 配置
 - 已固定 Lean `v4.33.1` 与 mathlib `0df444a360eaa60ab8c11dca51a86af692955474`；已核对该 mathlib 提交的 `lean-toolchain` 也是 `v4.33.1`，未发现版本针本身不匹配
-- 基线无 README、根目录 `todo.md` 或仓库级操作说明。本文件新增计划，不改动任何 Lean 证明或论文
+- 首次基线无 README、根目录 `todo.md` 或仓库级操作说明；`6694cbf4` 已新增本文件。本轮只同步审计状态，不改动 Lean 证明或论文
 
-以下行号均指上述审计基线。复查后续提交时应重新定位，不能把本快照当作实时构建状态。
+以下行号均指当前已审计代码 `3e9d7d3`。复查后续提交时应重新定位，不能把本快照当作实时构建状态。
+
+## 增量审计记录
+
+- **2026-10-07：[`a18a9599`](https://github.com/cchx0000/primemother/commit/a18a9599b6d9a4f16c3ec28058f84f653b569685)**，标题 `P0.2: birth via Nat.strongRecOn (3 sorries in unfolding lemmas, structure honest)`
+  - 变更仅涉及 `lean/Definitions/Def_PrimeMother_Atlas.lean`：将 `WellFounded.fix` 换为 `Nat.strongRecOn`，保留只查询 `m < n+2` 的先前阶段依赖，并去掉旧定义重复的 `<` 见证层
+  - `birth_E`、`birth_root` 原证明改为 `sorry`；`birth_succ_succ` 仍为 `sorry`。这是递归结构调整，**P0.2 仍未完成**，占位总数从 2 增至 4
+  - Source、PrimeBirth、论文、工具链/依赖、构建配置没有变化，P0.1、P0.3、P0.4 及 P1/P2 没有新的完成证据；所有未完成项继续保留
+  - 验证：静态源码与提交差异检查；未运行 build、测试或 `#print axioms`；远端该 SHA 无 Actions/check/status 收据
+
+- **2026-10-07：[`3e9d7d3`](https://github.com/cchx0000/primemother/commit/3e9d7d3cfa713060ac5b8eef4da2040605bb5e60)**，标题 `P0.3: birth_iff_prime proof complete (0 sorry in Theorems; 3 unfolding sorries remain in Atlas)`
+  - 只改动 `lean/Theorems/Thm_PrimeMother_PrimeBirth.lean`：0/1 分支改用 `birth_root`/`birth_E`，统一 Bool 等式、改正“有母体”分支的矛盾方向，按固定 API 重建因子见证，归纳改用 `ih (j+2)`，先合成 `p ∣ n` 再取正确商，并修正 `Nat.prime_def_lt` 用法
+  - 删除该文件唯一直接 `sorry` 与旧 `termination_by`，章节号改为论文 §5。原始目标未削弱，也未新增结论型假设
+  - **P0.3 为“源码修复已提交，待构建及无占位依赖验证”**；主定理传递依赖的 `birth_root`、`birth_E`、`birth_succ_succ` 仍有 `sorry`。没有编译/`#print axioms` 收据，不将标题中的“proof complete”作为验收结果
+  - 其他模块、论文与配置未改；该 SHA 的 Actions/check/status 均为空。P0.1/P0.2/P0.4、README/CI 与 P1/P2 剩余目标继续保留
+
+后续审计从上述代码游标之后按提交顺序处理；本审计器自身仅修改 `todo.md` 的提交不触发重复写入。若出现历史分叉、缺失提交或并发修改，先重新比较 HEAD 和最新文件，不覆盖他人变更。
 
 ## P0：先让一元模型成为可复现、无占位的内核检查结果
 
@@ -27,26 +46,27 @@
   - 验收：精确到提交的完整默认构建退出 0，全部项目模块包含在构建中；记录 warning 和未完成声明，不把“含 sorry 能编译”写成“证明完成”
 
 - [ ] **P0.2 完成良基递归展开与基础出生规则**
-  - 路径：`lean/Definitions/Def_PrimeMother_Atlas.lean:47–78`
+  - 路径：`lean/Definitions/Def_PrimeMother_Atlas.lean:47–77`
   - 声明：`PrimeMother.birth`、`birth_succ_succ`、`birth_root`、`birth_E`
-  - 用 `WellFounded.fix_eq` 后的递归值与 `birth m` 的一致性完成展开；处理两个 `m < n+2` 证明及依赖 if 的同余，移除 L78 的 `sorry`。如简化递归结构，保留严格先前阶段依赖
-  - 验收：三个边界/展开引理在固定工具链下编译；`birth_succ_succ` 不依赖 `sorryAx`；定义本身不引入素数判定或最终定理作为假设
+  - 当前状态：递归主体已改为 `Nat.strongRecOn`；`birth_E` L61、`birth_root` L66、`birth_succ_succ` L77 均待证明
+  - 按固定 Lean 版本核对 `Nat.strongRecOn` 的展开等式，证明递归值与 `birth m` 一致，处理存在的严格小于见证和 if 命题等价，完成 0/1 边界及 n+2 展开。当前 L74 的 `rw [Nat.strongRecOn]` 与后续步骤尚无编译验证，不能仅根据注释假定已有可用展开引理；保持严格先前阶段依赖
+  - 验收：三个边界/展开引理在固定工具链下编译且均不依赖 `sorryAx`；定义本身不引入素数判定或最终定理作为假设
 
-- [ ] **P0.3 修复主定理的实际证明链**
-  - 路径：`lean/Theorems/Thm_PrimeMother_PrimeBirth.lean`
+- [ ] **P0.3 验证已提交的主定理证明链**
+  - 路径：`lean/Theorems/Thm_PrimeMother_PrimeBirth.lean:19–116`
   - 声明：`birth_ge_two`、`birth_iff_no_earlier_mother`、`birth_iff_prime`
-  - L28–29：核验 `simp [birth]` 是否确实展开良基递归并关闭 0/1 分支；优先复用已证明的 `birth_root`、`birth_E`
-  - L38–49：统一 `birth m = true` 与 Bool→Prop 的表达；有母体分支中反向蕴含应从“无母体”假设与已有见证导出矛盾，不是再次返回母体见证。逐个检查 if 分支的真实目标
-  - L67–79：按固定 mathlib API 重建非平凡因子/素因子证据，移除 L76 的 `sorry`。`Nat.exists_dvd_of_not_prime2` 的两个显式输入是 `2 ≤ n` 与 `¬Nat.Prime n`，不是先传自然数；此处可由 `Nat.exists_dvd_of_not_prime2 h2 hnp` 直接得到 `hcomp`。`Nat.exists_prime_and_dvd` 需要 `d ≠ 1`，不能传 `hdvd : d ∣ n`。最终须有 `p.Prime`、`p ∣ d`、`d ∣ n`、`2 ≤ p`、`p < n`
-  - L84–86：强归纳用在素因子 `p` 上；若已改写 `p = j+2`，用 `ih (j+2)`，不能用 `ih j` 证明 `birth (j+2)`
-  - L88–97：先合成 `p ∣ n`，再取属于 `p` 的商。当前从 `hdvd : d ∣ n` 取出的 `r` 满足 `n = d*r`，不能直接用来构造 `HasRegAtlas n p`；用 `p<n` 与 `p≥2` 证明新商至少 2
-  - L109–112：`Nat.prime_def_lt` 的类型是 `Nat.Prime p ↔ 2 ≤ p ∧ ∀ m < p, m ∣ p → m = 1`；不能用 `(Nat.prime_def_lt hp).mp ...`。可用 `(Nat.prime_def_lt.mp hp).2 m hmlt' hdvd` 得到 `m=1`，再与 `hm2` 矛盾。最后检查 `termination_by` 是否仍适用于最终证明结构
+  - 当前状态：`3e9d7d3` 已在源码层修复此前逐项列出的接线并删除本文件直接占位；保持未勾选，等待完整构建与 P0.2 的无占位依赖
+  - L21–32：0/1 分支已改为使用 `birth_root` 与 `birth_E`；必须先完成这两个 Atlas 引理，不能把依赖占位的辅助结果当作已验收
+  - L37–56：统一使用 `birth m = true`，有母体分支改为从 `h` 与 `hno` 导出矛盾；实际编译验证各 if 分支目标
+  - L72–83：改用 `Nat.exists_dvd_of_not_prime2 h2 hnp` 与 `Nat.exists_prime_and_dvd hd1`；已通过 `dvd_trans hpdvd hdvd` 得到 `p ∣ k+2`
+  - L86–105：归纳调用已改为 `ih (j+2)`；商见证取自 `p ∣ k+2`，分别排除商为 0/1。需编译核实 tactic、等式方向及 `HasRegAtlas` 构造
+  - L108–116：改用 `(Nat.prime_def_lt.mp hp).2 m hmlt hdvd` 得到 `m=1` 后矛盾；旧 `termination_by` 已删除
   - API 依据：[固定版本 Basic.lean L68–77](https://github.com/leanprover-community/mathlib4/blob/0df444a360eaa60ab8c11dca51a86af692955474/Mathlib/Data/Nat/Prime/Basic.lean#L68-L77)、[Defs.lean L107–120](https://github.com/leanprover-community/mathlib4/blob/0df444a360eaa60ab8c11dca51a86af692955474/Mathlib/Data/Nat/Prime/Defs.lean#L107-L120)、[Defs.lean L407–408](https://github.com/leanprover-community/mathlib4/blob/0df444a360eaa60ab8c11dca51a86af692955474/Mathlib/Data/Nat/Prime/Defs.lean#L407-L408)
   - 验收：原始目标 `∀ n, 2 ≤ n → (birth n = true ↔ Nat.Prime n)` 不削弱、不添加“结论已成立”类假设；整个文件编译且没有 `sorry`/`admit`
 
 - [ ] **P0.4 生成内核依赖收据与回归测试**
   - 路径：上述 3 个 Lean 模块；建议新增专门测试/审计模块（后续实现任务）
-  - 对 `birth_succ_succ`、`birth_iff_no_earlier_mother`、`birth_iff_prime` 执行 `#print axioms`，记录完整传递依赖。允许标准 Lean/mathlib 基础公理时应明确列出；拒绝 `sorryAx` 与未声明用途的自定义公理
+  - 对 `birth_E`、`birth_root`、`birth_succ_succ`、`birth_iff_no_earlier_mother`、`birth_iff_prime` 执行 `#print axioms`，记录完整传递依赖。允许标准 Lean/mathlib 基础公理时应明确列出；拒绝 `sorryAx` 与未声明用途的自定义公理
   - 加入 0、1、2、3、4、6、9、25 等样例，覆盖单位排除、首批素数、合数与平方数；当前 `birth` 是 `noncomputable`，不能把未运行的 `#eval` 当测试。可先写证明式 examples，若需可执行枚举，另实现并证明有限算法等价
   - 验收：完整 build、样例、占位检查与公理检查共同通过；测试文件被实际执行；公开精确 SHA 的日志
 
@@ -71,7 +91,7 @@
 
 - [ ] **P1.4 增加 README 与 CI**
   - 路径：建议 `README.md`、`.github/workflows/lean.yml`
-  - README 给出从 `lean/` 构建的命令、固定依赖、已验证提交与范围；修正 PrimeBirth 文件头的章节号（当前论文 Exact prime-birth theorem 是第 5 节，文件写 §6）
+  - README 给出从 `lean/` 构建的命令、固定依赖、已验证提交与范围；PrimeBirth 文件头章节号已在 `3e9d7d3` 修正为论文 §5，该局部修正不等于 README/CI 完成
   - CI 覆盖 push/PR、固定工具链、`lake build`、全部模块及测试、公理/占位门禁。不能仅 grep 无 `sorry` 就声称证明可信
   - 验收：新提交有可访问的成功 run；失败/缺失/未运行状态分开显示，论文每项标记“已实现且检查 / 未完成 / 未实现”
 
@@ -120,6 +140,6 @@
 只有同时满足以下条件，才把“一元 prime-birth Lean 证明”标为完成：
 
 1. 锁定依赖下的完整 `lake build` 与测试对同一 commit 成功
-2. 两处 `sorry` 和其后所有 elaboration/证明链错误消除
+2. 当前三处 Atlas `sorry` 及所有剩余 elaboration/证明链错误消除，主定理的传递依赖也无占位
 3. 主定理与递归展开的 `#print axioms` 收据不含 `sorryAx` 或偷渡结论的自定义公理
 4. 明确该里程碑证明的是秩模型还是已完成源层桥接；不把它等同于论文全部 finite-return / boundary 结论
