@@ -1,0 +1,1887 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Pref}{\operatorname{Pref}}
+\newcommand{\rk}{\operatorname{rk}}
+\newcommand{\RegAtlas}{\operatorname{RegAtlas}}
+\newcommand{\Birth}{\operatorname{Birth}}
+\newcommand{\Prov}{\operatorname{Prov}}
+\newcommand{\Mother}{\operatorname{Mother}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\PP}{\mathbb P}
+\newcommand{\NN}{\mathbb N}
+
+\title{The Prime-Distribution Birth Mother\\
+\large Single-Prime, Finite-Combination, and All-Prime Return Births}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We begin with the unlabelled atomic successor history and the regular-atlas
+mechanism extracted from the source manuscript.  Its one-direction primitive
+births have posterior ranks exactly equal to the primes.
+
+We prove first that the one-direction source alone cannot support a genuine
+higher birth: its atlas refinements and intermediate covers recover exactly a
+proper-divisor poset.  We then audit the tempting free cubical enlargement.
+Although its boxes have genuine higher faces, its regular-grid atlas predicate
+factors through a product of divisor posets.  The cubical face category and
+relative fundamental class are identical for born and inherited boxes and do
+not participate in the birth decision.  Thus the cubical proposal is also a
+divisor shadow with an inert topological shell, not a joint prime birth.
+
+Both failures are retained as provenance obstructions.  No probability law,
+fixed prime spacing, batch operation, factorization tower, or coherence layer
+is introduced.  A final finite-packet trial uses overlapping returns in one
+atomic path trace.  It realizes every finite set of distinct primes, has
+connected-support descent to the original unary births, and has mixed fibres
+not determined by divisor data.  The universal unlabelled path-history source
+then generates the return packets without receiving a prime list.  Its
+simple-return sector has posterior support exactly all nonempty finite sets of
+distinct primes.  On the inverse-limit boundary, an explicit
+generated-subsource inheritance principle forces birth to mean dense orbit
+under the canonical path shift.  Every source-transitive history contains
+every finite joint birth as a window, and its primitive normalized-return
+spectrum is the entire prime set.  The carrier histories are nonunique, but
+they form one uniquely determined source-provenance class.
+\end{abstract}
+
+\section{Scope and provenance reset}
+
+This paper studies only the birth mother of the prime distribution.  Its first
+positive construction is the finite ordered-path source and the original
+regular-atlas single-birth rule.  Endpoint covers, intermediate-cover nerves,
+and cubical products appear only in obstruction audits; none is promoted to a
+valid higher-birth source.  The later overlapping-return construction is
+promoted through a universal unlabelled path-history source to a finite-set
+birth theorem and then to a single-path all-prime boundary birth.  The boundary
+uses only the canonical shift of that path source; no stack,
+representation-theoretic, mapping-class, coherence, or probabilistic layer is
+used in those constructions.
+
+The word \emph{provenance} will have a narrow causal meaning.  It does not
+refer to every structure from which the present model might be generalized.
+It records only the data that were already present when a stage was born and
+the path witnesses by which that stage was classified.
+
+There are three levels that must not be conflated:
+\begin{enumerate}[label=(\roman*)]
+\item the \emph{source level}, consisting of unlabelled atomic extensions;
+\item the \emph{single-birth level}, determined by the chronological
+regular-atlas test against earlier primitive prefixes;
+\item the \emph{arithmetic shadow}, obtained by counting atomic extensions
+after the source and birth data have been formed.
+\end{enumerate}
+The arithmetic shadow is used to state and prove the identification with the
+ordinary primes.  It is not an input to the mother rule.
+
+\section{The unlabelled mother source}
+
+\begin{definition}[Atomic successor source]
+An \emph{unlabelled atomic successor source} is a rooted directed system
+$(\mathscr R,o,\sigma)$ such that:
+\begin{enumerate}[label=(\roman*)]
+\item $o$ is the root;
+\item every non-root state has one immediate predecessor;
+\item every retained state has one next state supplied by the source rule
+$\sigma$;
+\item every state lies at the end of a finite chain of atomic successor moves
+from $o$;
+\item the source carries no numerical labels or arithmetic predicates.
+\end{enumerate}
+We assume that prefixes of every finite atomic depth occur.
+\end{definition}
+
+The source therefore produces one persistent history
+\[
+o\longrightarrow x_1\longrightarrow x_2\longrightarrow\cdots,
+\]
+where the subscripts are notation in the exposition and are not source data.
+
+\begin{definition}[Retained prefix]
+For a retained state $x$, let $H(x)$ be the entire directed chain from $o$ to
+$x$.  Write $\Pref(\mathscr R)$ for the ordered family of nonempty retained
+prefixes, ordered by initial-segment inclusion.
+\end{definition}
+
+The next candidate is always the next prefix produced by $\sigma$.  The
+mother does not first choose an integer and then construct an interval of that
+length.
+
+\begin{definition}[Posterior rank]
+For $H\in\Pref(\mathscr R)$, define
+\[
+\rk(H)
+:=
+\#\{\text{atomic source edges in }H\}.
+\]
+The rank is a posterior invariant of a retained path.  It is not available to
+the birth predicate.
+\end{definition}
+
+\begin{proposition}[Clock reconstruction]
+The prefix order and the atomic successor relation determine a unique order
+isomorphism
+\[
+\Pref(\mathscr R)\cup\{H(o)\}\cong\NN_0.
+\]
+It is the map $H\mapsto\rk(H)$.
+\end{proposition}
+
+\begin{proof}
+Every prefix contains a unique finite chain from the root.  Atomic extension
+increases its edge count by one, and exactly one prefix occurs at each finite
+depth.  Hence edge count gives the required order isomorphism.  Any order
+isomorphism preserving the root and atomic successor must give the same
+values.
+\end{proof}
+
+\section{Regular atlas inheritance}
+
+We assume that the atomic edges have one local path type.  Thus two finite
+segments are isomorphic precisely when their endpoints, order, and atomic
+edge decompositions agree.
+
+\begin{definition}[Regular atlas]
+Let $\Pi$ be an earlier retained prefix and let $H$ be the current prefix.  A
+\emph{regular $\Pi$-atlas} on $H$ is an ordered family
+\[
+(K_1,\ldots,K_r),\qquad r\ge 2,
+\]
+of consecutive segments of $H$ such that:
+\begin{enumerate}[label=(\roman*)]
+\item every $K_j$ is isomorphic to $\Pi$ as an ordered atomic path;
+\item adjacent blocks meet only at their common endpoint;
+\item the block interiors are pairwise disjoint;
+\item the ordered concatenation of the blocks is all of $H$.
+\end{enumerate}
+Write $\RegAtlas(H;\Pi)$ for the finite set of these atlases.
+\end{definition}
+
+One occurrence of $\Pi$ inside $H$ is not an inheritance certificate.  The
+copies must exhaust the current path.  On a linear homogeneous source, a
+regular atlas of a fixed block type is unique whenever it exists.
+
+\begin{lemma}[Rank of an atlas]
+\label{lem:atlas-rank}
+If $H$ has a regular $\Pi$-atlas with $r$ blocks, then
+\[
+\rk(H)=r\,\rk(\Pi).
+\]
+Conversely, if this equality holds for an integer $r\ge2$, then the unique
+linear cuts of $H$ into $r$ consecutive blocks give a regular $\Pi$-atlas.
+\end{lemma}
+
+\begin{proof}
+Each atlas block contains the same number of atomic source edges as $\Pi$.
+The interiors do not overlap and the blocks exhaust $H$, so their edge counts
+add.  Conversely, the displayed equality specifies the cuts after every
+$\rk(\Pi)$ atomic edges.  Homogeneity identifies each resulting block with
+$\Pi$.
+\end{proof}
+
+\section{One-direction provenance and mother relation}
+
+\begin{definition}[Birth ledger]
+The \emph{birth ledger before $H$}, denoted $\mathcal B_{<H}$, is the ordered
+family of earlier prefixes declared primitive by the same rule below.  The
+one-edge prefix \(E\) is the atomic unit and is not an arithmetic birth.
+\end{definition}
+
+\begin{definition}[Mother relation]
+For $\Pi\in\mathcal B_{<H}$, define
+\[
+\Mother(\Pi,H)
+\quad\Longleftrightarrow\quad
+\RegAtlas(H;\Pi)\ne\varnothing.
+\]
+When this holds, $\Pi$ is an \emph{ancestral mother} of $H$.  A stage may have
+more than one ancestral mother.
+\end{definition}
+
+\begin{definition}[Stage provenance]
+The provenance record of the current stage is
+\[
+\Prov(H)
+=
+\left(
+H,\ \mathcal B_{<H},\
+\bigl(\RegAtlas(H;\Pi)\bigr)_{\Pi\in\mathcal B_{<H}}
+\right).
+\]
+It contains the complete retained prefix, the earlier birth ledger, and the
+actual atlas result for every earlier primitive prefix.  If a regular atlas
+exists, that atlas is a positive inheritance witness.  If none exists, the
+finite family of empty atlas sets is the stage's primitive-birth certificate.
+\end{definition}
+
+This definition makes provenance chronological and auditable.  Later
+arithmetic names may describe the record, but they are not inserted into it.
+In particular, the record does not contain a precomputed prime table, a
+divisor list, or a factorization.
+
+\begin{definition}[One-direction mother sector]
+The \emph{one-direction sector} of the prime-distribution birth mother is
+the system
+\[
+\mathfrak M
+=
+(\mathscr R,o,\sigma,\Pref(\mathscr R),\Prov,\Mother,\Birth)
+\]
+with the recursive law
+\[
+\boxed{
+\Birth(H)=1
+\quad\Longleftrightarrow\quad
+\Mother(\Pi,H)\text{ fails for every }\Pi\in\mathcal B_{<H}.
+}
+\]
+If $\Birth(H)=0$, the stage is inherited.  If $\Birth(H)=1$, $H$ is appended
+to the ledger and becomes available as a possible ancestral mother of later
+stages.
+\end{definition}
+
+In this sector the term \emph{mother} refers to the entire
+source-and-ledger mechanism.  An
+individual prime birth has no earlier ancestral mother; it is born precisely
+at the first uncovered stage.  Once born, it becomes a mother direction for
+future inherited stages.
+
+\section{Exact prime-birth theorem}
+
+\begin{theorem}[The birth ranks are exactly the primes]
+\label{thm:single}
+For every retained prefix $H$ with $\rk(H)\ge2$,
+\[
+\boxed{
+\Birth(H)=1
+\quad\Longleftrightarrow\quad
+\rk(H)\in\PP.
+}
+\]
+\end{theorem}
+
+\begin{proof}
+Use strong induction on the posterior rank.  The induction is part of the
+external verification of the rule; it is not part of the rule's input.
+
+Suppose first that $\rk(H)$ is prime.  If $H$ were inherited, some earlier
+birth $\Pi$ would give a regular atlas with $r\ge2$ blocks.  The atlas-rank
+lemma would give
+\[
+\rk(H)=r\,\rk(\Pi),
+\]
+with both factors greater than one, contradicting primality.  Thus $H$ is a
+new birth.
+
+Now suppose that $\rk(H)$ is composite.  Choose a prime $p$ dividing this
+rank.  Clock reconstruction supplies a unique earlier prefix $\Pi$ of rank
+$p$.  By the induction hypothesis, $\Pi$ is already in the birth ledger.
+Writing $\rk(H)=rp$ with $r\ge2$, the converse part of the atlas-rank lemma
+gives a regular $\Pi$-atlas on $H$.  Hence $H$ is inherited.  This completes
+the induction.
+\end{proof}
+
+The proof uses ordinary arithmetic only to identify the numerical shadow of
+the already-defined path recursion.  Operationally, the mother merely tests
+the finitely many atlas sets recorded in $\Prov(H)$.
+
+\begin{corollary}[Relabelling invariance]
+An isomorphism of rooted atomic successor sources preserves the provenance
+records, the mother relation, and the primitive births.  The construction is
+therefore independent of names assigned to source states.
+\end{corollary}
+
+\section{The resulting prime distribution}
+
+For a primitive prefix $\Pi$, define its future mother cone by
+\[
+\mathcal K(\Pi)
+:=
+\{H\in\Pref(\mathscr R):\Mother(\Pi,H)\}.
+\]
+At a current stage $H$, the mother rule is equivalently
+\[
+\Birth(H)=1
+\quad\Longleftrightarrow\quad
+H\notin\bigcup_{\Pi\in\mathcal B_{<H}}\mathcal K(\Pi).
+\]
+
+\begin{proposition}[Path-sieve identity]
+After applying posterior rank, the cone of a primitive birth of rank $p$ is
+the set of later ranks $2p,3p,4p,\ldots$.  The union of all earlier mother
+cones at rank $n$ contains the rank-$n$ prefix exactly when $n$ is composite.
+\end{proposition}
+
+\begin{proof}
+The atlas-rank lemma says that membership in the cone is equivalent to
+$\rk(H)=r p$ for an integer $r\ge2$.  The exact prime-birth theorem identifies
+the primitive ranks $p$ with the primes.  Every composite has a prime divisor,
+and no prime belongs to a cone generated by an earlier primitive rank.
+\end{proof}
+
+Thus the mother is a path-native form of the sieve of Eratosthenes: each new
+birth opens a future cone, while the uncovered stages are exactly the next
+births.
+
+\begin{definition}[Birth measure and birth-counting function]
+Let $H_m$ denote the unique retained prefix of posterior rank $m$.  Define
+\[
+\mu_{\mathfrak M}
+:=
+\sum_{m\ge2}\Birth(H_m)\,\delta_m
+\]
+and
+\[
+B_{\mathfrak M}(x)
+:=
+\mu_{\mathfrak M}([2,x])
+=
+\sum_{2\le m\le x}\Birth(H_m).
+\]
+\end{definition}
+
+\begin{theorem}[Exact distribution identity]
+The numerical shadow of the birth mother satisfies
+\[
+\boxed{
+\mu_{\mathfrak M}=\sum_{p\in\PP}\delta_p
+}
+\]
+and, for every real $x\ge2$,
+\[
+\boxed{
+B_{\mathfrak M}(x)=\pi(x).
+}
+\]
+Equivalently,
+\[
+\supp(\mu_{\mathfrak M})=\PP.
+\]
+\end{theorem}
+
+\begin{proof}
+The coefficient of $\delta_m$ in $\mu_{\mathfrak M}$ is $1$ exactly when the
+rank-$m$ prefix is a primitive birth.  By the exact prime-birth theorem this
+occurs exactly when $m$ is prime.  Summing through $x$ gives the counting
+identity.
+\end{proof}
+
+If the births are ordered as
+\[
+P_1<P_2<P_3<\cdots
+\]
+in the prefix order, then their posterior ranks are
+\[
+\rk(P_k)=p_k.
+\]
+Therefore every statistic formed solely from the support of the prime set can
+be read from the birth history.  For example, consecutive birth gaps have
+numerical shadows $p_{k+1}-p_k$.  This is an exact transfer of data, not a new
+estimate for those statistics.
+
+\section{Why the one-direction source cannot produce a genuine higher birth}
+
+The regular-atlas mechanism above proves the single-prime theorem, but it does
+not contain independent higher directions.  This is a structural limitation,
+not a missing choice of notation.
+
+Write \(H_n\) for the unique retained prefix of posterior rank \(n\).  Let
+\(\mathcal A_n\) be the category generated by all nontrivial regular atlases on
+\(H_n\) and their refinements.  Atlas isomorphisms are identified, since the
+source is unlabelled and atomically homogeneous.
+
+\begin{proposition}[Atlas refinement is the divisor poset]
+\label{prop:atlas-divisor}
+There is an order isomorphism
+\[
+\boxed{
+\mathcal A_n
+\cong
+\{d:1<d<n,\ d\mid n\}^{\mathrm{op}},
+}
+\]
+where an atlas by \(H_d\) corresponds to \(d\), and the unique refinement
+arrow \(d\to e\) exists exactly when \(e\mid d\).
+\end{proposition}
+
+\begin{proof}
+By Lemma~\ref{lem:atlas-rank}, a regular \(H_d\)-atlas on \(H_n\) exists exactly
+when \(n=r d\) for some \(r\ge2\).  Atomic homogeneity makes its cut set unique:
+the cuts occur after \(d,2d,\ldots,(r-1)d\) edges.  Thus atlas objects are
+exactly the proper divisors of \(n\).  An \(H_d\)-block admits a regular
+\(H_e\)-subatlas exactly when \(d=s e\); composing these identical subatlases
+is precisely atlas refinement.  Hence the refinement order is exactly the
+opposite of the usual divisibility order.
+\end{proof}
+
+The chronological birth ledger sees only those atlas objects whose block is
+an earlier primitive birth.  After the prime-birth theorem, these are exactly
+the prime divisors of \(n\).  They form only a collection of unary inheritance
+witnesses.  If one enlarges from the birth ledger to all prefix atlases, or
+equivalently to all endpoint-cover intermediates, the result is precisely
+\(\mathcal A_n\), not an additional higher source.
+
+\begin{corollary}[The endpoint-cover construction adds no higher provenance]
+\label{cor:return-divisor}
+Let \(\overline H_n\to\overline E\) be obtained by identifying the endpoints of
+\(H_n\).  Its proper connected intermediate-cover category is isomorphic to
+\(\mathcal A_n\).  Therefore its nerve, realization, and every chain called a
+descent tower are functorial constructions on the proper-divisor poset.
+\end{corollary}
+
+\begin{proof}
+Cutting an intermediate based circle cover at its return points gives a unique
+regular atlas, and endpoint closure reverses this operation.  Cover
+factorization corresponds to atlas refinement.  Apply
+Proposition~\ref{prop:atlas-divisor}.
+\end{proof}
+
+In particular, if \(n\) is square-free with \(k\) posterior prime factors, the
+proper-divisor poset is the proper part of the Boolean lattice on those
+factors.  Its order complex is the barycentric subdivision of
+\(\partial\Delta^{k-1}\), hence a sphere \(S^{k-2}\).  That sphere is real
+topology, but its entire incidence was reconstructed from factor layers of one
+uniserial path.  It is not evidence that a joint event was already present at
+the source level.
+
+\begin{theorem}[Uniserial provenance obstruction]
+\label{thm:uniserial-obstruction}
+Starting only from the atomic successor source \(\mathscr R\), its prefixes,
+regular atlases, atlas refinements, and canonical endpoint closures, one
+cannot obtain a genuine \(k\)-birth for \(k\ge2\) whose provenance contains
+source-native incomparable faces.  Every proposed higher incidence category
+formed from those operations factors through \(\mathcal A_n\), and every
+proposed descent tower is therefore a factor-refinement chain in the
+proper-divisor poset of the posterior rank.
+\end{theorem}
+
+\begin{proof}
+The prefix category of \(\mathscr R\) is thin and totally ordered: between two
+prefixes there is at most one extension map, and any two comparable extension
+chains agree.  Regular-atlas sets are likewise empty or singletons.  The only
+new arrows created by closing under atlas composition are refinement arrows,
+which Proposition~\ref{prop:atlas-divisor} identifies with divisor
+containments.  Endpoint closure is equivalent to the same refinement
+category by Corollary~\ref{cor:return-divisor}.  Taking nerves, realizations,
+subcategories, or chains changes the presentation but creates no independent
+source face.  Thus no \(k\)-ary source event precedes the factor category from
+which the alleged higher birth and descent are read.
+\end{proof}
+
+This theorem invalidates the earlier proposal
+\[
+\left|N\mathcal I(H_n)\right|\cong S^{k-2}
+\quad\Longrightarrow\quad
+\text{\emph{\(H_n\) is a \(k\)-birth}}
+\]
+The left side classifies a square-free factor lattice; it does not supply the
+missing joint provenance on the right.
+
+\section{Audit of the multidirectional source already present in the source manuscript}
+
+The source manuscript later introduces a \(d\)-directional continuation
+complex with independent atomic germs and retained commuting squares.  This
+is genuinely non-thin, so it passes the first necessary test that the
+one-direction source fails.  Its established conclusions, however, are more
+limited than the finite-combination birth required here:
+
+\begin{enumerate}[label=(\roman*)]
+\item a path-primitive finite continuation cover has simple deck continuation
+group and therefore posterior degree \(p\);
+\item for fixed \(p\), the primitive covers form a projective family of
+different continuation directions;
+\item general finite covers admit composition towers whose successive fibres
+have posterior prime cardinalities.
+\end{enumerate}
+
+None of these statements makes a set of distinct primes into one birth.  The
+projective compatibility complex uses one coefficient field
+\(\mathbb F_p\), so it concerns several directions carrying the same posterior
+prime.  The composition tower starts from a nonprimitive composite cover and
+resolves it into primitive steps; it is a factorization theorem, not a birth
+theorem.  Rebranding either object as an arbitrary finite-prime birth would
+repeat the provenance error.
+
+The failure is not special to the monogenic circle cover.
+
+\begin{proposition}[Intermediate-cover towers are always subgroup towers]
+\label{prop:cover-subgroup}
+Let \(q:Y\to X\) be a connected finite regular cover with deck group \(D\).
+The category of connected intermediate covers
+\[
+Y\longrightarrow Z\longrightarrow X
+\]
+is equivalent, up to reversal of arrows, to the subgroup poset of \(D\).
+Consequently every descent obtained solely by passing to intermediate covers
+is a subgroup-series factorization of \(D\), even when the source \(X\) has
+several continuation directions.
+\end{proposition}
+
+\begin{proof}
+Fixing a basepoint identifies \(q_*\pi_1(Y)\) as a normal finite-index subgroup
+of \(\pi_1(X)\), with quotient \(D\).  Connected intermediate covers correspond
+to subgroups between \(q_*\pi_1(Y)\) and \(\pi_1(X)\).  Passing to the quotient
+identifies these with subgroups of \(D\); cover composition reverses subgroup
+inclusion.  A chain of intermediate covers is therefore exactly a subgroup
+chain.
+\end{proof}
+
+Thus replacing the circle by the multidirectional continuation complex removes
+thinness from the ambient source but does not by itself repair joint
+provenance.  If the proposed \(k\)-birth and all its descents are read only from
+intermediate covers of one regular cover, Proposition~\ref{prop:cover-subgroup}
+shows that the result is still a factorization tower.  The missing higher faces
+must come from the extension source itself, not from the lattice of a deck
+quotient.
+
+\section{The cubical product obstruction}
+
+The free cubical completion is a legitimate source enlargement, but legitimacy
+of the source object is not enough.  The birth predicate must itself use
+higher topology rather than a product of unary inheritance tests.
+
+For a framed box write
+\[
+B_{\mathbf n}=H_{n_1}\times\cdots\times H_{n_k},
+\qquad
+B_{\mathbf d}=H_{d_1}\times\cdots\times H_{d_k}.
+\]
+Consider the proposed regular cubical atlas: a Cartesian grid of consecutive
+subboxes isomorphic to \(B_{\mathbf d}\), with one fixed matching of
+parallelism classes.
+
+\begin{proposition}[Cubical atlases factor coordinatewise]
+\label{prop:cubical-product-divisor}
+One has
+\[
+\boxed{
+\RegAtlas_k(B_{\mathbf n};B_{\mathbf d})\ne\varnothing
+\quad\Longleftrightarrow\quad
+\exists\pi\in S_k\ 
+\forall i,\ d_i\mid n_{\pi(i)},
+}
+\]
+with at least one strict quotient.  Consequently the entire regular-grid
+inheritance category factors through
+\[
+\left(\prod_{i=1}^k\mathcal D(n_i)\right)\big/S_k,
+\]
+where \(\mathcal D(n_i)\) is the divisor poset of the \(i\)-th posterior side
+rank.
+\end{proposition}
+
+\begin{proof}
+Intersect a cubical grid with an edge line in one parallelism class.  The
+intersection is a one-dimensional regular atlas, so its block length divides
+the corresponding side length.  Doing this in every direction gives the
+right-hand condition.  Conversely, the one-dimensional cut sets determined by
+those divisibilities have a Cartesian product, which is exactly the proposed
+cubical grid.
+\end{proof}
+
+The resulting recursive classification
+\[
+\Birth_k(B_{\mathbf n})=1
+\quad\Longleftrightarrow\quad
+n_1,\ldots,n_k\text{ are prime}
+\]
+is therefore not an independent joint theorem.  It says that \(\mathbf n\) is
+a minimal element in a product divisibility order.  Equivalently, it is the
+conjunction of \(k\) unary prime-birth outcomes after a direction matching.
+
+\begin{proposition}[The added cubical topology is inert]
+\label{prop:cubical-inert}
+The outer face category of every \(k\)-box has the same \(3^k\) face states,
+independent of its side ranks, and every such box satisfies
+\[
+H_k(B_{\mathbf n},\partial B_{\mathbf n};\mathbb Z)
+\cong\mathbb Z.
+\]
+Hence neither the face category nor the relative fundamental class
+distinguishes a proposed born box from an inherited box.  Since neither enters
+the regular-grid atlas predicate of
+Proposition~\ref{prop:cubical-product-divisor}, they do not repair its
+coordinatewise divisor provenance.
+\end{proposition}
+
+Thus the cubical construction improved the geometry of descent but left the
+birth decision unchanged in substance.  The finite enumeration through
+\(k=5\) confirmed exactly this product classification; it was a diagnostic
+test of the factorization, not evidence for a genuine joint birth.
+
+\section{Why a divisor shadow will still appear after forgetting provenance}
+
+There is a separate point that must not be confused with the preceding
+failure.  Suppose a future construction genuinely produces one birth
+\(J_S\) for every finite set \(S\) of distinct single-prime births and has a
+descent for every inclusion \(T\subseteq S\).  If one forgets all source
+embeddings, attaching data, and filler spaces and remembers only the component
+labels, the resulting descent poset is necessarily
+\[
+\{T:T\subseteq S\}.
+\]
+It is Boolean.  After posteriorly writing
+\(S=\{p_1,\ldots,p_k\}\), the map
+\[
+T\longmapsto\prod_{p\in T}p
+\]
+identifies this Boolean shadow with the divisor lattice of the square-free
+product.
+
+Therefore no construction satisfying arbitrary-subcombination descent can
+avoid having a divisor shadow after sufficient forgetting.  The correct
+non-collapse demand is stronger and more precise:
+\[
+\boxed{
+\text{the joint birth data must not be determined by that shadow.}
+}
+\]
+The circle-cover proposal fails because the shadow is the whole object.  The
+cubical proposal fails because its birth predicate is still determined by the
+product shadow, while its extra topology is constant decoration.
+
+\section{The one-candidate obstruction}
+
+The preceding examples reveal a logical obstruction independent of the chosen
+geometric presentation.
+
+Let \(\mathcal X_k\) be a proposed space or category of \(k\)-birth
+candidates, and let
+\[
+\rho_k:\mathcal X_k\longrightarrow
+\operatorname{Sym}^k\bigl(\Pref(\mathscr R)_{\ge2}\bigr)
+\]
+record the unordered family of its one-dimensional path shadows.  Suppose
+first that every fibre of \(\rho_k\) contains exactly one isomorphism class.
+
+\begin{theorem}[One candidate per shadow forces unary factorization]
+\label{thm:one-candidate}
+Assume the desired exact classification is
+\[
+\Birth_k(X)=1
+\quad\Longleftrightarrow\quad
+\text{every path in }\rho_k(X)\text{ is a single-prime birth}.
+\]
+If \(\rho_k\) has one isomorphism class in each fibre, then \(\Birth_k\) is
+completely determined by the unordered tuple of unary birth indicators.  In a
+frame it is exactly
+\[
+\boxed{
+\Birth_k(X)
+=
+\prod_{i=1}^k\Birth(H_i).
+}
+\]
+Consequently no additional topology attached uniformly to the unique
+candidate can be the deciding source of a genuinely mixed birth.
+\end{theorem}
+
+\begin{proof}
+The displayed exact classification assigns value one precisely to the single
+Boolean pattern \((1,\ldots,1)\) and value zero to every other pattern.
+Therefore its value is the Boolean product of the unary indicators.  Since
+there is only one candidate above each shadow, there is no remaining
+within-fibre datum on which a different joint decision could depend.
+\end{proof}
+
+This theorem does not say that a non-product proof of the same numerical locus
+is logically impossible.  It says that, with one candidate per shadow, such a
+proof cannot produce additional joint birth data: the final verdict and the
+candidate are already fixed by the unary shadow.  A constant cube, sphere,
+relative class, or nerve placed over each tuple is therefore inert.
+
+The Boolean support indicator is therefore the wrong place to look for
+jointness.  If its support is exactly the set of all-prime tuples, that
+indicator is unavoidably the product of the unary indicators.  A genuine
+higher birth must retain a richer object, say a space or groupoid
+\[
+\mathfrak B_k(X),
+\]
+whose nonemptiness gives the Boolean support but whose topology and restriction
+maps are not determined by that support.
+
+\begin{corollary}[Necessary mixed-fibre test]
+\label{cor:mixed-fibre}
+For a topology-decisive joint theory, \(\rho_k\) must have nontrivial fibres,
+and there must be candidates \(X\) and \(X'\) with the same one-dimensional
+provenance shadows for which
+\[
+\mathfrak B_k(X)\not\simeq\mathfrak B_k(X')
+\]
+or for which their descent maps to lower birth objects are inequivalent.
+Otherwise the enriched birth object also factors through the unary shadow,
+possibly times an inert space depending only on \(k\).
+\end{corollary}
+
+Thus the source sought is necessarily a moduli problem, not a single canonical
+product object.  For every finite prime multiset \(S\), the fibre over \(S\)
+must contain at least one born object.  The Boolean statement that such a birth
+exists may still factor through the unary indicators; the retained birth
+\emph{object} must not.  Descent must act on the mixed fibre data as well as
+forget a component.
+
+\section{Coprime splitting in the multidirectional cover source}
+
+The higher-rank continuation source from the source manuscript does provide
+nontrivial moduli for several primitive directions of one fixed posterior
+prime \(p\).  It is therefore necessary to test separately whether it couples
+different primes.
+
+Let \(G_d\) be its intrinsic abelian continuation group.  For a finite set
+\(S\) of distinct posterior primes, a primitive direction over \(p\in S\) is
+represented by a nonzero continuation character
+\[
+\chi_p:G_d\longrightarrow\mathbb F_p,
+\]
+up to multiplication by \(\mathbb F_p^\times\).  A simultaneous mixed-prime
+quotient is represented by
+\[
+\chi_S:G_d\longrightarrow\prod_{p\in S}\mathbb F_p,
+\qquad
+\chi_S(g)=\bigl(\chi_p(g)\bigr)_{p\in S}.
+\]
+
+\begin{proposition}[Distinct-prime continuation moduli split]
+\label{prop:coprime-splitting}
+The moduli of mixed-prime continuation quotients in this abelian source is
+\[
+\boxed{
+\mathfrak P_{d,S}
+\cong
+\prod_{p\in S}
+\mathbb P\bigl((G_d/pG_d)^\vee\bigr).
+}
+\]
+Every descent that removes one posterior prime is the projection deleting the
+corresponding factor.  Hence this source contains no cross-prime joint moduli.
+\end{proposition}
+
+\begin{proof}
+A homomorphism from \(G_d\) to the product is uniquely the tuple of its
+coordinate characters.  If every character is nonzero, every coordinate
+projection of the image is surjective.  The image order is then divisible by
+every \(p\in S\), hence by their product; since it is a subgroup of a group of
+that order, the simultaneous map is surjective.  Because the factors have
+pairwise distinct prime orders, every automorphism of
+\(\prod_{p\in S}C_p\) preserves each unique
+\(p\)-primary subgroup.  Thus the change-of-generator action is exactly the
+product of the scalar actions \(\mathbb F_p^\times\), with no automorphism
+mixing two prime coordinates.  Quotienting the nonzero characters by these
+independent scalar actions gives the displayed product.  Removing a factor
+composes with the corresponding coordinate projection.
+\end{proof}
+
+Equivalently, a finite abelian group of square-free order is the canonical
+product of its characteristic \(p\)-primary subgroups.  The projective
+interaction topology available at one fixed characteristic does not cross
+between distinct characteristics.  Therefore the source manuscript's
+same-prime projective family cannot be promoted to an arbitrary distinct-prime
+birth without adding a genuinely mixed source operation.
+
+\section{Why nonabelian deck extensions do not solve the arbitrary-prime problem}
+
+One might try to replace the abelian continuation quotient by a nonabelian
+finite deck group whose simple shadows have different prime orders.  This can
+produce mixed extensions for some pairs of primes, but not for arbitrary
+pairs.
+
+\begin{proposition}[Square-free two-prime obstruction]
+\label{prop:pq-obstruction}
+Let \(p<q\) be primes with \(p\nmid(q-1)\).  Every group of order \(pq\) is
+cyclic.  In particular, every group of order \(15\) is \(C_{15}\).
+\end{proposition}
+
+\begin{proof}
+Let \(G\) have order \(pq\).  The number \(n_q\) of Sylow \(q\)-subgroups
+divides \(p\) and is congruent to one modulo \(q\), hence \(n_q=1\).  Thus the
+\(q\)-subgroup is normal.  The number \(n_p\) divides \(q\) and is congruent
+to one modulo \(p\), so it is either one or \(q\).  The second possibility
+would imply \(q\equiv1\pmod p\), contrary to \(p\nmid(q-1)\).  Hence the
+\(p\)-subgroup is also normal.  The two subgroups commute, have trivial
+intersection, and generate \(G\), giving
+\[
+G\cong C_p\times C_q\cong C_{pq}.
+\]
+Taking \((p,q)=(3,5)\) gives the stated example.
+\end{proof}
+
+Therefore a finite regular-cover source whose joint object is supposed to
+have exactly the prime deck factors in \(S\) cannot provide nontrivial mixed
+extension topology for every \(S\).  Some finite prime sets force the deck
+object to split canonically.  When nonabelian groups do exist for other prime
+pairs, Proposition~\ref{prop:cover-subgroup} still makes intermediate-cover
+descent a subgroup-series factorization.  Thus neither abelian nor nonabelian
+finite deck extensions can be the uniform source of arbitrary finite-prime
+joint births.
+
+\section{The cross-primary coefficient obstruction}
+
+Another tempting repair is to retain one homology class for each unary prime
+birth and combine different classes by a product, smash product, or join.  For
+distinct primes the mixed coefficient class disappears.
+
+\begin{proposition}[No mixed class from primary tensor operations]
+\label{prop:primary-tensor}
+Let \(p\ne q\) be primes, let \(A\) be a \(p\)-primary abelian group, and let
+\(B\) be a \(q\)-primary abelian group.  Then
+\[
+A\otimes_{\mathbb Z}B=0,
+\qquad
+\operatorname{Tor}_1^{\mathbb Z}(A,B)=0.
+\]
+Consequently, if the reduced homology of two unary birth carriers is purely
+\(p\)-primary and \(q\)-primary respectively, the K\"unneth mixed terms in
+their smash product vanish.  The same holds for the shifted smash model of
+their join.
+\end{proposition}
+
+\begin{proof}
+Every element of \(A\otimes B\) is killed by a power of \(p\) and by a power
+of \(q\).  Coprimality gives a B\'ezout combination of these powers equal to
+one, so the element is zero.  The standard cyclic calculation gives
+\[
+\operatorname{Tor}_1^{\mathbb Z}
+(\mathbb Z/p^a,\mathbb Z/q^b)=0;
+\]
+passing through finite primary decompositions, and then filtered colimits when
+needed, gives the assertion.  The topological statement follows from the
+reduced K\"unneth theorem.
+\end{proof}
+
+Working over \(\mathbb F_p\) does not fix the problem: it privileges one
+characteristic and erases torsion at every other prime.  Thus a mixed-prime
+birth cannot be obtained merely by applying standard tensorial homology
+operations to already separated unary prime classes.  Its coupling must be
+carried by source geometry that exists integrally before primary
+decomposition.
+
+\section{Audit of the integral return-ribbon topology}
+
+The return-ribbon sector of the source manuscript is a more serious candidate
+than a product or coefficient construction.  Its critical incidence is the
+literal cellular link \(L_s\) of a source hub, and its matching complex is
+formed from actual overlaps of bounded-local rewrites.  It is integral and
+source-native.  Nevertheless it does not retain the mixed-prime data required
+here.
+
+\begin{proposition}[The ribbon detector factors through total occurrence count]
+\label{prop:ribbon-count}
+At a retained stage \(H_s\), let \(N_s\) be the number of active nested return
+occurrences.  The ribbon detector satisfies
+\[
+L_s\cong C_{N_s},
+\qquad
+\mathscr K_{\rm rib}(H_s)
+\cong
+\operatorname{Match}(C_{N_s})
+\]
+for \(N_s\ge3\), with the source manuscript's two-edge convention at
+\(N_s=2\).  Posteriorly,
+\[
+N_s=\Omega(s)
+\]
+at every composite stage.  Hence the isomorphism and homotopy types of the
+deciding complex factor through \(\Omega(s)\); they do not retain which prime
+channels supplied the occurrences.
+\end{proposition}
+
+The provenance labels on radial germs are present in the full source state,
+but the matching-complex birth detector uses only adjacency in the cyclic
+link.  Relabelling the same cycle by different prime channels does not change
+the detector.  For example,
+\[
+12=2^2\cdot3,
+\qquad
+30=2\cdot3\cdot5
+\]
+both have three occurrences and therefore the same unlabelled critical-cycle
+matching type, despite having different prime multisets.
+
+There is a second mismatch.  A face of
+\(\operatorname{Match}(C_{N_s})\) is a family of pairwise disjoint local
+critical rewrites.  Removing a matching edge does not remove a prime channel,
+and maximal face chains do not terminate in the original single-prime birth
+objects.  Thus the ribbon complex supplies a genuine topology for deciding the
+unary prime/composite recursion, but it supplies neither mixed-prime fibres nor
+the required prime-deletion descent.
+
+The completed ribbon carrier confirms the same separation: posteriorly it is
+the product \(\prod_p\mathbb Z_p\) of the primitive pro-return channels.
+The local overlap detector enriches a composite stage, but it does not turn
+that product of already retained channels into a new arbitrary-prime birth.
+
+\section{Audit of the first genuinely coupled control}
+
+The associahedral construction of Version~0.27 is source-native, but it cannot
+serve as a finite-prime birth object in the present extraction.  For \(n\)
+composable retained path pieces its critical shell is
+\[
+\operatorname{sd}(\partial K_n)\simeq S^{n-3}.
+\]
+This topology is determined by the number and order of the pieces, not by the
+prime shadows carried by them.  Consequently every prime set of the same
+cardinality receives the same associahedral shell.  More decisively, the cell
+that closes this shell is explicitly the higher associativity-coherence cell.
+It is therefore both arity-only relative to prime provenance and outside the
+declared no-coherence scope.
+
+Version~0.29 contains a more informative control.  Three interchange squares
+share the same edge variables \(x,y,z\), so their joint filler is the coupled
+space
+\[
+\operatorname{CubeFill}_{S}(a,b,c)
+=
+\{(x,y,z)\in S^3:[x,y]=a,\ [y,z]=b,\ [z,x]=c\},
+\]
+not the product of three independent square-filler sets.  In the displayed
+\(A_5\) example every one-face and every two-face subsystem is fillable, while
+the full filler is empty.  Its existence nerve is therefore
+\(\partial\Delta^2\simeq S^1\).  A contrasting \(A_5\) packet has the same
+one-face fillability property and a full filler, hence a contractible nerve.
+Thus shared source variables can make global topology affect a birth decision
+without reducing to coordinatewise Boolean data.
+
+This is the first structural analogue in the source manuscript of the mixed-
+fibre behaviour required here, but it is not an instance of prime-combination
+birth.  It fails the requested specification in four separate ways:
+
+\begin{enumerate}[label=(\roman*)]
+\item the coefficient atom \(A_5\) is selected for the control rather than born
+from the one-direction prime source;
+\item the construction compares nonlinear commutator defects, not arbitrary
+finite sets of distinct prime births;
+\item its deciding object is explicitly a coherent globalization or homotopy-
+limit filler;
+\item its face restrictions do not delete prime channels and do not terminate
+in the original unary regular-atlas births.
+\end{enumerate}
+
+It would therefore be incorrect to rename the shared-edge \(A_5\) packet as a
+\(k\)-prime birth.  What the example proves is narrower but useful: any genuine
+replacement must couple raw source variables before unary classification, and
+two candidates with the same unary shadows must still be able to have different
+joint topological fibres.  The source manuscript realizes this phenomenon only
+in the nonlinear coherence sector that has been excluded from the present
+paper.
+
+\section{A finite-packet trial: one path with overlapping returns}
+
+The preceding audit leaves open a construction that is still genuinely
+one-path.  Let \(L\) be a finite directed atomic interval retained by the
+original homogeneous source, and let
+\[
+q:L\longrightarrow Y
+\]
+be a cellular path trace which may identify vertices but does not collapse the
+interior of an atomic edge.  A retained \emph{return support} is a nonempty
+subinterval \(J=[a,b]\subseteq L\) with \(q(a)=q(b)\).  Its unary normalization
+is the cut-open ordered path
+\[
+N(J):=J.
+\]
+Thus several returns may share literal atomic edges of one chronological path;
+they are not separate born paths subsequently glued together.  The quotient
+trace, the supports, and their edge intersections are retained before any
+posterior rank or prime name is assigned.
+
+For a finite return packet
+\(\mathcal J=\{J_1,\ldots,J_k\}\), let
+\(\Gamma(\mathcal J)\) be the graph whose vertices are the retained returns and
+in which
+\[
+J_i\sim J_j
+\quad\Longleftrightarrow\quad
+J_i\cap J_j\text{ contains an atomic edge of }L.
+\]
+Call the packet \emph{source-separable} if it has a nontrivial partition
+\(\mathcal J=\mathcal A\sqcup\mathcal C\) such that no support in
+\(\mathcal A\) shares an atomic edge with a support in \(\mathcal C\).
+Otherwise call it \emph{source-indecomposable}.
+
+This is not an extra connectivity convention: it is exactly the obstruction to
+writing the retained return data as two edge-disjoint path batches.  Directly
+from the definitions,
+\[
+\mathcal J\text{ is source-indecomposable}
+\quad\Longleftrightarrow\quad
+\Gamma(\mathcal J)\text{ is connected}
+\quad\Longleftrightarrow\quad
+\widetilde H_0(\Gamma(\mathcal J);\mathbb Z)=0.
+\]
+The last condition is ordinary topology of the actual source-support
+intersection graph; it is not a coherence or filler condition.
+
+The finite-packet provenance record is
+\[
+\Prov_{\cap}(q;\mathcal J)
+=
+\left(
+q:L\to Y,
+\mathcal J,
+\bigl(J_i\cap J_j\bigr)_{i,j},
+\bigl(\RegAtlas(N(J_i);\Pi)\bigr)_{i,\Pi}
+\right),
+\]
+where \(\Pi\) ranges through the earlier unary birth ledger appropriate to the
+normalized support.  Define the trial packet predicate by
+\[
+\boxed{
+\Birth_{\cap}(q;\mathcal J)=1
+\quad\Longleftrightarrow\quad
+\begin{cases}
+\Gamma(\mathcal J)\text{ is connected},\\
+\RegAtlas(N(J_i);\Pi)=\varnothing
+\text{ for every }i\text{ and every earlier unary birth }\Pi.
+\end{cases}}
+\]
+The candidate packet and all of its intersections are source data.  The unary
+ledger is used only to apply the already established regular-atlas test to its
+cut-open faces; no completed unary birth object is glued into the packet.
+
+Applying posterior edge count only after this predicate has been formed gives
+the exact finite-packet classification
+\[
+\Birth_{\cap}(q;\mathcal J)=1
+\quad\Longleftrightarrow\quad
+\Gamma(\mathcal J)\text{ is connected and every }
+\rk(N(J_i))\text{ is prime}.
+\]
+Indeed, source-indecomposability is the first condition by definition, while
+the single-prime theorem applied separately to each normalized return gives the
+second.  The Boolean support is necessarily the all-prime locus; the additional
+joint datum is the retained intersection topology over that locus.
+
+This additional datum passes the mixed-fibre test.  On one ambient atomic path
+take return supports of posterior lengths \(2\) and \(3\).  The two placements
+\[
+[0,2],\ [1,4]
+\qquad\text{and}\qquad
+[0,2],\ [3,6]
+\]
+have the same two unary shadows.  In the first placement the supports share an
+atomic edge and the packet is born; in the second they are source-separated and
+there is no joint birth.  Hence the packet verdict is not recoverable from the
+two unary provenance shadows.
+
+There is also a genuine descent tower.  A deletion
+\[
+d_i(q;\mathcal J):=(q;\mathcal J\setminus\{J_i\})
+\]
+is admissible when the remaining intersection graph is connected.  Every
+finite connected graph with at least two vertices has such a deletion: choose
+a spanning tree and remove one of its leaves.  Repeating this operation gives
+\[
+(q;\mathcal J_k)
+\longrightarrow
+(q;\mathcal J_{k-1})
+\longrightarrow\cdots\longrightarrow
+(q;\mathcal J_1),
+\qquad |\mathcal J_r|=r,
+\]
+with every intermediate packet still source-indecomposable.  If the top packet
+is born, every normalized return in it is unary-prime, so every stage of the
+tower is born and the final object normalizes to the original single-prime
+path \(H_p\).
+
+This descent is not the divisor lattice.  Its admissible faces are the
+connected induced subpackets of \(\Gamma(\mathcal J)\), and that poset changes
+when the overlap pattern changes while all unary ranks remain fixed.  For
+example, three returns of the same unary ranks can have intersection graph
+\(P_3\) or \(K_3\).  The subpacket consisting of the two end vertices is absent
+in the first connected-face poset and present in the second.  No divisor data
+of the unary ranks can distinguish these cases.
+
+At finite-packet level this construction therefore satisfies the three tests:
+one connected path trace precedes its unary shadows, the descent terminates in
+the original unary mechanism, and shared-support topology is not determined by
+a divisor or product shadow.  At this point the only missing obligation is a
+single unlabelled source which exposes the return packets without receiving a
+chosen list of endpoint identifications.  The next section supplies that
+source.
+
+\section{The universal unlabelled path-history source}
+
+The missing source can be supplied without choosing a prime list or a return
+schedule.  For each finite directed atomic interval \(L\), consider all vertex
+equivalence relations \(\sim\) satisfying
+\[
+v\not\sim w
+\qquad
+\text{whenever \(v,w\) are joined by one atomic edge.}
+\]
+The quotient map \(q_\sim:L\to L/{\sim}\) is one finite path history: the path
+may revisit an earlier state, but no atomic move is collapsed.  Equivalence
+classes have no labels.  Two histories are identified when an isomorphism of
+directed atomic intervals carries one equivalence relation to the other.
+
+Let \(\mathscr R_{\rm ret}\) be the rooted system of all these finite histories.
+An atomic extension appends one edge and one terminal vertex.  The new vertex
+is either a new equivalence class or is placed in one already exposed class
+other than the class of the current endpoint; old classes are never merged.
+This is one uniform path-extension rule.  At each finite stage it has only
+finitely many possible extensions, and none is selected using a number-theoretic
+predicate.
+
+\begin{proposition}[Canonical normal form of the return source]
+\label{prop:return-normal-form}
+Length-\(n\) objects of \(\mathscr R_{\rm ret}\) are in bijection with words
+\[
+c_0c_1\cdots c_n
+\]
+satisfying
+\[
+c_i\in\mathbb N,
+\qquad
+c_0=0,
+\qquad
+c_i\le 1+\max_{j<i}c_j,
+\qquad
+c_i\ne c_{i-1}.
+\]
+The symbols are normalized by order of first occurrence.  Under this
+bijection, adjoining the next unused symbol is the all-new atomic extension,
+while adjoining any allowed old symbol is a return.  Hence the stated source
+rule produces every unlabelled non-edge-collapsing path history exactly once
+up to isomorphism.
+\end{proposition}
+
+\begin{proof}
+Traverse a finite history from its root and number its equivalence classes by
+the order in which they first appear.  A new class must receive the next unused
+number, whereas a revisit receives its existing number.  Adjacent vertices
+cannot receive the same number because no atomic edge is collapsed.  This
+gives the displayed conditions and is unchanged by unlabelled history
+isomorphism.
+
+Conversely, such a word defines an equivalence relation by
+\(i\sim j\) exactly when \(c_i=c_j\).  The last inequality prevents an atomic
+edge from collapsing, and normalization by first occurrence makes the word
+unique.  The two constructions are inverse, and deleting the terminal symbol
+is exactly finite-history restriction.
+\end{proof}
+
+This proposition isolates the one genuinely new finite-source permission:
+an atomic path may revisit a noncurrent exposed state.  The unary mother does
+not force that permission.  Once it is granted, however, no further selection
+of return patterns, prime types, spacings, or packet arities is made;
+\(\mathscr R_{\rm ret}\) is the exhaustive unlabelled return extension.
+
+For each atomic depth \(n\), let \(\mathscr H_n\) be the finite discrete space
+of length-\(n\) path histories, and let
+\[
+r_{n+1,n}:\mathscr H_{n+1}\longrightarrow\mathscr H_n
+\]
+forget the last atomic edge and terminal occurrence.  Every history has an
+all-new extension, so these restriction maps are surjective.  Define the
+infinite-history completion by
+\[
+\boxed{
+\widehat{\mathscr R}_{\rm ret}
+:=
+\varprojlim_n(\mathscr H_n,r_{n+1,n}).}
+\]
+Its basic cylinder \(C(h)\), for \(h\in\mathscr H_n\), consists of the infinite
+histories whose length-\(n\) restriction is \(h\).  The cylinders are clopen
+and form a basis.  Hence \(\widehat{\mathscr R}_{\rm ret}\) is a nonempty
+compact zero-dimensional space.  This is ordinary inverse-limit topology on
+path histories; no measure or coherence data are added.
+
+The branch on which every new vertex forms a new class is canonically the
+original atomic successor source
+\[
+o\longrightarrow x_1\longrightarrow x_2\longrightarrow\cdots.
+\]
+It will be called the \emph{unary spine}.  Its regular-atlas ledger and its
+single-prime births are therefore unchanged.
+
+Whenever a path extension revisits an exposed class, let \(a\) be the most
+recent earlier occurrence of that class and let \(b\) be the new occurrence.
+The interval \([a,b]\subset L\) is then an \emph{elementary return support}.
+It is produced by the extension history itself; there is no separately supplied
+list of endpoint identifications.
+
+For the finite-combination theorem it suffices to use the \emph{simple-return
+sector}: every recurrent equivalence class occurs exactly twice, and the
+normalized elementary return supports are pairwise nonisomorphic as ordered
+atomic paths.  Both conditions are properties of the retained unlabelled path
+history.  Posteriorly, the second says that the return ranks are distinct.  The
+complete return packet \(\mathcal J(X)\) of a simple-return history \(X\) is the
+set of all its two-occurrence classes; it is not a chosen subfamily.
+
+The packet predicate of the preceding section now becomes a source predicate:
+\[
+\boxed{
+\Birth_{\rm ret}(X)=1
+\quad\Longleftrightarrow\quad
+\Gamma(\mathcal J(X))\text{ is connected and every normalized return has}
+\text{ empty regular-atlas ledger}.}
+\]
+All terms on the right are retained before the posterior ranks are named.
+
+\begin{theorem}[Arbitrary finite distinct-prime return birth]
+\label{thm:return-combination}
+The posterior shadow of \(\Birth_{\rm ret}\) is exactly the class of nonempty
+finite sets of distinct primes.  More precisely:
+\begin{enumerate}[label=(\roman*)]
+\item every born simple-return packet has pairwise distinct prime unary ranks;
+\item for every finite set \(S=\{p_1,\ldots,p_k\}\) of distinct primes there is
+a born history \(X_S\in\mathscr R_{\rm ret}\) whose normalized return ranks are
+exactly \(S\);
+\item every such born history admits a descent tower through born connected
+return packets to one original unary birth.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For (i), empty regular-atlas ledgers imply by the single-prime theorem that all
+normalized return ranks are prime.  Pairwise nonisomorphism in the simple-return
+sector makes those ranks distinct.
+
+For (ii), write the elements of \(S\) in increasing posterior order
+\[
+p_1<p_2<\cdots<p_k.
+\]
+This ordering is used only to verify existence in the numerical shadow.  Set
+\[
+a_1=0,
+\qquad b_1=p_1,
+\qquad
+a_i=b_{i-1}-1,
+\qquad
+b_i=a_i+p_i
+\quad(2\le i\le k).
+\]
+On the atomic interval \(L_{b_k}\), make \(\{a_i,b_i\}\) a two-element
+equivalence class for every \(i\), and leave every other vertex in a singleton
+class.
+
+All \(2k\) displayed endpoints are distinct.  Indeed,
+\(0<a_2<b_1\), while for \(i\ge3\) the distinctness of the primes gives
+\(p_{i-1}\ge3\), hence
+\[
+b_{i-2}<a_i=b_{i-1}-1<b_{i-1}.
+\]
+Also \(b_i>b_{i-1}\), so no later endpoint collides with an earlier one.  Since
+every \(p_i\ge2\), no paired endpoints are adjacent.  The resulting equivalence
+relation is therefore an object of \(\mathscr R_{\rm ret}\), and its elementary
+returns are exactly
+\[
+J_i=[a_i,b_i],
+\qquad \rk(N(J_i))=p_i.
+\]
+
+Consecutive supports meet in precisely the atomic edge
+\([b_{i-1}-1,b_{i-1}]\).  If \(j\le i-2\), then
+\(b_j\le b_{i-2}<a_i\), so \(J_j\) and \(J_i\) are disjoint.  Consequently
+\[
+\Gamma(\mathcal J(X_S))\cong P_k.
+\]
+The packet is source-indecomposable, and every one of its normalized returns is
+a unary prime birth.  Thus \(X_S\) is born.
+
+For (iii), split the endpoint pair of \(J_k\), then that of \(J_{k-1}\), and so
+on.  After each split the remaining intersection graph is
+\(P_{k-1},P_{k-2},\ldots,P_1\), hence is connected.  All remaining atlas
+ledgers stay empty.  The last support normalizes to \(H_{p_1}\), an original
+unary birth.  For a general born packet, the spanning-tree leaf argument from
+the preceding section supplies the same kind of connected-deletion tower.
+\end{proof}
+
+The descent arrow is internal to the normalized source presentation.  Splitting
+a two-occurrence equivalence class into two singleton classes removes one
+return while leaving the atomic interval and every other equivalence class
+unchanged.  On quotient graphs the corresponding continuous map points in the
+opposite direction, from the split history to the pinched history; the descent
+category records the refinement of retained endpoint identifications.  No
+intermediate cover or integer factor is involved.
+
+The source is branching only in the space of possible path histories.  Each
+candidate \(X\), every return packet, and every descent tower still belongs to
+one chronological path.  Thus \(\mathscr R_{\rm ret}\) is not a product of
+independent paths or a batch of completed unary births.  Branching is necessary
+only because incompatible choices ``visit a new state'' and ``return to this
+earlier state'' cannot both be the next step of one deterministic history.
+
+
+\section{The source-transitive all-prime boundary birth}
+
+The universal source also has a boundary of infinite path histories.  An object
+of \(\widehat{\mathscr R}_{\rm ret}\) is one directed atomic ray \(L_\infty\)
+with a vertex equivalence relation whose restriction to every finite interval
+is an object of \(\mathscr R_{\rm ret}\).  This completion is defined before
+the birth ledger and adds no local extension rule.
+
+The primitive finite types needed at the boundary can be recognized without
+naming primes.  Call a finite nonunit retained path \(Q\)
+\emph{atlas-irreducible} when
+\[
+\RegAtlas(Q;R)=\varnothing
+\qquad
+\text{for every nonunit path type }R\subsetneq Q.
+\]
+Let \(\operatorname{Irr}_{\rm at}(\mathscr R)\) be the family of these raw path
+types.
+
+\begin{lemma}[Atlas-irreducibles are the unary births]
+\label{lem:atlas-irreducible}
+A finite nonunit path is atlas-irreducible exactly when it is born by the
+original unary mother rule.  Consequently the posterior ranks of
+\(\operatorname{Irr}_{\rm at}(\mathscr R)\) are exactly the primes.
+\end{lemma}
+
+\begin{proof}
+If a path is inherited by the unary mother, its regular atlas by an earlier
+primitive path proves that it is not atlas-irreducible.  Conversely, suppose
+\(Q\) has a regular atlas by a shorter nonunit path \(R\).  Posterior edge count
+gives
+\[
+\rk(Q)=m\,\rk(R),
+\qquad m\ge2,
+\]
+so \(\rk(Q)\) is composite.  By the single-prime theorem \(Q\) is not a unary
+birth.  The final assertion follows from the same theorem.  Arithmetic is used
+only in this external identification of the already defined path property.
+\end{proof}
+
+There is a canonical operation on the completed source: forget the first
+atomic step and re-root the remaining ray.  In terms of the vertex equivalence
+relation of \(X\), define the \emph{path shift} \(T\) by
+\[
+i\sim_{TX}j
+\quad\Longleftrightarrow\quad
+i+1\sim_Xj+1.
+\]
+It is continuous.  Indeed, the inverse image of a finite-prefix cylinder is a
+finite union of finite-prefix cylinders.
+
+The closed source generated by a boundary history is therefore canonically
+\[
+\operatorname{Hull}_T(X)
+:=
+\overline{\{T^mX:m\ge0\}}.
+\]
+It is the smallest closed forward-shift-invariant subsource containing \(X\).
+
+For \(m,n\ge0\), write
+\[
+W_{m,n}(X):=(T^mX)|_{L_n}
+\]
+for the length-\(n\) window beginning at time \(m\), and define the finite
+language of \(X\) by
+\[
+\mathcal L(X)
+:=
+\{[W_{m,n}(X)]:m,n\ge0\}.
+\]
+This is a language of unlabelled path histories, not a list of ranks.
+
+The finite mother alone cannot logically decide what happens on the new
+inverse-limit boundary.
+
+\begin{proposition}[Finite provenance does not determine a boundary verdict]
+\label{prop:finite-not-boundary}
+The birth predicates on the finite spaces \(\mathscr H_n\), even together
+with path-history isomorphism invariance, do not determine a unique birth
+predicate on \(\widehat{\mathscr R}_{\rm ret}\).
+\end{proposition}
+
+\begin{proof}
+Keep every finite verdict unchanged.  One extension may declare every
+infinite history born.  Another may declare only histories with full orbit
+hull born.  Both agree with all finite verdicts and are invariant under
+path-history isomorphism, but they disagree, for example, on the all-new unary
+spine.
+Thus some boundary inheritance principle is unavoidable; it cannot be proved
+from finite verdicts alone.
+\end{proof}
+
+We use the following minimal topological continuation of the word
+``inherited.''
+
+\medskip
+\noindent\emph{Generated-subsource inheritance principle.}
+An infinite history \(X\) is inherited at the boundary exactly when the
+smallest closed forward-shift-invariant subsource containing it is proper.
+It is born exactly when it is not so inherited.
+\medskip
+
+There is no choice of subsource hidden in this principle.  The smallest one
+is uniquely \(\operatorname{Hull}_T(X)\): every closed forward-invariant set
+containing \(X\) contains the forward orbit and hence its closure, while the
+orbit closure itself has those properties.  Therefore the following boundary
+rule is forced once the generated-subsource inheritance principle is adopted.
+
+\begin{definition}[Source-transitive boundary birth]
+\label{def:source-transitive-birth}
+An infinite path history \(X\in\widehat{\mathscr R}_{\rm ret}\) is
+\emph{born at the source boundary} when
+\[
+\boxed{
+\Birth_\infty(X)=1
+\quad\Longleftrightarrow\quad
+\operatorname{Hull}_T(X)
+=
+\widehat{\mathscr R}_{\rm ret}.}
+\]
+Equivalently, \(X\) is source-transitive.
+\end{definition}
+
+If the orbit closure is proper, then \(X\) is inherited from that canonical
+proper subsource.  If the orbit is dense, no proper closed shift-invariant
+subsource contains \(X\).  Thus the distinction is made by the topology and
+the source shift alone; no prime predicate, spacing rule, probability law, or
+coherence datum enters the definition.
+
+\begin{lemma}[Finite-language criterion]
+\label{lem:finite-language-criterion}
+For every \(X\in\widehat{\mathscr R}_{\rm ret}\),
+\[
+\boxed{
+\operatorname{Hull}_T(X)
+=
+\{Y\in\widehat{\mathscr R}_{\rm ret}:
+  \mathcal L(Y)\subseteq\mathcal L(X)\}.}
+\]
+Consequently the following are equivalent:
+\begin{enumerate}[label=(\roman*)]
+\item \(X\) is a source-transitive boundary birth;
+\item every finite history type occurs as a window of \(X\);
+\item
+\[
+\mathcal L(X)=\bigcup_{n\ge0}\mathscr H_n.
+\]
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Suppose \(Y\in\operatorname{Hull}_T(X)\).  Every finite prefix of every
+\(T^rY\) is then a limit of prefixes of shifted copies of \(X\).  Since the
+finite history spaces are discrete, that prefix actually occurs as a window
+of \(X\).  Thus \(\mathcal L(Y)\subseteq\mathcal L(X)\).
+
+Conversely, suppose \(\mathcal L(Y)\subseteq\mathcal L(X)\).  For each \(n\),
+the prefix \(Y|_{L_n}\) occurs as some window \(W_{m_n,n}(X)\).  Hence
+\(T^{m_n}X\) lies in the length-\(n\) cylinder of \(Y\).  These cylinders form
+a neighborhood basis at \(Y\), so \(Y\in\operatorname{Hull}_T(X)\).  This
+proves the displayed identity.
+
+Finally, the orbit of \(X\) meets the cylinder specified by
+\(F\in\mathscr H_n\) exactly when \(W_{m,n}(X)\cong F\) for some \(m\).
+Since the finite-prefix cylinders form a basis, meeting all of them is
+equivalent both to density and to
+\(\mathcal L(X)=\bigcup_n\mathscr H_n\).
+\end{proof}
+
+\begin{theorem}[Existence of source-transitive path histories]
+\label{thm:transitive-existence}
+Source-transitive boundary births exist in
+\(\widehat{\mathscr R}_{\rm ret}\).
+\end{theorem}
+
+\begin{proof}
+The family \(\bigcup_{n\ge0}\mathscr H_n\) is countable because every
+\(\mathscr H_n\) is finite.  Choose representatives
+\(F_1,F_2,\ldots\) in which every finite history type occurs.  Place these
+finite words consecutively on one atomic ray.  Give the equivalence classes
+used by different words disjoint names and insert a fresh singleton vertex
+between consecutive words.  Inside each word retain exactly its given
+equivalence relation; make no identification across two words.
+
+Adjacent global vertices remain inequivalent, so the resulting infinite
+history \(X\) belongs to \(\widehat{\mathscr R}_{\rm ret}\).  Each \(F_i\)
+occurs as the window beginning at its first vertex.  Hence
+\(\mathcal L(X)=\bigcup_n\mathscr H_n\), and
+Lemma~\ref{lem:finite-language-criterion} makes \(X\) a boundary birth.
+The enumeration is only an existence proof.  It is not part of the birth
+predicate, and different dense histories need not be isomorphic.
+\end{proof}
+
+For a finite window \(F\), let \(\mathcal J(F)\) be its elementary return
+supports.  Define the primitive normalized-return spectrum visible in an
+infinite history by
+\[
+\operatorname{Spec}_{\rm prim}(X)
+:=
+\left\{
+[N(J)]:
+\begin{array}{l}
+F\in\mathcal L(X),\ J\in\mathcal J(F),\\
+N(J)\in\operatorname{Irr}_{\rm at}(\mathscr R)
+\end{array}
+\right\}.
+\]
+The filter here is the raw regular-atlas test of
+Lemma~\ref{lem:atlas-irreducible}.  Composite returns may occur in the
+universal history, just as composite stages already occur in the original
+unary source; they are inherited data, not primitive births.
+
+\begin{theorem}[One-path realization of the full prime distribution]
+\label{thm:all-prime-return}
+Let \(X\) be any source-transitive boundary birth.  Then:
+\begin{enumerate}[label=(\roman*)]
+\item
+\[
+\operatorname{Spec}_{\rm prim}(X)
+=
+\operatorname{Irr}_{\rm at}(\mathscr R);
+\]
+hence its posterior primitive rank spectrum is exactly \(\mathbb P\);
+\item every born finite return packet occurs as a window in this same path
+history \(X\);
+\item for every nonempty finite set \(S\subset\mathbb P\), some window of
+\(X\) is a joint birth with posterior spectrum \(S\), and that window has a
+connected-deletion descent tower ending at each chosen unary member.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For an atlas-irreducible finite path \(Q\), form the finite history having
+fresh internal vertices and one endpoint class occurring at the two ends of
+\(Q\).  It has one elementary return whose normalization is \(Q\).  This
+finite history occurs as a window of \(X\) by
+Lemma~\ref{lem:finite-language-criterion}.  Therefore every member of
+\(\operatorname{Irr}_{\rm at}(\mathscr R)\) lies in
+\(\operatorname{Spec}_{\rm prim}(X)\).  The reverse inclusion is part of the
+definition of the primitive spectrum.  Lemma~\ref{lem:atlas-irreducible}
+then gives the posterior equality with \(\mathbb P\).
+
+Every finite born packet is itself an element of some \(\mathscr H_n\), so it
+also occurs as a window of \(X\).  Apply this to the finite packet \(X_S\)
+constructed in Theorem~\ref{thm:return-combination}.  Its return-support
+graph is connected and its primitive return ranks are exactly \(S\).
+The connected-deletion theorem, with a spanning tree rooted at any selected
+return, supplies a descent tower inside that window to the selected unary
+birth.
+\end{proof}
+
+\begin{proposition}[Boundary-to-unary descent tower]
+\label{prop:boundary-unary-descent}
+Let \(X\) be a source-transitive boundary birth, let
+\(\varnothing\ne S\subset\mathbb P\) be finite, and choose \(p\in S\).
+There are \(m,n\) and a tower
+\[
+X
+\xrightarrow{\ T^m\ }
+T^mX
+\xrightarrow{\ \rho_n\ }
+F_S
+\xrightarrow{\ d_{J_1}\ }
+F_{S_1}
+\longrightarrow\cdots\longrightarrow
+F_{\{p\}}
+\xrightarrow{\ N\ }
+H_p,
+\]
+where \(\rho_n\) is finite-prefix restriction, every infinite term is a
+boundary birth, every finite packet term is a finite return birth, every
+\(d_{J_i}\) splits one endpoint class, and \(H_p\) is the original unary
+birth of posterior rank \(p\).
+\end{proposition}
+
+\begin{proof}
+Every nonempty cylinder in \(\widehat{\mathscr R}_{\rm ret}\) has infinitely
+many extensions: after its prescribed prefix one may postpone a new return by
+arbitrarily many fresh vertices.  Hence the completion has no isolated point.
+Removing finitely many points from a dense orbit therefore leaves a dense
+set, so every tail \(\{T^{m+r}X:r\ge0\}\) is dense.  Thus \(T^mX\) is again a
+boundary birth.
+
+By Theorem~\ref{thm:all-prime-return}, choose a window
+\(W_{m,n}(X)\cong F_S\) which is a born connected packet with spectrum \(S\).
+The map \(\rho_n\) selects precisely this prefix of \(T^mX\).  Root a spanning
+tree of \(\Gamma(\mathcal J(F_S))\) at the return of rank \(p\), and repeatedly
+split an endpoint class belonging to a nonroot leaf.  The remaining induced
+support graph stays connected at every step, while the atlas ledger of every
+remaining return is unchanged.  Hence every \(F_{S_i}\) is born.  The last
+packet has one return, and its normalization is the original unary path
+\(H_p\).  All arrows are literal operations on one path history; no comparison
+or coherence map is inserted.
+\end{proof}
+
+\begin{corollary}[The boundary birth does not collapse mixed fibres]
+\label{cor:boundary-mixed-fibres}
+Let \(X\) be source-transitive and let
+\(S\subset\mathbb P\) be finite with \(|S|\ge2\).  Then \(X\) has two finite
+windows \(F_S^+\) and \(F_S^-\) with the same primitive posterior spectrum
+\(S\), while
+\[
+\Birth_{\rm ret}(F_S^+)=1,
+\qquad
+\Birth_{\rm ret}(F_S^-)=0.
+\]
+Consequently the finite birth verdict inside \(X\) does not factor through
+the prime set, its product, or its divisor poset.
+\end{corollary}
+
+\begin{proof}
+Take \(F_S^+\) to be the connected packet from
+Theorem~\ref{thm:return-combination}.  For \(F_S^-\), place normalized returns
+of the same primitive types consecutively on a finite atomic interval, using
+fresh endpoint classes and at least one atomic edge between successive
+supports.  Its return-support graph is discrete, so it is not
+source-indecomposable, although its normalized primitive returns have the same
+posterior ranks \(S\).  Both finite histories occur as windows of \(X\) by
+Lemma~\ref{lem:finite-language-criterion}.
+\end{proof}
+
+Thus a single \(X\) contains all finite prime combinations, not merely all
+unary prime types.  It does so through different finite windows of one
+chronological path.  No fixed overlap graph is imposed at infinity: the
+actual finite overlap graph belongs to the window in which a packet occurs.
+In particular, equal unary shadows with different mixed fibres both occur,
+so the global construction retains rather than collapses the finite joint
+geometry.
+
+The pointed realization provenance keeps the carrier and the positions of all
+of its windows:
+\[
+\Prov^\bullet_\infty(X)
+=
+\left(
+ X,\,
+ \operatorname{Hull}_T(X),\,
+ \mathcal L(X),\,
+ \bigl(
+   W_{m,n}(X),\,
+   \mathcal J(W_{m,n}(X)),\,
+   \Gamma(\mathcal J(W_{m,n}(X)))
+ \bigr)_{m,n\ge0}
+\right).
+\]
+This pointed record distinguishes nonisomorphic dense histories.
+
+The birth mother does not need those time coordinates.  Its source-level
+provenance retains the generated subsource, the finite language, and all local
+packet types, but forgets where and how often a type occurs:
+\[
+\Prov^{\rm src}_\infty(X)
+=
+\left(
+ \operatorname{Hull}_T(X),\,
+ \mathcal L(X),\,
+ \left\{
+ \left(
+   F,\,
+   \mathcal J(F),\,
+   \Gamma(\mathcal J(F)),\,
+   \bigl(\RegAtlas(N(J);\Pi)\bigr)_{J,\Pi}
+ \right):
+ [F]\in\mathcal L(X)
+ \right\}
+\right).
+\]
+The packet and atlas data in the last component are determined by the finite
+history type \(F\).  Thus equality of source-level provenance is equivalent to
+equality of finite languages.  Define
+\[
+X\equiv_{\Prov}Y
+\quad\Longleftrightarrow\quad
+\mathcal L(X)=\mathcal L(Y).
+\]
+By Lemma~\ref{lem:finite-language-criterion}, this is also equivalent to
+\(\operatorname{Hull}_T(X)=\operatorname{Hull}_T(Y)\).
+
+\begin{theorem}[Uniqueness of the all-prime provenance class]
+\label{thm:unique-provenance-class}
+Let
+\[
+\mathfrak B_\infty
+:=
+\{X\in\widehat{\mathscr R}_{\rm ret}:\Birth_\infty(X)=1\}.
+\]
+Then
+\[
+\boxed{
+\mathfrak B_\infty/{\equiv_{\Prov}}
+\text{ consists of exactly one class}.}
+\]
+That class has generated subsource
+\(\widehat{\mathscr R}_{\rm ret}\), finite language
+\(\bigcup_n\mathscr H_n\), and posterior primitive spectrum \(\mathbb P\).
+\end{theorem}
+
+\begin{proof}
+If \(X,Y\in\mathfrak B_\infty\), then the finite-language criterion gives
+\[
+\mathcal L(X)
+=
+\bigcup_n\mathscr H_n
+=
+\mathcal L(Y),
+\]
+so \(X\equiv_{\Prov}Y\).  Existence follows from
+Theorem~\ref{thm:transitive-existence}.  Conversely, any history
+provenance-equivalent to one member of \(\mathfrak B_\infty\) has the full
+finite language and therefore is itself a boundary birth.  The statements
+about the generated source and primitive spectrum follow from
+Definition~\ref{def:source-transitive-birth} and
+Theorem~\ref{thm:all-prime-return}.
+\end{proof}
+
+This quotient does not collapse the mixed geometry used by the theory: every
+finite history type \(F\), its actual return-support graph, and both verdicts
+in Corollary~\ref{cor:boundary-mixed-fibres} remain in the common language.
+It forgets only the root-relative occurrence positions and multiplicities.
+The equality \(\mathcal L(X)=\bigcup_n\mathscr H_n\) is not certified by one
+finite prefix; it is a genuine boundary property.  Each individual
+requirement, however, is witnessed by a finite window, and every finite
+descent is a literal restriction and endpoint-class splitting inside that
+window.  No comparison map between alternative descents is asserted or
+needed.
+
+\section{The global descent tradeoff}
+
+The source-transitive object realizes all finite combinations, but it does not
+do so by choosing one global representative of each prime type and declaring
+all subsets of those representatives to be faces.  That stronger one-copy
+model would recover the divisor shadow.
+
+\begin{proposition}[Universal one-copy descent forces the Boolean shadow]
+\label{prop:global-boolean-tradeoff}
+Let \(Y\) be a return object having exactly one return \(J_p\) for every unary
+prime type, and declare a finite subpacket jointly admissible exactly when its
+induced return-support intersection graph is connected.  If every two-prime
+subpacket \(\{J_p,J_q\}\) is an admissible descent face of \(Y\), then
+\[
+\Gamma(\mathcal J(Y))\cong K_{\mathbb P}.
+\]
+Consequently every nonempty finite prime subset is an admissible face and the
+finite-face poset is the Boolean poset
+\[
+\{S\subset\mathbb P:0<|S|<\infty\}.
+\]
+After the posterior map \(S\mapsto\prod_{p\in S}p\), this is the poset of
+square-free divisors ordered by divisibility.
+\end{proposition}
+
+\begin{proof}
+A graph on two vertices is connected exactly when its two vertices are joined
+by an edge.  Hence admissibility of every pair \(\{J_p,J_q\}\) forces
+\(J_p\sim J_q\) for every distinct \(p,q\), so the full intersection graph is
+complete.  Every nonempty finite induced subgraph of a complete graph is
+connected, giving all finite subsets and all subset inclusions.  Unique prime
+factorization identifies that Boolean poset with the stated square-free
+divisor poset only after posterior ranks have been read.
+\end{proof}
+
+The proposition diagnoses the discarded exact-one-copy model; it does not
+apply to Theorem~\ref{thm:all-prime-return}.  A source-transitive history
+contains many occurrences of a primitive path type.  A finite set \(S\) is
+realized by one connected window, and another set may be realized by a
+different window using different occurrences.  There is therefore no
+prime-indexed global vertex set whose entire subset lattice is being declared
+to be the descent geometry.  Each finite descent tower is the connected-face
+poset of its actual window and depends on the return-overlap incidence of that
+window, not on divisibility.
+
+\section{Boundary of the construction}
+
+The finite theorem resolves arbitrary finite sets of distinct primes inside
+one uniform unlabelled path-history source.  Theorem~\ref{thm:all-prime-return}
+then strengthens this in the requested second sense: a single infinite path
+history contains every such finite joint birth as an actual finite window,
+as well as every unary prime birth.
+
+The boundary object is not required to be simple-return.  Repetition is
+essential here: the same primitive type can occur in many windows, allowing
+incompatible mixed fibres to coexist at different locations of one
+chronological path.  Composite returns and equivalence classes with further
+visits may also occur, but the raw atlas test separates inherited returns from
+the primitive spectrum.  The distinct-prime packet theorem itself remains in
+the simple-return sector, where its classification is exact.
+
+There is no canonical spacing, overlap graph, or enumeration in the boundary
+birth rule.  The shift-orbit condition selects a generally non-singleton
+moduli of source-transitive histories.  The enumeration in
+Theorem~\ref{thm:transitive-existence} proves that this locus is nonempty but
+does not become source-provenance data.  Theorem~\ref{thm:unique-provenance-class}
+shows that the entire moduli is one provenance class: what is invariant is
+the full finite language, in which every permitted finite source history
+occurs.
+
+The earlier negative audits retain their force.  Intermediate covers give a
+divisor poset, cubical atlases give a product of divisor posets, abelian
+mixed-prime covers split by primary type, ribbon matching topology forgets the
+prime labels, and the \(A_5\) shared-edge control belongs to the excluded
+coherence sector.  The return-history source avoids those failures because
+its mixed datum is the actual atomic-edge intersection pattern of elementary
+returns before unary classification.  The boundary step adds only the
+canonical shift and the topology already carried by the inverse-limit source.
+
+\section{Closure of the proof}
+
+The construction now closes at four distinct levels.
+
+First, after adjoining the single permission to revisit an earlier state, the
+source closes: Proposition~\ref{prop:return-normal-form} proves that the
+new-class/old-class alternatives generate every unlabelled
+non-edge-collapsing path history exactly once, and the inverse-limit completion
+contains exactly the compatible infinite histories.
+
+Second, finite joint birth closes: connected return support is a source
+property, the empty unary atlas ledger is the primitive-face property, every
+finite distinct-prime set has such a packet, and every born packet has a
+connected-deletion tower to any selected unary member.
+
+Third, after the generated-subsource inheritance principle is stated, the
+all-prime boundary closes: it uniquely forces the dense-orbit rule,
+source-transitive histories exist, the finite-language criterion is
+equivalent to that rule, and every finite packet, hence every finite prime
+combination and every mixed fibre, occurs inside each such single history.
+
+Fourth, the arithmetic identification closes only after the topology has
+acted.  Atlas-irreducible return types are precisely the original unary
+births, so their posterior ranks are precisely \(\mathbb P\).  No divisor
+relation, factorization, prime gap, probability law, batch construction, or
+coherence filler enters either birth predicate.
+
+The unavoidable new data are explicit rather than hidden.  The unary source
+does not itself force permission to revisit an earlier state; that is the one
+finite-source enlargement.  Likewise, finite verdicts cannot determine any
+infinite-boundary verdict, as Proposition~\ref{prop:finite-not-boundary}
+proves, so the generated-subsource inheritance principle is an additional
+boundary axiom rather than a theorem secretly extracted from the unary
+ledger.  Once those two extensions are accepted, their normal form and
+boundary predicate leave no further choice.  There is still no unique
+canonical boundary history, and boundary birth cannot be certified from one
+finite prefix.  Nevertheless
+Theorem~\ref{thm:unique-provenance-class} gives one unique all-prime
+source-provenance class; none of these facts leaves a gap in the
+prime-spectrum or descent proofs.
+
+\section{Conclusion}
+
+The original one-direction mother supplies the unary primitive types.  The
+return-history extension does not glue completed unary births; it enlarges
+the source itself so that endpoint returns and their overlap incidence exist
+before classification.  Connected finite packets give genuine arbitrary
+finite prime births and descend internally to the original unary births.
+
+On the inverse-limit boundary, the generated-subsource inheritance principle
+uniquely turns dense shift orbit into the source-native birth condition.  Any
+history satisfying it contains every finite born packet as a window, and its
+primitive normalized-return spectrum has posterior rank set exactly
+\(\mathbb P\).  Repeated occurrences let all finite combinations live inside
+the same path without forcing a Boolean face lattice on one copy of each
+prime.  The finite theory, the explicit boundary axiom, the all-prime object,
+provenance, and the descent tower are then mutually compatible.  Although no
+single carrier path is canonical, all all-prime carriers determine the same
+unique source-provenance class.
+\end{document}
