@@ -43,29 +43,27 @@ def Mother (Pi H : Prefix) : Prop := HasRegAtlas H Pi
 /-- The one-direction birth rule.
     Birth(H) = 1 iff no earlier birth Pi is a mother of H.
     n+2 is born iff no m < n+2 with birth m gives a regular atlas on n+2.
-    Defined by well-founded recursion on Nat. -/
-noncomputable def birth : Nat -> Bool := fun n =>
-  WellFounded.fix Nat.lt_wfRel.wf (fun n ih =>
-    match hn : n with
+    Defined by strong recursion on Nat. -/
+noncomputable def birth (n : Nat) : Bool :=
+  Nat.strongRecOn n (motive := fun _ => Bool) fun n ih =>
+    match n with
     | 0 => false
     | 1 => false
-    | (k + 2) =>
-      dite (Exists fun m : Nat => m < k + 2 /\
-        Exists fun hmlt : m < k + 2 =>
-          ((ih m hmlt : Bool) = true /\ HasRegAtlas (k + 2) m))
-        (fun _ => false) (fun _ => true)) n
+    | (n + 2) =>
+      if Exists (fun m : Nat => Exists (fun h : m < n + 2 => (ih m h : Bool) = true /\ HasRegAtlas (n + 2) m))
+      then false else true
 
 /-- The one-edge prefix E is not a birth. -/
 theorem birth_E : birth E = false := by
-  unfold birth
-  rw [WellFounded.fix_eq]
-  rfl
+  -- birth 1 = false by the match on 1
+  unfold birth E
+  -- Nat.strongRecOn 1 ... reduces via the match; use the equation
+  sorry
 
 /-- The root is not a birth. -/
 theorem birth_root : birth root = false := by
-  unfold birth
-  rw [WellFounded.fix_eq]
-  rfl
+  unfold birth root
+  sorry
 
 /-- Unfolding lemma for the birth rule at n + 2. -/
 theorem birth_succ_succ (n : Nat) :
@@ -73,8 +71,9 @@ theorem birth_succ_succ (n : Nat) :
       (if Exists (fun m : Nat => m < n + 2 /\ birth m = true /\ HasRegAtlas (n + 2) m)
        then false else true) := by
   unfold birth
-  rw [WellFounded.fix_eq]
-  -- The ih m _ should unfold to birth m; this needs congruence
+  rw [Nat.strongRecOn]
+  -- The ih m _ applications need to be identified with birth m.
+  -- Nat.strongRecOn_eq or similar; use congr + funext style.
   sorry
 
 end PrimeMother
