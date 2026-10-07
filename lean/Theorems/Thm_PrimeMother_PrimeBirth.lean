@@ -1,19 +1,13 @@
 /-
 Prime-Distribution Birth Mother — Exact prime-birth theorem.
 
-Formalizes §6 (Exact prime-birth theorem), the paper's first main result:
+Formalizes the paper's Exact prime-birth theorem (paper §5):
 
   Theorem (The birth ranks are exactly the primes):
   For every retained prefix H with rk(H) ≥ 2,
     Birth(H) = 1 ↔ rk(H) ∈ ℙ.
 
-Proof by strong induction on the posterior rank, following the paper:
-- If rk(H) is prime and H were inherited, some earlier birth Π would give
-  a regular atlas with r ≥ 2 blocks, so rk(H) = r * rk(Π) with both
-  factors > 1, contradicting primality.
-- If rk(H) is composite, a prime divisor p gives (by IH) an earlier birth
-  Π of rank p, and the atlas-rank converse yields a regular Π-atlas,
-  so H is inherited.
+Proof by strong induction on the posterior rank, following the paper.
 -/
 
 import Definitions.Def_PrimeMother_Atlas
@@ -22,94 +16,103 @@ import Mathlib.Data.Nat.Prime.Defs
 
 namespace PrimeMother
 
-/-- Auxiliary: births are at least 2. -/
+/-- Auxiliary: births are at least 2.
+    Uses birth_root and birth_E for the 0/1 cases. -/
 theorem birth_ge_two {n : Nat} (h : birth n = true) : 2 ≤ n := by
   match n with
-  | 0 => simp [birth] at h
-  | 1 => simp [birth] at h
+  | 0 =>
+    -- birth 0 = birth root = false, contradiction with h
+    have : birth 0 = false := birth_root
+    rw [this] at h
+    exact absurd h (by decide)
+  | 1 =>
+    have : birth 1 = false := birth_E
+    rw [this] at h
+    exact absurd h (by decide)
   | (n + 2) => omega
 
 /-- The birth rule unfolds to: n+2 is born iff no earlier birth divides it
-    with quotient ≥ 2. -/
+    with quotient ≥ 2.
+    NOTE: depends on birth_succ_succ (currently sorry in Atlas). -/
 theorem birth_iff_no_earlier_mother (n : Nat) :
     birth (n + 2) = true ↔
-      ¬ ∃ m : Nat, m < n + 2 ∧ birth m = true ∧ HasRegAtlas (n + 2) m := by
+      ¬ Exists (fun m : Nat => m < n + 2 /\ birth m = true /\ HasRegAtlas (n + 2) m) := by
   rw [birth_succ_succ]
-  by_cases h : ∃ m : Nat, m < n + 2 ∧ birth m ∧ HasRegAtlas (n + 2) m
-  · simp only [h, if_true]
+  by_cases h : Exists (fun m : Nat => m < n + 2 /\ birth m = true /\ HasRegAtlas (n + 2) m)
+  · -- If such an m exists, the if gives false, so LHS is false = true (False),
+    -- and RHS is ¬Exists which is False. Both sides are False.
+    rw [if_pos h]
     constructor
-    · intro hc; exact absurd rfl hc
-    · intro _
-      obtain ⟨m, hm, hbm, hatlas⟩ := h
-      exact ⟨m, hm, by rw [← Bool.eq_true_iff]; exact hbm, hatlas⟩
-  · simp only [h, if_false]
+    · intro hc
+      -- hc : false = true, contradiction
+      exact absurd hc (by decide)
+    · intro hno
+      exact absurd h (hno)
+  · -- If no such m, the if gives true, so LHS is true = true (True),
+    -- and RHS is ¬Exists which is True.
+    rw [if_neg h]
     constructor
-    · intro _ hcon
-      exact h hcon
+    · intro _; exact h
     · intro _; rfl
 
 /-- Main theorem: the birth ranks are exactly the primes. -/
 theorem birth_iff_prime : ∀ n : Nat, 2 ≤ n → (birth n = true ↔ Nat.Prime n) := by
   intro n
-  -- Strong induction on n
   induction n using Nat.strong_induction_on with
   | _ n ih =>
     intro hn
     obtain ⟨k, rfl⟩ : ∃ k, n = k + 2 := ⟨n - 2, by omega⟩
     rw [birth_iff_no_earlier_mother]
     constructor
-    · -- (→) If n+2 is not inherited by any earlier birth, then n+2 is prime.
+    · -- (→) If k+2 has no earlier mother birth, then k+2 is prime.
       intro hno
-      -- Suppose n+2 is not prime; derive a contradiction.
       by_contra hnp
-      -- n+2 ≥ 2 and not prime → composite: ∃ a b, 2 ≤ a ∧ 2 ≤ b ∧ a * b = n+2
-      -- Actually use: not prime → ∃ d, d ∣ n+2 ∧ 2 ≤ d ∧ d < n+2
-      have hcomp : ∃ d : Nat, d ∣ (k + 2) ∧ 2 ≤ d ∧ d < k + 2 := by
-        -- n+2 ≥ 2, not prime → has a nontrivial divisor
-        have h2 : 2 ≤ k + 2 := by omega
-        -- Use Nat.exists_dvd_of_not_prime2 or similar
-        by_cases h1 : k + 2 = 0
-        · omega
-        · have := Nat.exists_dvd_of_not_prime2 (k + 2) hnp (by omega)
-          obtain ⟨d, hd_dvd, hd2, hdn⟩ := this
-          -- exists_dvd_of_not_prime2 gives: d ∣ n ∧ 2 ≤ d ∧ d < n? check signature
-          sorry
-      obtain ⟨d, hdvd, hd2, hdltn⟩ := hcomp
-      -- d has a prime divisor p ≤ d < n+2
-      obtain ⟨p, hp_prime, hpdvd⟩ := Nat.exists_prime_and_dvd hdvd
-      -- p < n+2 and p ≥ 2
+      -- k+2 ≥ 2 and not prime: get a nontrivial divisor d.
+      -- Nat.exists_dvd_of_not_prime2 : 2 ≤ n → ¬Nat.Prime n → ∃ d, d ∣ n ∧ 2 ≤ d ∧ d < n
+      have h2 : 2 ≤ k + 2 := by omega
+      obtain ⟨d, hdvd, hd2, hdltn⟩ := Nat.exists_dvd_of_not_prime2 h2 hnp
+      -- d ≠ 1 since 2 ≤ d; get a prime divisor p of d.
+      -- Nat.exists_prime_and_dvd : n ≠ 1 → ∃ p, p.Prime ∧ p ∣ n
+      have hd1 : d ≠ 1 := by omega
+      obtain ⟨p, hp_prime, hpdvd⟩ := Nat.exists_prime_and_dvd hd1
+      -- p ∣ k+2 via p ∣ d ∣ k+2
+      have hpdvd_n : p ∣ (k + 2) := dvd_trans hpdvd hdvd
       have hp2 : 2 ≤ p := hp_prime.two_le
-      have hplt : p < k + 2 := lt_of_le_of_lt (Nat.le_of_dvd (by omega) hpdvd) hdltn
-      -- By IH, birth p = true
+      -- p ≤ d < k+2, so p < k+2
+      have hplt : p < k + 2 :=
+        lt_of_le_of_lt (Nat.le_of_dvd (by omega) hpdvd) hdltn
+      -- By IH applied at p (written as j+2): birth p = true.
+      -- ih (j+2) h1 h2' : (birth (j+2) = true ↔ Nat.Prime (j+2))
       have hbp : birth p = true := by
         obtain ⟨j, rfl⟩ : ∃ j, p = j + 2 := ⟨p - 2, by omega⟩
-        exact (ih j (by omega) (by omega)).mpr hp_prime
-      -- p ∣ n+2 with quotient ≥ 2: HasRegAtlas (k+2) p
-      obtain ⟨r, hr⟩ := hdvd
-      -- n+2 = p * r; r ≥ 2 since p < n+2 and p ≥ 1
-      have hr2 : 2 ≤ r := by
-        by_contra hc
-        push_neg at hc
-        interval_cases r
-        · simp at hr; omega
-        · -- r = 1: n+2 = p, contradicting p < n+2
-          simp at hr; omega
-      have hatlas : HasRegAtlas (k + 2) p := ⟨r, hr2, by rw [rk, rk]; linarith⟩
+        have h1 : j + 2 < k + 2 := by omega
+        have h2' : 2 ≤ j + 2 := by omega
+        exact (ih (j + 2) h1 h2').mpr hp_prime
+      -- Build HasRegAtlas (k+2) p: p ∣ k+2, write k+2 = p * r', show 2 ≤ r'.
+      obtain ⟨r', hr'⟩ := hpdvd_n
+      -- k+2 = p * r'; r' ≥ 2 because p < k+2 and p ≥ 2.
+      -- If r' = 0 then k+2 = 0 (contra); if r' = 1 then k+2 = p (contra).
+      have hr'2 : 2 ≤ r' := by
+        rcases Nat.eq_zero_or_pos r' with rfl | hpos
+        · -- r' = 0: hr' : k + 2 = p * 0 = 0, contradiction
+          simp at hr'
+        · by_cases h1 : r' = 1
+          · subst h1
+            -- hr' : k + 2 = p * 1 = p, but p < k+2
+            simp at hr'
+            omega
+          · omega
+      have hatlas : HasRegAtlas (k + 2) p := ⟨r', hr'2, by unfold rk; omega⟩
       exact hno ⟨p, hplt, hbp, hatlas⟩
-    · -- (←) If n+2 is prime, no earlier birth is a mother of it.
+    · -- (←) If k+2 is prime, no earlier birth is a mother of it.
       intro hp hcon
       obtain ⟨m, hmlt, hbm, hatlas⟩ := hcon
       obtain ⟨r, hr2, heq⟩ := hatlas
-      -- m * r = n+2 with r ≥ 2; birth m → m ≥ 2
       have hm2 : 2 ≤ m := birth_ge_two hbm
-      -- m ∣ n+2, 1 < m < n+2: contradicts primality
-      have hdvd : m ∣ (k + 2) := ⟨r, by rw [rk, rk] at heq; linarith⟩
-      have hmlt' : m < k + 2 := hmlt
-      -- A prime has no divisors strictly between 1 and itself
-      have := (Nat.prime_def_lt hp).mp hdvd hm2 hmlt'
-      -- prime_def_lt gives m = n+2? Actually: p prime, m ∣ p, 2 ≤ m, m < p → False
-      -- The exact form: Nat.Prime → m ∣ p → m = 1 ∨ m = p
-      exact absurd rfl this
-termination_by n => n
+      -- m ∣ k+2 from the atlas equation
+      have hdvd : m ∣ (k + 2) := ⟨r, by unfold rk at heq; omega⟩
+      -- Nat.prime_def_lt : Prime p ↔ 2 ≤ p ∧ ∀ m < p, m ∣ p → m = 1
+      have hm1 : m = 1 := (Nat.prime_def_lt.mp hp).2 m hmlt hdvd
+      omega
 
 end PrimeMother
