@@ -1,25 +1,25 @@
 # PrimeMother TODO：Lean 状态与完成路线
 
-审计日期：2026-10-07 11:30（UTC）  
-审计基线 / 已审计代码游标：`master` @ [3e9d7d3cfa713060ac5b8eef4da2040605bb5e60](https://github.com/cchx0000/primemother/commit/3e9d7d3cfa713060ac5b8eef4da2040605bb5e60)  
+审计日期：2026-10-07 15:25（UTC）  
+审计基线 / 已审计代码游标：`master` @ [adbeb27777cd09107ac44aba03da7beb7555cfe7](https://github.com/cchx0000/primemother/commit/adbeb27777cd09107ac44aba03da7beb7555cfe7)  
 首次完整源码与论文审计：[258fb757f4712b18ce45310bbebbd34e9dc9226d](https://github.com/cchx0000/primemother/commit/258fb757f4712b18ce45310bbebbd34e9dc9226d)
 
-<!-- primemother-audit-cursor: 3e9d7d3cfa713060ac5b8eef4da2040605bb5e60 -->
+<!-- primemother-audit-cursor: adbeb27777cd09107ac44aba03da7beb7555cfe7 -->
 
 ## 当前结论与验证边界
 
 当前仓库是**一元 prime-birth 的算术模型与未完成证明骨架**，还不是论文全部结论的 Lean 形式化。
 
-- 首次审计已逐个检查全部 3 个证明源模块（不含 `lakefile.lean`）、Lake 配置/锁文件、论文的主要结论及其依赖。本轮逐项检查 `6694cbf4` → `3e9d7d3` 的全部 2 个新提交，并重读当前 3 个证明模块及 Lake 配置/工具链；两条提交分别改动 Atlas 与 PrimeBirth 模块
-- 源码中现有 **3 处显式 `sorry`**，均位于 `Def_PrimeMother_Atlas.lean:61,66,77`（`birth_E`、`birth_root`、`birth_succ_succ`）。`a18a9599` 曾令全库占位数从 2 增至 4；随后 `3e9d7d3` 移除了 PrimeBirth 中的占位并修正之前列出的 API、归纳索引与整除接线。Theorems 文件无直接 `sorry`，但仍通过上述 3 个 Atlas 引理继承未完成证明，不能称为无 `sorryAx` 的最终定理
+- 首次审计已逐个检查全部 3 个证明源模块（不含 `lakefile.lean`）、Lake 配置/锁文件、论文的主要结论及其依赖。本轮检查 `3e9d7d3` → `adbeb277` 的全部 2 个提交：`9859e4f3` 是本审计器自身的纯 `todo.md` 同步，跳过重复审计；实际代码提交仅 `adbeb277`，只改动 Atlas。本轮重读全部 3 个证明模块，其他源码、论文及配置均无变更
+- 源码中现有 **1 处显式 `sorry`**，位于 `Def_PrimeMother_Atlas.lean:77` 的 `birth_succ_succ`。`adbeb277` 已把 `birth_E`、`birth_root` 的占位替换为展开 `Nat.strongRecOn` 后使用 `WellFounded.fix_eq` 的证明脚本，全库直接占位数由 3 降至 1。Theorems 文件仍无直接 `sorry`，但 `birth_iff_no_earlier_mother` 与主定理仍依赖未完成的 `birth_succ_succ`，不能称为无 `sorryAx` 的最终定理
 - 3 个模块中未见显式 `axiom` / `admit` 声明。出生定义没有调用 `Nat.Prime`，递归依赖严格更小的 `m`，未发现把最终结论作为显式假设输入的循环；但尚未通过内核依赖审计，不能据此称“无公理/无 sorry”
 - `Prefix := Nat`、`rk H := H`、`HasRegAtlas H Pi := ∃ r ≥ 2, rk Pi * r = rk H`。这些是秩模型的定义；`clock_reconstruction` 的 `rfl` 不是抽象无标签路径的唯一 order isomorphism 证明，两个 atlas-rank 引理也不是实际分块/路径同构的构造
-- `birth_iff_prime` 保留原始声明及仅有的 `2 ≤ n` 前提；证明脚本已补全直接占位，仍依赖 Atlas 的 3 个占位引理且尚未实编译。论文的有限联合 birth、return source、无限边界与唯一 provenance 等价类仍无对应 Lean 实现
-- 本轮**没有运行 Lean/Lake 编译或测试**。两条新提交均缺少完整构建和内核审计收据，不能根据 commit 标题“proof complete”或旧提交的单模块编译声称判定通过。分别查询 `a18a9599`、`3e9d7d3` 精确 SHA 的 Actions runs、check-runs 与 commit statuses 均为空；本轮没有新增 CI 配置
+- `birth_iff_prime` 保留原始声明及仅有的 `2 ≤ n` 前提；证明脚本已补全直接占位，仍依赖 Atlas 的 1 个占位引理且本审计未实编译。论文的有限联合 birth、return source、无限边界与唯一 provenance 等价类仍无对应 Lean 实现
+- 本轮**没有运行 Lean/Lake 编译或测试**。`adbeb277` 的精确 SHA 查询结果为 Actions runs 0、check-runs 0、commit statuses 空，未见可核验的完整构建或内核依赖收据；本轮没有新增 CI 配置。两条边界证明脚本已去掉直接占位，但不能仅据提交标题的“proved”或静态阅读宣称它们已编译通过
 - 已固定 Lean `v4.33.1` 与 mathlib `0df444a360eaa60ab8c11dca51a86af692955474`；已核对该 mathlib 提交的 `lean-toolchain` 也是 `v4.33.1`，未发现版本针本身不匹配
 - 首次基线无 README、根目录 `todo.md` 或仓库级操作说明；`6694cbf4` 已新增本文件。本轮只同步审计状态，不改动 Lean 证明或论文
 
-以下行号均指当前已审计代码 `3e9d7d3`。复查后续提交时应重新定位，不能把本快照当作实时构建状态。
+以下行号均指当前已审计代码 `adbeb277`。复查后续提交时应重新定位，不能把本快照当作实时构建状态。
 
 ## 增量审计记录
 
@@ -35,6 +35,13 @@
   - **P0.3 为“源码修复已提交，待构建及无占位依赖验证”**；主定理传递依赖的 `birth_root`、`birth_E`、`birth_succ_succ` 仍有 `sorry`。没有编译/`#print axioms` 收据，不将标题中的“proof complete”作为验收结果
   - 其他模块、论文与配置未改；该 SHA 的 Actions/check/status 均为空。P0.1/P0.2/P0.4、README/CI 与 P1/P2 剩余目标继续保留
 
+- **2026-10-07：[`adbeb277`](https://github.com/cchx0000/primemother/commit/adbeb27777cd09107ac44aba03da7beb7555cfe7)**，提交时间 15:05:47 UTC，标题 `P0.2: birth_E and birth_root proved via WellFounded.fix_eq; birth_succ_succ remains`
+  - 自上次代码游标起，中间的 `9859e4f3` 仅同步本文件；新增代码只有本提交，且只修改 `lean/Definitions/Def_PrimeMother_Atlas.lean`
+  - `birth_E` L57–59、`birth_root` L62–64 改为 `unfold birth ... Nat.strongRecOn` 后 `rw [WellFounded.fix_eq]`，移除两处直接 `sorry`；定义和定理声明均未改变，没有新增假设
+  - `birth_succ_succ` L67–77 也改用 `WellFounded.fix_eq` 并加入 `simp only []`，但仍以 `sorry` 收尾；递归调用与 `birth m` 的对应及两侧 if 条件等价仍待完成
+  - 当前直接占位计数 **3 → 1**；P0.2 有源码进展，仍未验收。P0.3 的脚本未变，仍被该展开引理和实际构建/内核审计阻塞；P0.1/P0.4、P1/P2 均无新的完成证据
+  - 验证范围：全量读取 3 个证明模块、检查该提交差异；未运行 Lean/Lake、测试或 `#print axioms`；该 SHA 的 Actions/check/status 查询均为空
+
 后续审计从上述代码游标之后按提交顺序处理；本审计器自身仅修改 `todo.md` 的提交不触发重复写入。若出现历史分叉、缺失提交或并发修改，先重新比较 HEAD 和最新文件，不覆盖他人变更。
 
 ## P0：先让一元模型成为可复现、无占位的内核检查结果
@@ -48,15 +55,15 @@
 - [ ] **P0.2 完成良基递归展开与基础出生规则**
   - 路径：`lean/Definitions/Def_PrimeMother_Atlas.lean:47–77`
   - 声明：`PrimeMother.birth`、`birth_succ_succ`、`birth_root`、`birth_E`
-  - 当前状态：递归主体已改为 `Nat.strongRecOn`；`birth_E` L61、`birth_root` L66、`birth_succ_succ` L77 均待证明
-  - 按固定 Lean 版本核对 `Nat.strongRecOn` 的展开等式，证明递归值与 `birth m` 一致，处理存在的严格小于见证和 if 命题等价，完成 0/1 边界及 n+2 展开。当前 L74 的 `rw [Nat.strongRecOn]` 与后续步骤尚无编译验证，不能仅根据注释假定已有可用展开引理；保持严格先前阶段依赖
+  - 当前状态：递归主体保持 `Nat.strongRecOn`；`birth_E` L57–59、`birth_root` L62–64 已提交无直接占位的证明脚本，待实际构建确认；`birth_succ_succ` L67–77 仍有唯一直接 `sorry`
+  - 当前 n+2 展开脚本为 L71 的 `unfold birth Nat.strongRecOn`、L72 的 `rw [WellFounded.fix_eq]` 与 L74 的 `simp only []`，随后仍留占位。完成递归值与 `birth m` 的一致性及存在见证/if 条件的命题等价，保留严格先前阶段依赖；同时对 0/1 边界脚本做固定版本编译与公理核查
   - 验收：三个边界/展开引理在固定工具链下编译且均不依赖 `sorryAx`；定义本身不引入素数判定或最终定理作为假设
 
 - [ ] **P0.3 验证已提交的主定理证明链**
   - 路径：`lean/Theorems/Thm_PrimeMother_PrimeBirth.lean:19–116`
   - 声明：`birth_ge_two`、`birth_iff_no_earlier_mother`、`birth_iff_prime`
   - 当前状态：`3e9d7d3` 已在源码层修复此前逐项列出的接线并删除本文件直接占位；保持未勾选，等待完整构建与 P0.2 的无占位依赖
-  - L21–32：0/1 分支已改为使用 `birth_root` 与 `birth_E`；必须先完成这两个 Atlas 引理，不能把依赖占位的辅助结果当作已验收
+  - L21–32：0/1 分支使用 `birth_root` 与 `birth_E`；这两个 Atlas 引理已在 `adbeb277` 去除直接占位，仍需实际编译及依赖审计确认。主定理经 L40 的展开规则仍依赖 `birth_succ_succ` 的占位
   - L37–56：统一使用 `birth m = true`，有母体分支改为从 `h` 与 `hno` 导出矛盾；实际编译验证各 if 分支目标
   - L72–83：改用 `Nat.exists_dvd_of_not_prime2 h2 hnp` 与 `Nat.exists_prime_and_dvd hd1`；已通过 `dvd_trans hpdvd hdvd` 得到 `p ∣ k+2`
   - L86–105：归纳调用已改为 `ih (j+2)`；商见证取自 `p ∣ k+2`，分别排除商为 0/1。需编译核实 tactic、等式方向及 `HasRegAtlas` 构造
@@ -140,6 +147,6 @@
 只有同时满足以下条件，才把“一元 prime-birth Lean 证明”标为完成：
 
 1. 锁定依赖下的完整 `lake build` 与测试对同一 commit 成功
-2. 当前三处 Atlas `sorry` 及所有剩余 elaboration/证明链错误消除，主定理的传递依赖也无占位
+2. 当前唯一的 `birth_succ_succ` 占位及所有剩余 elaboration/证明链错误消除，主定理的传递依赖也无占位
 3. 主定理与递归展开的 `#print axioms` 收据不含 `sorryAx` 或偷渡结论的自定义公理
 4. 明确该里程碑证明的是秩模型还是已完成源层桥接；不把它等同于论文全部 finite-return / boundary 结论
