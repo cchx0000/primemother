@@ -32,8 +32,7 @@ theorem birth_ge_two {n : Nat} (h : birth n = true) : 2 ≤ n := by
   | (n + 2) => omega
 
 /-- The birth rule unfolds to: n+2 is born iff no earlier birth divides it
-    with quotient ≥ 2.
-    NOTE: depends on birth_succ_succ (currently sorry in Atlas). -/
+    with quotient ≥ 2. -/
 theorem birth_iff_no_earlier_mother (n : Nat) :
     birth (n + 2) = true ↔
       ¬ Exists (fun m : Nat => m < n + 2 /\ birth m = true /\ HasRegAtlas (n + 2) m) := by

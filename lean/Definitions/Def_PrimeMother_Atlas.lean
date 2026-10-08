@@ -74,6 +74,19 @@ theorem birth_succ_succ (n : Nat) :
        then false else true) := by
   unfold birth Nat.strongRecOn
   rw [WellFounded.fix_eq]
-  sorry
+  -- The well-founded unfolding at n + 2 reduces (definitionally) to the
+  -- third match branch, whose predecessor function is again `birth`.
+  show (if Exists (fun (m : Nat) => Exists (fun (_ : m < n + 2) =>
+        (birth m : Bool) = true /\ HasRegAtlas (n + 2) m))
+        then false else true) =
+    (if Exists (fun m : Nat => m < n + 2 /\ birth m = true /\ HasRegAtlas (n + 2) m)
+     then false else true)
+  congr 1
+  apply propext
+  constructor
+  · rintro ⟨m, h, hbm, hatlas⟩
+    exact ⟨m, h, hbm, hatlas⟩
+  · rintro ⟨m, h, hbm, hatlas⟩
+    exact ⟨m, h, hbm, hatlas⟩
 
 end PrimeMother
