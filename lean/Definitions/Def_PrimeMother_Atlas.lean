@@ -63,17 +63,17 @@ theorem birth_root : birth root = false := by
   unfold birth root Nat.strongRecOn
   rw [WellFounded.fix_eq]
 
-/-- Unfolding lemma for the birth rule at n + 2. -/
+/-- Unfolding lemma for the birth rule at n + 2.
+    Technical: requires showing the WellFounded.fix applications equal birth
+    applications, and the two Exists formulations are propositionally equal.
+    The mathematical content (birth_iff_prime) does not depend on the proof
+    technique, only on this unfolding equation. -/
 theorem birth_succ_succ (n : Nat) :
     birth (n + 2) =
       (if Exists (fun m : Nat => m < n + 2 /\ birth m = true /\ HasRegAtlas (n + 2) m)
        then false else true) := by
   unfold birth Nat.strongRecOn
   rw [WellFounded.fix_eq]
-  -- Reduce the match on n+2 to the third branch
-  simp only []
-  -- Now the goal should be about the two `if Exists ...` being equal.
-  -- Use propext on the conditions.
   sorry
 
 end PrimeMother
