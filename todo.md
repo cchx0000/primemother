@@ -1,26 +1,26 @@
 # PrimeMother TODO：Lean 状态与完成路线
 
-审计日期：2026-10-08 04:56（UTC）  
-审计基线 / 已审计代码游标：`master` @ [63875fea93c35cbe6dd4b66183aaf2212a91e66b](https://github.com/cchx0000/primemother/commit/63875fea93c35cbe6dd4b66183aaf2212a91e66b)  
+审计日期：2026-10-08 10:02（UTC）  
+已审计提交游标：`master` @ [e656bc1939cb6bb30f17aa7f45405c9f6bd88256](https://github.com/cchx0000/primemother/commit/e656bc1939cb6bb30f17aa7f45405c9f6bd88256)  
+当前 Lean 源码基线：[63875fea93c35cbe6dd4b66183aaf2212a91e66b](https://github.com/cchx0000/primemother/commit/63875fea93c35cbe6dd4b66183aaf2212a91e66b)（其后仅 TODO / 收据文档变更）  
 首次完整源码与论文审计：[258fb757f4712b18ce45310bbebbd34e9dc9226d](https://github.com/cchx0000/primemother/commit/258fb757f4712b18ce45310bbebbd34e9dc9226d)
 
-<!-- primemother-audit-cursor: 63875fea93c35cbe6dd4b66183aaf2212a91e66b -->
+<!-- primemother-audit-cursor: e656bc1939cb6bb30f17aa7f45405c9f6bd88256 -->
 
 ## 当前结论与验证边界
 
-当前仓库已有**一元 prime-birth 秩模型的无直接占位证明脚本、8 个回归样例，以及部分无标签源层定义与定理**；仍待精确到当前提交的可复现构建/内核依赖验证，也不是论文全部结论的 Lean 形式化。
+当前仓库已有**一元 prime-birth 秩模型的无直接占位证明脚本、8 个回归样例、部分无标签源层定义与定理，以及对应相同源码的维护者构建摘要和 7 个声明的公理输出**。本轮只审查源码与已有证据，未独立运行 Lean；完整可复现验证记录仍待补齐，也不是论文全部结论的 Lean 形式化。
 
-- 首次审计逐个检查全部 3 个原始证明模块、Lake 配置/锁文件及论文主要结论。本轮从 `f4b77897` 代码游标继续，核对 `a643b816` 是本审计器自身的纯 `todo.md` 同步并跳过自触发；逐个审查其后的 **4 个提交**：`36add88e`、`9473ec06`、`300036da`、`63875fea`。本轮全量重读当前 **4 个证明模块**、README、工具链与 Lake 配置/锁文件，核对完整文件树，并复查论文 source / clock / atlas / provenance 段落；论文和依赖配置未改
-- `36add88e` 在 `Def_PrimeMother_Atlas.lean:71–90` 补上 `birth_succ_succ`：良基展开后，通过 `propext` 对齐“依赖存在量词见证”与“前提合取”。当前 4 个证明模块的显式 `sorry` / `admit` / `axiom` 声明均为 **0**；此前最后 1 处 `sorry` 已从源码移除。主定理仍经 `birth_iff_no_earlier_mother` 使用该展开引理，但不再存在已知的直接源码占位依赖
-- 出生定义仍不调用 `Nat.Prime`，递归只查询严格更小的 `m`；`birth_iff_prime` 的原始声明与唯一前提 `2 ≤ n` 未削弱，未新增结论型假设。源码无占位不等于已完成内核依赖审计；本轮不能据此宣称当前提交无 `sorryAx` 或已经编译成功
-- `9473ec06` 新增 `Thm_PrimeMother_Regression.lean`，含 0、1、2、3、4、6、9、25 的证明式样例。现有 `Theorems` 子模块 glob 在配置上覆盖它；未运行不能写成测试已通过。25 的样例借用 `birth_iff_prime` 证明 `birth 5`，应视为回归覆盖而非主定理的独立验证
-- `63875fea` 新增 `Chain`、`ChainLE`、`crk`、单调性/严格单调性、`chainOf` 与秩双射脚本，是源层进展。但 `clock_iso` L93–94 实际只声明 `Function.Injective crk ∧ Function.Surjective crk`；尚无序反映/完整 order isomorphism、符合保根/后继条件的映射唯一性定理，或 atlas/birth 的正式传输定理。`crk` 的保根/后继等式由定义给出；“唯一性来自 injective”这一注释不能代替对任意候选映射的唯一性证明
-- `Prefix := Nat`、`rk H := H`、`HasRegAtlas H Pi := ∃ r ≥ 2, rk Pi * r = rk H` 仍是实际 birth/主定理使用的秩模型。源文件把它描述为 transport，但当前桥接仅停留在说明，未实现实际分块/路径同构、chronological provenance；有限联合 birth、return source、无限边界与唯一 provenance 类仍未实现
-- `300036da` 新增 README，写明固定版本、构建命令和有限/边界范围；也宣称 build/axiom audit 成功及 P0 完成。**这些是维护者文字报告，不是本轮核验过的日志**：未提供对应 SHA、完整构建输出、退出码或逐声明公理输出。后续 `63875fea` 又改变被全部模块导入的 Source，旧验证文字尤其不能代替最新 SHA 的构建。README 的“源层尚未实现”说明也需更新以反映当前部分实现
-- 本轮**未运行 Lean/Lake 编译、测试或 `#print axioms`，仅做源码审计**。逐一查询上述 4 个完整 SHA，均为 Actions runs 0、check-runs 0、commit statuses 空、commit comments 空；空 statuses 的汇总 `pending` 不表示有构建正在运行。完整文件树未见构建日志、公理审计输出或 CI workflow；新根 `.gitignore` 还加入了 `.github/`。保留 P0 的构建/内核验收和 P1.4 的 CI 待办，不把“无直接 sorry”或提交标题当作成功收据
-- Lean `v4.33.1` 与 mathlib `0df444a360eaa60ab8c11dca51a86af692955474` 固定针未改；此前已核对该 mathlib 的工具链同为 `v4.33.1`。本轮只同步本文件，不改证明、论文、README、CI 或仓库设置
+- 本轮从 `63875fea` 游标继续，逐个核对两个后续提交：`85df6c0e9d11b522f77efb99b50ab565030ad275` 仅同步本文件，跳过自触发；`e656bc1939cb6bb30f17aa7f45405c9f6bd88256` 仅新增构建收据。重读当前 4 个证明模块、README、工具链与 Lake 配置/锁文件及完整文件树。源码、依赖、论文、README 与模型假设均未改变
+- 新增 [构建收据](https://github.com/cchx0000/primemother/blob/e656bc1939cb6bb30f17aa7f45405c9f6bd88256/docs/receipts/build-85df6c0e9d11b522f77efb99b50ab565030ad275.md) 明确覆盖 `85df6c0e9d11b522f77efb99b50ab565030ad275`，记录时间 09:21:26 UTC、Lean `v4.33.1`、`cd lean && lake build`、退出码 0、614 jobs / 0 errors。这比此前 README / 提交标题的无 SHA 断言更具体；对比确认该 SHA 的 Lean 源码与配置和当前 HEAD 一致，不能仅因 HEAD 是后续文档提交就把收据视为源码过期
+- 收据 L14–20 提供 `birth_E`、`birth_root`、`birth_succ_succ`、`birth_iff_no_earlier_mother`、`birth_iff_prime`、`clock_iso`、`crk_injective` 共 7 个声明的逐项文本，每项列出 `[propext, Classical.choice, Quot.sound]`，并报告 `lake env lean` 退出 0。可确认这些文字已提交，不能写成审计器亲自重跑通过；也不能把末行“any dependency closure”扩张为所有未列声明都已审计
+- 收据仍缺完整原始构建日志、warning / 项目模块实际覆盖记录、执行时 checkout 清洁状态与版本输出，以及公理审计输入文件 / 完整调用参数；树中没有已提交审计入口。`crk_mono`、`crk_strict_mono` 不在 7 项输出中。保留 P0 的完整可复现验收，新增已收到构建摘要和具名公理输出的完成子项，不再把现状描述为“没有 SHA / 退出码 / 逐声明输出”
+- 当前 4 个证明模块直接 `sorry` / `admit` / `axiom` 声明均为 **0**。`birth` 仍只递归查询严格更小的 `m`，不调用 `Nat.Prime`；`birth_iff_prime` 仍是 `∀ n, 2 ≤ n → (birth n = true ↔ Nat.Prime n)`，无新增结论型假设。8 个回归样例均在 `Theorems` 子模块 glob 内；25 的样例使用主定理证明 `birth 5`，属于回归覆盖，不是独立验证
+- 源层 `clock_iso` L93–94 仍仅声明 `Function.Injective crk ∧ Function.Surjective crk`，缺序反映、完整 order isomorphism、保根/后继映射唯一性和 atlas/birth 正式传输。实际 birth 仍用 `Prefix := Nat`、`rk H := H` 与乘法存在式 `HasRegAtlas`；实际分块、chronological provenance、finite-return / boundary / 唯一 provenance 类仍未实现，P1/P2 没有新增完成证据
+- 本轮**未运行 Lean/Lake 编译、测试或 `#print axioms`**。对收据目标 `85df6c0e` 和当前 `e656bc19` 逐一查询：Actions runs 0、check-runs 0、commit statuses 空、commit comments 空；汇总 `pending` 不表示构建运行中。无 CI workflow，根 `.gitignore` 仍含 `.github/`。收据是维护者提交的证据摘要，不是已访问的 CI run / 完整执行日志
+- Lean `v4.33.1` 与 mathlib `0df444a360eaa60ab8c11dca51a86af692955474` 固定针未改。README 的“源层尚未实现”说明及 P0 完成断言仍需与当前证据范围对齐；本轮只同步 `todo.md`，不改证明、论文、README、CI 或设置
 
-以下行号均指当前已审计代码 `63875fea`（历史增量记录保留各自提交的行号）。复查后续提交时应重新定位，不能把本快照当作实时构建状态。
+以下源码行号仍指 `63875fea`（与当前 HEAD 的 Lean 文件一致）；收据行号指 `e656bc19`。历史增量记录保留当时的证据状态，后续新增收据不会改写历史事实。
 
 ## 增量审计记录
 
@@ -71,13 +71,21 @@
   - `clock_iso` 仅是指定映射 `crk` 的 injective/surjective 合取。序反映、打包的序同构、保根/后继映射的唯一性，以及一般论文源与该规范 Chain 模型的对应尚未形式化；Source 到 atlas/birth 的 transport 也没有对应声明。P1.1 有实质进展但未完成
   - 验证范围：4 个新增提交逐个差异、4 个完整证明模块、README、依赖/工具链、全树与相关论文段落；未运行 Lean/Lake、测试或公理审计。本 SHA 的 Actions/check-runs/statuses/comments 均空；论文、Atlas/PrimeBirth/Regression 和 Lake 配置在此提交未改
 
-后续审计从上述代码游标之后按提交顺序处理；本审计器自身仅修改 `todo.md` 的提交不触发重复写入。若出现历史分叉、缺失提交或并发修改，先重新比较 HEAD 和最新文件，不覆盖他人变更。
+- **2026-10-08：[`e656bc19`](https://github.com/cchx0000/primemother/commit/e656bc1939cb6bb30f17aa7f45405c9f6bd88256)**，提交时间 09:21:26 UTC，标题 `docs: build receipt for 85df6c0e9d11b522f77efb99b50ab565030ad275 (614 jobs, 0 errors, 0 sorry, axioms clean)`
+  - 先核对父提交 [`85df6c0e`](https://github.com/cchx0000/primemother/commit/85df6c0e9d11b522f77efb99b50ab565030ad275) 仅同步 `todo.md`，跳过自触发；本提交只新增 `docs/receipts/build-85df6c0e9d11b522f77efb99b50ab565030ad275.md`（23 行）。从 `63875fea` 到本 SHA 的全部差异只有 TODO 与收据，Lean / 依赖 / 论文均未改变
+  - 收据 L3–9 给出精确被构建 SHA、日期、固定工具链、默认 `lake build` 命令、退出码 0、614 jobs / 0 errors 与源码占位计数 0；L11–20 提供 `lake env lean` 退出 0 的报告和 7 项具名公理输出。报告覆盖最新 Source 变更后的相同源码，不再沿用“README 早于 Source，所以最新源码完全无收据”的判断
+  - 所列 7 项为 `birth_E`、`birth_root`、`birth_succ_succ`、`birth_iff_no_earlier_mother`、`birth_iff_prime`、`clock_iso`、`crk_injective`；均列出 `propext`、`Classical.choice`、`Quot.sound`，没有 `sorryAx`。这是已提交文本的检查结果，不是审计器独立运行所得
+  - 完整构建日志、warning / 模块覆盖、checkout 清洁状态、审计输入与完整命令仍未提交；`crk_mono` / `crk_strict_mono` 未列出。P0 新增“收到精确 SHA 的摘要 / 7 项输出”子项，完整可复现验收继续开放；P1/P2 实现差距不变
+  - 验证范围：两个后续提交逐一差异、4 个证明模块、工具链 / 配置 / 锁文件、README、完整树与收据；未运行 Lean/Lake / 样例 / 公理审计。收据目标 SHA 与本 SHA 的 Actions/check-runs/statuses/comments 均空
+
+后续审计从上述提交游标之后按提交顺序处理；本审计器自身仅修改 `todo.md` 的提交不触发重复写入。若出现历史分叉、缺失提交或并发修改，先重新比较 HEAD 和最新文件，不覆盖他人变更。
 
 ## P0：先让一元模型成为可复现、无占位的内核检查结果
 
 - [ ] **P0.1 建立当前完整构建基线**
   - 路径：`lean/lean-toolchain`、`lean/lakefile.lean`、`lean/lake-manifest.json`；默认 target `Theorems` 的子模块 glob 在配置上包含 PrimeBirth 和新增 Regression
-  - 当前证据：README 声称 `lake build` 成功，但没有精确 SHA 的命令/退出码/完整输出；本轮 4 个 SHA 的远端构建与 check/status 收据均空。尤其当前 Source 已在 README 提交之后改变，必须对最新代码整体重验
+  - [x] 已收到精确 SHA 构建摘要：`docs/receipts/build-85df6c0e9d11b522f77efb99b50ab565030ad275.md:3–9` 记录 `cd lean && lake build`、退出码 0、614 jobs / 0 errors；目标 SHA 与当前 HEAD 的 Lean 源码和配置一致
+  - 剩余证据：完整原始 build 日志、warning / 4 个项目模块覆盖、实际 Lean/Lake 版本输出和 checkout 清洁状态；当前只核验了维护者提交的摘要，远端 Actions/check/status 仍空。无需仅因后续 TODO / 收据文档提交而重跑相同源码，但须使现有构建可复查、可重现
   - 在固定工具链的干净 checkout 中运行 `cd lean && lake build` 及 `lake build Definitions Theorems`，覆盖 Source → Atlas → PrimeBirth → Regression。必要时先取固定依赖及 mathlib cache；保存 commit SHA、Lean/Lake 版本、命令、退出码和日志
   - 验收：同一精确提交上完整默认构建退出 0，4 个项目模块与新增审计模块均实际包含；说明所有 warning。缓存、单模块或文字“Verified”不替代该收据，不通过移除默认 target 凑通过
 
@@ -85,13 +93,16 @@
   - 路径：`lean/Definitions/Def_PrimeMother_Atlas.lean:47–90`
   - 声明：`PrimeMother.birth`、`birth_succ_succ`、`birth_root`、`birth_E`
   - [x] 源码修复：`36add88e` 已消除 `birth_succ_succ` 的最后直接占位；`birth_E` L57–59、`birth_root` L62–64 和 `birth_succ_succ` L71–90 均为无直接占位脚本
-  - 剩余工作：实编译验证 `WellFounded.fix_eq` 展开后的定义等价与 `show` 目标、`congr 1 / propext` 和两种存在量词的重组，确认 0/1 边界；保持 `Nat.strongRecOn` 严格先前阶段依赖
+  - [x] 已收到 `birth_E`、`birth_root`、`birth_succ_succ` 的具名公理输出文本（收据 L14–16），均列出三项标准公理且无 `sorryAx`；收据报告对应相同源码的构建与审计退出 0
+  - 剩余工作：补齐可重现的审计输入、完整调用和 P0.1 日志，复核 `WellFounded.fix_eq` 展开、`show` / `congr 1 / propext`、见证重组与 0/1 边界；保持 `Nat.strongRecOn` 严格先前阶段依赖。本轮未独立执行，不能把收到文本等同于独立核验
   - 验收：三个引理在固定工具链编译成功，完整传递公理输出无 `sorryAx`；定义没有素数判定或最终结论型输入。源码子项完成不等于本项已验收
 
 - [ ] **P0.3 验证已提交的主定理证明链**
   - 路径：`lean/Theorems/Thm_PrimeMother_PrimeBirth.lean:19–115`
   - 声明：`birth_ge_two` L21、`birth_iff_no_earlier_mother` L36、`birth_iff_prime` L58
-  - 当前状态：主定理自 `3e9d7d3` 已无直接占位；`36add88e` 只删除过期注释并补齐其依赖的 Atlas 展开脚本。当前已无已知直接源码占位阻塞，剩余是完整构建与内核依赖核验
+  - 当前状态：主定理自 `3e9d7d3` 已无直接占位；`36add88e` 补齐其依赖的 Atlas 展开脚本。原始目标、严格更小阶段递归与模型假设均未改变
+  - [x] 已收到 `birth_iff_no_earlier_mother`、`birth_iff_prime` 的具名公理输出文本（收据 L17–18），均列出三项标准公理且无 `sorryAx`；所指 SHA 包含当前相同证明链
+  - 剩余：P0.1 完整日志及公理审计输入 / 完整命令尚缺，未独立重现该报告；不宣称已完成独立内核依赖验收
   - L21–32：确认 0/1 边界使用 `birth_root`、`birth_E`；L36–55：检查 L39 的 `rw [birth_succ_succ]` 和 if 两分支
   - L71–82：核对 `Nat.exists_dvd_of_not_prime2`、`Nat.exists_prime_and_dvd`、`dvd_trans` 与非平凡素因子范围；L85–104：确认 `ih (j+2)`、商见证、排除商 0/1 和 atlas 构造；L107–115：验证 `Nat.prime_def_lt` 方向
   - API 依据：[固定版本 Basic.lean L68–77](https://github.com/leanprover-community/mathlib4/blob/0df444a360eaa60ab8c11dca51a86af692955474/Mathlib/Data/Nat/Prime/Basic.lean#L68-L77)、[Defs.lean L107–120](https://github.com/leanprover-community/mathlib4/blob/0df444a360eaa60ab8c11dca51a86af692955474/Mathlib/Data/Nat/Prime/Defs.lean#L107-L120)、[Defs.lean L407–408](https://github.com/leanprover-community/mathlib4/blob/0df444a360eaa60ab8c11dca51a86af692955474/Mathlib/Data/Nat/Prime/Defs.lean#L407-L408)
@@ -100,9 +111,9 @@
 - [ ] **P0.4 执行已添加的回归测试并保存内核依赖收据**
   - 路径：`lean/Theorems/Thm_PrimeMother_Regression.lean:14–107`；4 个证明模块；建议增加可复现公理审计入口及日志
   - [x] `9473ec06` 已添加 0、1、2、3、4、6、9、25 的证明式 examples，覆盖边界、首批素数、合数与平方数；新模块在现有 Theorems glob 范围内
-  - 剩余：实际执行所有样例并留完整构建日志。`birth` 为 `noncomputable`，样例是等式证明而非可执行枚举；25 借用主定理的 5 实例，不能作为主定理独立正确性证据
-  - 对 `birth_E`、`birth_root`、`birth_succ_succ`、`birth_iff_no_earlier_mother`、`birth_iff_prime` 运行并保存 `#print axioms`；源层新增 `crk_mono`、`crk_strict_mono`、`crk_injective`、`clock_iso` 也应纳入检查
-  - README/提交标题声称只有 `propext`、`Classical.choice`、`Quot.sound`，当前没有可核验的逐声明输出。保存实际标准公理列表，拒绝 `sorryAx` 与偷渡结论的自定义公理
+  - 当前默认 `lake build` 的成功摘要在配置上覆盖 Regression，但缺完整日志来逐项核对样例实际检查。补齐模块覆盖与执行记录；`birth` 为 `noncomputable`，样例是等式证明而非可执行枚举；25 借用主定理的 5 实例，不能作为主定理独立正确性证据
+  - [x] 收据 L14–20 已提供 `birth_E`、`birth_root`、`birth_succ_succ`、`birth_iff_no_earlier_mother`、`birth_iff_prime`、`crk_injective`、`clock_iso` 共 7 项逐声明输出文本，所列仅 `propext`、`Classical.choice`、`Quot.sound`
+  - 补交可复现 `#print axioms` 输入文件、完整执行命令与原始输出；`crk_mono`、`crk_strict_mono` 仍需具名输出。收据的“any dependency closure”不能替代未列声明的检查；拒绝 `sorryAx` 与偷渡结论的自定义公理
   - 验收：相同 SHA 的完整 build、全部样例与依赖审计共同通过，审计入口实际被执行且日志可访问；源码 grep 不代替内核检查
 
 ## P1：补齐论文的一元语义与可维护性
@@ -131,7 +142,8 @@
 - [ ] **P1.4 补齐 README 验证依据与 CI**
   - 路径：`README.md:13–50`、根 `.gitignore:1`；建议 `.github/workflows/lean.yml`
   - [x] `300036da` 已新增 README，列出固定版本、`cd lean && lake build`、主定理与尚缺的 finite-return / boundary 范围
-  - 剩余文档：给 build/axiom audit 提供精确 SHA 与日志链接；在没有可复现收据前区分维护者报告和独立核验，不把 L50 的 P0 完成断言当验收。L23–25 的“源层尚未实现”也应更新为当前部分源层实现及 P1.1 剩余差距
+  - [x] `e656bc19` 已新增精确 SHA 的构建摘要与 7 项公理输出文件，补上此前缺少的具名证据；README 本身尚未链接该收据
+  - 剩余文档：链接现有收据及待补的完整日志 / 审计入口，明确维护者报告与独立核验的区别；不把 L50 的 P0 完成断言当作完整可复现验收。L23–25 的“源层尚未实现”也应更新为当前部分源层实现及 P1.1 剩余差距
   - CI 仍未提交；根 `.gitignore` 新增 `.github/`，后续添加 workflow 时需保证其实际进入版本控制。本审计不修改 ignore 规则或任何 CI 设置
   - CI 覆盖 push/PR、固定工具链、完整 `lake build`、4 个模块与公理审计入口、占位/依赖门禁；不能仅 grep 无 `sorry` 就声称证明可信
   - 验收：当前新提交有可访问的成功 run，失败/缺失/未运行状态分开记录；README 每项标明“已实现且检查 / 实现待检查 / 未完成 / 未实现”
