@@ -1,25 +1,25 @@
 # PrimeMother TODO：Lean 状态与完成路线
 
-审计日期：2026-10-07 15:25（UTC）  
-审计基线 / 已审计代码游标：`master` @ [adbeb27777cd09107ac44aba03da7beb7555cfe7](https://github.com/cchx0000/primemother/commit/adbeb27777cd09107ac44aba03da7beb7555cfe7)  
+审计日期：2026-10-08 02:52（UTC）  
+审计基线 / 已审计代码游标：`master` @ [f4b778971bfee39bfb007716cddebc040689a23b](https://github.com/cchx0000/primemother/commit/f4b778971bfee39bfb007716cddebc040689a23b)  
 首次完整源码与论文审计：[258fb757f4712b18ce45310bbebbd34e9dc9226d](https://github.com/cchx0000/primemother/commit/258fb757f4712b18ce45310bbebbd34e9dc9226d)
 
-<!-- primemother-audit-cursor: adbeb27777cd09107ac44aba03da7beb7555cfe7 -->
+<!-- primemother-audit-cursor: f4b778971bfee39bfb007716cddebc040689a23b -->
 
 ## 当前结论与验证边界
 
 当前仓库是**一元 prime-birth 的算术模型与未完成证明骨架**，还不是论文全部结论的 Lean 形式化。
 
-- 首次审计已逐个检查全部 3 个证明源模块（不含 `lakefile.lean`）、Lake 配置/锁文件、论文的主要结论及其依赖。本轮检查 `3e9d7d3` → `adbeb277` 的全部 2 个提交：`9859e4f3` 是本审计器自身的纯 `todo.md` 同步，跳过重复审计；实际代码提交仅 `adbeb277`，只改动 Atlas。本轮重读全部 3 个证明模块，其他源码、论文及配置均无变更
-- 源码中现有 **1 处显式 `sorry`**，位于 `Def_PrimeMother_Atlas.lean:77` 的 `birth_succ_succ`。`adbeb277` 已把 `birth_E`、`birth_root` 的占位替换为展开 `Nat.strongRecOn` 后使用 `WellFounded.fix_eq` 的证明脚本，全库直接占位数由 3 降至 1。Theorems 文件仍无直接 `sorry`，但 `birth_iff_no_earlier_mother` 与主定理仍依赖未完成的 `birth_succ_succ`，不能称为无 `sorryAx` 的最终定理
+- 首次审计已逐个检查全部 3 个证明源模块（不含 `lakefile.lean`）、Lake 配置/锁文件、论文的主要结论及其依赖。本轮检查 `adbeb277` → `f4b77897` 的全部 2 个提交：`c9173846` 是本审计器自身的纯 `todo.md` 同步，跳过重复审计；新增源码提交仅 `f4b77897`，只调整 Atlas 的展开引理注释与脚本。本轮重读全部 3 个证明模块及 Lake 配置/锁文件、工具链，并检查完整文件树；其他源码、论文及配置均无变更
+- 源码中仍有 **1 处显式 `sorry`**，位于 `Def_PrimeMother_Atlas.lean:77` 的 `birth_succ_succ`。`birth_E`、`birth_root` 保持 `adbeb277` 提交的无直接占位脚本；`f4b77897` 只增加技术说明并移除 `simp only []`，未消除该占位。Theorems 文件仍无直接 `sorry`，但 `birth_iff_no_earlier_mother` 与主定理仍依赖未完成的 `birth_succ_succ`；注释所称不依赖具体证明技术，不等于不依赖该展开等式的证明，不能称为无 `sorryAx` 的最终定理
 - 3 个模块中未见显式 `axiom` / `admit` 声明。出生定义没有调用 `Nat.Prime`，递归依赖严格更小的 `m`，未发现把最终结论作为显式假设输入的循环；但尚未通过内核依赖审计，不能据此称“无公理/无 sorry”
 - `Prefix := Nat`、`rk H := H`、`HasRegAtlas H Pi := ∃ r ≥ 2, rk Pi * r = rk H`。这些是秩模型的定义；`clock_reconstruction` 的 `rfl` 不是抽象无标签路径的唯一 order isomorphism 证明，两个 atlas-rank 引理也不是实际分块/路径同构的构造
 - `birth_iff_prime` 保留原始声明及仅有的 `2 ≤ n` 前提；证明脚本已补全直接占位，仍依赖 Atlas 的 1 个占位引理且本审计未实编译。论文的有限联合 birth、return source、无限边界与唯一 provenance 等价类仍无对应 Lean 实现
-- 本轮**没有运行 Lean/Lake 编译或测试**。`adbeb277` 的精确 SHA 查询结果为 Actions runs 0、check-runs 0、commit statuses 空，未见可核验的完整构建或内核依赖收据；本轮没有新增 CI 配置。两条边界证明脚本已去掉直接占位，但不能仅据提交标题的“proved”或静态阅读宣称它们已编译通过
+- 本轮**没有运行 Lean/Lake 编译、测试或 `#print axioms`，仅做源码审计**。`f4b778971bfee39bfb007716cddebc040689a23b` 的精确 SHA 查询结果为 Actions runs 0、check-runs 0、commit statuses 空，未见可核验的完整构建或内核依赖收据；空 statuses 的汇总 `pending` 不代表有任务正在运行。本轮没有新增 CI 配置，不能根据技术性注释或静态阅读宣称证明已编译通过
 - 已固定 Lean `v4.33.1` 与 mathlib `0df444a360eaa60ab8c11dca51a86af692955474`；已核对该 mathlib 提交的 `lean-toolchain` 也是 `v4.33.1`，未发现版本针本身不匹配
 - 首次基线无 README、根目录 `todo.md` 或仓库级操作说明；`6694cbf4` 已新增本文件。本轮只同步审计状态，不改动 Lean 证明或论文
 
-以下行号均指当前已审计代码 `adbeb277`。复查后续提交时应重新定位，不能把本快照当作实时构建状态。
+以下行号均指当前已审计代码 `f4b77897`（历史增量记录保留各自提交的行号）。复查后续提交时应重新定位，不能把本快照当作实时构建状态。
 
 ## 增量审计记录
 
@@ -42,6 +42,13 @@
   - 当前直接占位计数 **3 → 1**；P0.2 有源码进展，仍未验收。P0.3 的脚本未变，仍被该展开引理和实际构建/内核审计阻塞；P0.1/P0.4、P1/P2 均无新的完成证据
   - 验证范围：全量读取 3 个证明模块、检查该提交差异；未运行 Lean/Lake、测试或 `#print axioms`；该 SHA 的 Actions/check/status 查询均为空
 
+- **2026-10-08：[`f4b77897`](https://github.com/cchx0000/primemother/commit/f4b778971bfee39bfb007716cddebc040689a23b)**，提交时间 01:43:24 UTC，标题 `P0.2: document birth_succ_succ as technical unfolding (1 sorry remains)`
+  - 自上次代码游标起，先核对 [`c9173846`](https://github.com/cchx0000/primemother/commit/c9173846d27645a665960b538956d5706542e1b5) 仅同步本文件并跳过自触发；新增源码只有本提交，且只修改 `lean/Definitions/Def_PrimeMother_Atlas.lean`
+  - `birth_succ_succ` 的说明扩展为 L66–70，声明移至 L71–74；L75–77 仅保留 `unfold birth Nat.strongRecOn`、`rw [WellFounded.fix_eq]`、`sorry`，删除原 `simp only []` 及操作注释
+  - 定义、定理目标和前提均未改变；没有新增 `axiom` / `admit` 或结论型假设，严格先前阶段的递归结构未变。直接占位仍为 **1 → 1**；注释不构成展开等式已经证明或主定理绕过占位的证据
+  - 主定理经 `birth_iff_no_earlier_mother` L40 的 `rw [birth_succ_succ]` 继续依赖该占位。P0.2/P0.3 均不勾选；P0.1/P0.4、P1/P2 无新的完成证据
+  - 验证范围：该区间两个提交逐个核对、全量读取 3 个证明模块与构建配置；未运行 Lean/Lake、测试或 `#print axioms`。新增源码 SHA 的 Actions runs/check-runs 均为 0，commit statuses 为空，未见新增构建日志
+
 后续审计从上述代码游标之后按提交顺序处理；本审计器自身仅修改 `todo.md` 的提交不触发重复写入。若出现历史分叉、缺失提交或并发修改，先重新比较 HEAD 和最新文件，不覆盖他人变更。
 
 ## P0：先让一元模型成为可复现、无占位的内核检查结果
@@ -55,8 +62,8 @@
 - [ ] **P0.2 完成良基递归展开与基础出生规则**
   - 路径：`lean/Definitions/Def_PrimeMother_Atlas.lean:47–77`
   - 声明：`PrimeMother.birth`、`birth_succ_succ`、`birth_root`、`birth_E`
-  - 当前状态：递归主体保持 `Nat.strongRecOn`；`birth_E` L57–59、`birth_root` L62–64 已提交无直接占位的证明脚本，待实际构建确认；`birth_succ_succ` L67–77 仍有唯一直接 `sorry`
-  - 当前 n+2 展开脚本为 L71 的 `unfold birth Nat.strongRecOn`、L72 的 `rw [WellFounded.fix_eq]` 与 L74 的 `simp only []`，随后仍留占位。完成递归值与 `birth m` 的一致性及存在见证/if 条件的命题等价，保留严格先前阶段依赖；同时对 0/1 边界脚本做固定版本编译与公理核查
+  - 当前状态：递归主体保持 `Nat.strongRecOn`；`birth_E` L57–59、`birth_root` L62–64 已提交无直接占位的证明脚本，待实际构建确认；`birth_succ_succ` L71–77 仍有唯一直接 `sorry`
+  - 当前 n+2 展开脚本为 L75 的 `unfold birth Nat.strongRecOn`、L76 的 `rw [WellFounded.fix_eq]`，随后 L77 仍留占位；`f4b77897` 已移除 `simp only []`，技术说明未完成该证明。完成递归值与 `birth m` 的一致性及存在见证/if 条件的命题等价，保留严格先前阶段依赖；同时对 0/1 边界脚本做固定版本编译与公理核查
   - 验收：三个边界/展开引理在固定工具链下编译且均不依赖 `sorryAx`；定义本身不引入素数判定或最终定理作为假设
 
 - [ ] **P0.3 验证已提交的主定理证明链**
