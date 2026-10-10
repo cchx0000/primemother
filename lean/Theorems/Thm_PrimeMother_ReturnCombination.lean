@@ -1683,4 +1683,78 @@ theorem packetWord_elementary_iff (ps : List Nat)
     rw [e1, e2, e3]
     exact h
 
+/-!
+### Record endpoint distinctness and support-length correspondence (P2.1)
+
+Different block records have different endpoint pairs
+(`packetWord_records_endpoints_nodup`): equal endpoint pairs would force
+equal classes (both endpoints carry their class label), contradicting the
+strictly increasing classes. The `i`-th record's endpoints `(a, b)` satisfy
+`b - a = ps[i]` (`packetWord_records_endpoint_support`), the explicit
+endpoint-pair form of `blockRecordsAux_support`. Together with the
+endpoint iff-classification, this is the bridge from the packet geometry
+to the sector condition: distinct-class elementary returns have distinct
+support lengths.
+-/
+
+/-- Distinct records have distinct endpoint pairs. -/
+theorem packetWord_records_endpoints_nodup (ps : List Nat)
+    (hsort : ps.SortedLT) (hall : ∀ p ∈ ps, 2 ≤ p) :
+    ((blockRecordsAux ps 1 2 0 1).map
+      (fun r : Nat × Nat × Nat => (r.2.1, r.2.2))).Nodup := by
+  have hel : ∀ r ∈ blockRecordsAux ps 1 2 0 1,
+      IsElementaryReturn (packetWord ps) r.1 r.2.1 r.2.2 :=
+    packetWord_blocks_elementary ps hall
+  have hcls : ((blockRecordsAux ps 1 2 0 1).map
+      (fun r : Nat × Nat × Nat => r.1)).Pairwise (· < ·) :=
+    List.SortedLT.pairwise (packetWord_classes_sorted ps hsort hall)
+  have key : ∀ l' : List (Nat × Nat × Nat),
+      (∀ r ∈ l', IsElementaryReturn (packetWord ps) r.1 r.2.1 r.2.2) →
+      (l'.map (fun r : Nat × Nat × Nat => r.1)).Pairwise (· < ·) →
+      (l'.map (fun r : Nat × Nat × Nat => (r.2.1, r.2.2))).Pairwise
+        (· ≠ ·) := by
+    intro l'
+    induction l' with
+    | nil => intro _ _; exact List.Pairwise.nil
+    | cons x xs ih =>
+      intro hel' hcls'
+      simp only [List.map_cons] at hcls'
+      rw [List.pairwise_cons] at hcls'
+      obtain ⟨hx_lt, hcls''⟩ := hcls'
+      have ih' := ih (fun r hr => hel' r (List.mem_cons_of_mem x hr)) hcls''
+      simp only [List.map_cons]
+      rw [List.pairwise_cons]
+      refine ⟨?_, ih'⟩
+      intro y hy heq
+      rw [List.mem_map] at hy
+      obtain ⟨z, hz, rfl⟩ := hy
+      have hlt : x.1 < z.1 :=
+        hx_lt z.1 (by rw [List.mem_map]; exact ⟨z, hz, rfl⟩)
+      have hx_el := hel' x List.mem_cons_self
+      have hz_el := hel' z (List.mem_cons_of_mem x hz)
+      -- Equal endpoint pairs force equal classes: both left endpoints
+      -- carry their class label.
+      have hxa : (packetWord ps)[z.2.1]? = some x.1 := by
+        have hpos : x.2.1 = z.2.1 := congrArg Prod.fst heq
+        rw [← hpos]; exact hx_el.2.2.1
+      have hcc : x.1 = z.1 := Option.some_inj.mp (hxa.symm.trans hz_el.2.2.1)
+      omega
+  rw [List.nodup_iff_pairwise_ne]
+  exact key _ hel hcls
+
+/-- Explicit endpoint/support-length correspondence: the `i`-th record's
+    endpoints `(a, b)` satisfy `b - a = ps[i]`. -/
+theorem packetWord_records_endpoint_support (ps : List Nat)
+    (i : Nat) (hi : i < ps.length) :
+    ((blockRecordsAux ps 1 2 0 1)[i]?.map
+      (fun r : Nat × Nat × Nat => r.2.2 - r.2.1)) = some ps[i] := by
+  have hsup := blockRecordsAux_support ps 1 2 0 1
+  have h1 : ((blockRecordsAux ps 1 2 0 1).map
+      (fun r : Nat × Nat × Nat => r.2.2 - r.2.1))[i]? = ps[i]? := by
+    rw [hsup]
+  rw [List.getElem?_map] at h1
+  have h2 : ps[i]? = some ps[i] := List.getElem?_eq_getElem hi
+  rw [h2] at h1
+  exact h1
+
 end PrimeMother
