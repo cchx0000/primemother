@@ -93,3 +93,4 @@ open PrimeMother
 #print axioms packetStep_elementary
 #print axioms packetWordAux_invariant
 #print axioms isReturnWord_packetWord
+#print axioms elementaryReturn_append_preserved

@@ -417,4 +417,27 @@ theorem isReturnWord_packetWord (ps : List Nat) (h : ∀ p ∈ ps, 2 ≤ p) :
       packetWordAux_invariant (p :: ps) [0, 1] 1 2 0 1 h hbase
     exact hinv.1
 
+/-- Old elementary returns survive appending any segment: positions below
+    w.length keep their labels, and the "no occurrence between" only
+    inspects positions < b < w.length. -/
+theorem elementaryReturn_append_preserved {w seg : List Nat} {c a b : Nat}
+    (h : IsElementaryReturn w c a b) :
+    IsElementaryReturn (w ++ seg) c a b := by
+  obtain ⟨hab, hblen, ha, hb, hmid⟩ := h
+  refine ⟨hab, ?_, ?_, ?_, ?_⟩
+  · -- b < (w ++ seg).length
+    simp only [List.length_append]
+    omega
+  · -- (w ++ seg)[a]? = w[a]? = some c
+    rw [List.getElem?_append_left (by omega : a < w.length)]
+    exact ha
+  · -- (w ++ seg)[b]? = w[b]? = some c
+    rw [List.getElem?_append_left (by omega : b < w.length)]
+    exact hb
+  · -- no c strictly between a and b in w ++ seg
+    intro k hk1 hk2
+    -- k < b < w.length, so (w ++ seg)[k]? = w[k]? ≠ some c
+    rw [List.getElem?_append_left (by omega : k < w.length)]
+    exact hmid k hk1 hk2
+
 end PrimeMother
