@@ -96,6 +96,48 @@ theorem clock_iso : Function.Injective crk ∧ Function.Surjective crk :=
 /-- The rank image is all of `Nat₀`: nothing is lost in reconstruction. -/
 theorem clock_surjective : Function.Surjective crk := clock_iso.2
 
+/-! ### Order structure of the source -/
+
+/-- Prefix order is reflexive: every prefix is a prefix of itself. -/
+private theorem chainLE_refl : ∀ a : Chain, ChainLE a a
+  | .origin => ChainLE.origin_le _
+  | .step c => ChainLE.step_le (chainLE_refl c)
+
+/-- Prefix order is transitive. -/
+private theorem chainLE_trans : ∀ {a b c : Chain}, ChainLE a b → ChainLE b c → ChainLE a c
+  | _, _, _, ChainLE.origin_le _, _hbc => ChainLE.origin_le _
+  | _, _, _, ChainLE.step_le hab, ChainLE.step_le hbc => ChainLE.step_le (chainLE_trans hab hbc)
+
+/-- A prefix of rank at most `n` sits below the canonical `n`-fold step chain. -/
+private theorem chainLE_of_crk_le : ∀ (a : Chain) (n : Nat), crk a ≤ n → ChainLE a (chainOf n) := by
+  intro a
+  induction a with
+  | origin => intro n _; exact ChainLE.origin_le _
+  | step c ih =>
+    intro n h
+    simp only [crk] at h
+    match n with
+    | 0 => omega
+    | n + 1 =>
+      have h' : crk c ≤ n := by omega
+      exact ChainLE.step_le (ih n h')
+
+/-- Every prefix equals the canonical chain of its rank. -/
+private theorem chain_eq_chainOf_crk (b : Chain) : b = chainOf (crk b) :=
+  crk_injective (crk_chainOf (crk b)).symm
+
+/-- Clock reconstruction (Prop. 2.4, order form): the prefix order on the
+    unlabelled source coincides with the order of posterior ranks.
+    Forward: `crk_mono`; backward: a prefix of rank ≤ `n` lies below the
+    canonical `n`-fold step chain. -/
+theorem chainLE_iff_crk_le {a b : Chain} : ChainLE a b ↔ crk a ≤ crk b := by
+  constructor
+  · exact crk_mono
+  · intro h
+    have hle : ChainLE a (chainOf (crk b)) := chainLE_of_crk_le a (crk b) h
+    rw [chain_eq_chainOf_crk b]
+    exact hle
+
 /-! ## (b) Rank model (transport along `clock_iso`) -/
 
 /-- A retained prefix is identified with its posterior rank (edge count).
