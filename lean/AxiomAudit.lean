@@ -147,6 +147,9 @@ open PrimeMother
 #print axioms packetWord_elementary_iff
 #print axioms packetWord_records_endpoints_nodup
 #print axioms packetWord_records_endpoint_support
+#print axioms packetWord_elementary_edge_counts_ne
+#print axioms isSimpleReturnSectorCutOpen_packetWord
+#print axioms isSimpleReturnSector_packetWord
 -- Return descent P2.2 (9)
 #print axioms splitFirst_length
 #print axioms splitClass_length

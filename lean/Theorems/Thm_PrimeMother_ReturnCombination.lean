@@ -1757,4 +1757,103 @@ theorem packetWord_records_endpoint_support (ps : List Nat)
   rw [h2] at h1
   exact h1
 
+/-!
+### General sector bridge (P2.1)
+
+The endpoint iff-classification plus the support-length correspondence
+give distinct edge counts for distinct-class elementary returns of the
+general packet word (`packetWord_elementary_edge_counts_ne`). Feeding this
+into the sector bridges yields the cut-open sector theorem
+(`isSimpleReturnSectorCutOpen_packetWord`, the paper-faithful
+`prop:return-normal-form` condition) and the legacy raw-pattern sector
+theorem (`isSimpleReturnSector_packetWord`, via
+`sector_of_distinct_support_lengths`).
+-/
+
+/-- Distinct-class elementary returns of the general packet word have
+    distinct edge counts: classification pins each return to a record, and
+    the records sit at distinct input positions with distinct values
+    (the input list is strictly increasing). -/
+theorem packetWord_elementary_edge_counts_ne (ps : List Nat)
+    (hsort : ps.SortedLT) (hall : ∀ p ∈ ps, 2 ≤ p)
+    {c a b c' a' b' : Nat}
+    (hc : IsElementaryReturn (packetWord ps) c a b)
+    (hc' : IsElementaryReturn (packetWord ps) c' a' b')
+    (hne : c ≠ c') :
+    b - a ≠ b' - a' := by
+  rw [packetWord_elementary_iff ps hsort hall] at hc hc'
+  obtain ⟨r, hr, hrfl⟩ := hc
+  obtain ⟨r', hr', hrfl'⟩ := hc'
+  have e1 : c = r.1 := congrArg Prod.fst hrfl
+  have e2 : a = r.2.1 := congrArg (Prod.fst ∘ Prod.snd) hrfl
+  have e3 : b = r.2.2 := congrArg (Prod.snd ∘ Prod.snd) hrfl
+  have e1' : c' = r'.1 := congrArg Prod.fst hrfl'
+  have e2' : a' = r'.2.1 := congrArg (Prod.fst ∘ Prod.snd) hrfl'
+  have e3' : b' = r'.2.2 := congrArg (Prod.snd ∘ Prod.snd) hrfl'
+  -- Record indices in the record list.
+  obtain ⟨i, hri⟩ := List.mem_iff_getElem?.mp hr
+  obtain ⟨j, hrj⟩ := List.mem_iff_getElem?.mp hr'
+  have hlen : (blockRecordsAux ps 1 2 0 1).length = ps.length := by
+    have h := congrArg List.length (blockRecordsAux_support ps 1 2 0 1)
+    simpa only [List.length_map] using h
+  obtain ⟨hi_l, -⟩ := List.getElem_of_getElem? hri
+  obtain ⟨hj_l, -⟩ := List.getElem_of_getElem? hrj
+  have hi_ps : i < ps.length := by omega
+  have hj_ps : j < ps.length := by omega
+  -- Support lengths read off the input list.
+  have hsup_i := packetWord_records_endpoint_support ps i hi_ps
+  have hsup_j := packetWord_records_endpoint_support ps j hj_ps
+  rw [hri] at hsup_i
+  rw [hrj] at hsup_j
+  simp only [Option.map_some] at hsup_i hsup_j
+  have esup_i : r.2.2 - r.2.1 = ps[i] := Option.some_inj.mp hsup_i
+  have esup_j : r'.2.2 - r'.2.1 = ps[j] := Option.some_inj.mp hsup_j
+  -- Different classes sit at different input positions ...
+  have hcc : r.1 ≠ r'.1 := by
+    have hne' := hne
+    rwa [e1, e1'] at hne'
+  have hij : i ≠ j := by
+    intro heq
+    subst heq
+    have hrr : r = r' := Option.some_inj.mp (hri.symm.trans hrj)
+    have h11 : r.1 = r'.1 := congrArg Prod.fst hrr
+    exact hcc h11
+  -- ... with different input values (strictly increasing input).
+  have hps : ps[i] ≠ ps[j] := by
+    have hpw := List.SortedLT.pairwise hsort
+    rcases lt_or_gt_of_ne hij with hlt | hlt
+    · have h := (List.pairwise_iff_getElem.mp hpw) i j hi_ps hj_ps hlt
+      omega
+    · have h := (List.pairwise_iff_getElem.mp hpw) j i hj_ps hi_ps hlt
+      omega
+  rw [e2, e3, e2', e3', esup_i, esup_j]
+  exact hps
+
+/-- General cut-open sector theorem: the packet word of a strictly
+    increasing `≥ 2` list satisfies the paper's simple-return sector
+    condition (`prop:return-normal-form`) under the cut-open semantics —
+    the `sectorCutOpen_of_distinct_edge_counts` bridge applied to the
+    general `packetWord`. -/
+theorem isSimpleReturnSectorCutOpen_packetWord (ps : List Nat)
+    (hsort : ps.SortedLT) (hall : ∀ p ∈ ps, 2 ≤ p) :
+    IsSimpleReturnSectorCutOpen (packetWord ps) :=
+  sectorCutOpen_of_distinct_edge_counts
+    (isSimpleReturn_packetWord ps hsort hall)
+    (fun _ _ _ _ _ _ hc hc' hne =>
+      packetWord_elementary_edge_counts_ne ps hsort hall hc hc' hne)
+
+/-- The general packet word also satisfies the legacy raw-pattern sector
+    condition, via the `sector_of_distinct_support_lengths` bridge:
+    distinct edge counts give distinct support vertex counts. -/
+theorem isSimpleReturnSector_packetWord (ps : List Nat)
+    (hsort : ps.SortedLT) (hall : ∀ p ∈ ps, 2 ≤ p) :
+    IsSimpleReturnSector (packetWord ps) := by
+  apply sector_of_distinct_support_lengths
+  · exact isSimpleReturn_packetWord ps hsort hall
+  · intro c a b c' a' b' hc hc' hne
+    have hne2 := packetWord_elementary_edge_counts_ne ps hsort hall hc hc' hne
+    obtain ⟨hab, -, -, -, -⟩ := hc
+    obtain ⟨hab', -, -, -, -⟩ := hc'
+    omega
+
 end PrimeMother
