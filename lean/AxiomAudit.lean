@@ -81,7 +81,7 @@ open PrimeMother
 #print axioms returnSupport_length
 #print axioms not_supportIso_of_length_ne
 #print axioms sector_of_distinct_support_lengths
--- Return combination P2.1c (48)
+-- Return combination P2.1c (62)
 #print axioms listMax_spine
 #print axioms spine_length
 #print axioms getLast?_spine
@@ -130,6 +130,20 @@ open PrimeMother
 #print axioms blockRecordsAux_classes_sorted
 #print axioms packetWord_classes_sorted
 #print axioms packetWord_blocks_support_sorted
+#print axioms packetWordAux_length
+#print axioms packetWordAux_listMax_succ
+#print axioms returnWord_mem_of_le_max
+#print axioms one_le_card_occurrences_of_mem
+#print axioms sum_card_occurrences_eq_length
+#print axioms sum_pred_eq
+#print axioms packetWord_length_eq
+#print axioms blockRecordsAux_classes_le_listMax
+#print axioms two_le_card_occurrences_of_elementary
+#print axioms forall_eq_of_sum_eq_card_mul
+#print axioms card_le_sum_of_forall_le
+#print axioms packetWord_class_card
+#print axioms packetWord_packet_exact
+#print axioms isSimpleReturn_packetWord
 -- Return descent P2.2 (9)
 #print axioms splitFirst_length
 #print axioms splitClass_length

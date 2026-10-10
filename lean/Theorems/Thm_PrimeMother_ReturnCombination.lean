@@ -1243,4 +1243,363 @@ theorem sum_card_occurrences_eq_length (w : List Nat) :
       rw [List.getElem?_eq_getElem hi]
   rw [← Finset.card_biUnion hdisj, hunion, Finset.card_range]
 
+/-!
+### Exact packet for sorted input (P2.1)
+
+For a strictly increasing list `ps` with every term `≥ 2`, the complete
+return packet of `packetWord ps` is exactly the set of block-record classes:
+each occurs twice (its block's elementary-return endpoints) and no other
+class occurs twice. Paper fidelity: the hypotheses are exactly
+strict-sortedness + `≥ 2` — no primality needed, and unsorted input like
+`[3,2,5]` is excluded (there class `0` occurs three times).
+-/
+
+/-- `Σ (p - 1) = Σ (p - 2) + #ps` for a list with all terms `≥ 2`. -/
+theorem sum_pred_eq {ps : List Nat} (hall : ∀ p ∈ ps, 2 ≤ p) :
+    (ps.map (fun p => p - 1)).sum = (ps.map (fun p => p - 2)).sum + ps.length := by
+  induction ps with
+  | nil => simp
+  | cons p ps ih =>
+    have hp2 : 2 ≤ p := hall p (by simp)
+    have hps : ∀ q ∈ ps, 2 ≤ q := fun q hq => hall q (List.mem_cons_of_mem p hq)
+    have hih := ih hps
+    simp only [List.map_cons, List.sum_cons, List.length_cons]
+    omega
+
+/-- The counting identity: the packet word's length is `(max + 1) + #blocks`. -/
+theorem packetWord_length_eq (ps : List Nat) (hall : ∀ p ∈ ps, 2 ≤ p) :
+    (packetWord ps).length = listMax (packetWord ps) + 1 + ps.length := by
+  cases ps with
+  | nil =>
+    show [0].length = listMax [0] + 1 + ([] : List Nat).length
+    rfl
+  | cons p ps' =>
+    have hbase : PacketInv [0, 1] 1 2 0 1 := by
+      refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+      · apply IsReturnWord.step _ _ IsReturnWord.base _ _
+        · decide
+        · decide
+      · rfl
+      · rfl
+      · decide
+      · decide
+      · rfl
+      · decide
+      · decide
+      · rfl
+    have hWeq : packetWord (p :: ps') = packetWordAux (p :: ps') [0, 1] 1 2 0 1 :=
+      rfl
+    have hlen := packetWordAux_length (p :: ps') [0, 1] 1 2 0 1 hall
+    have hmax := packetWordAux_listMax_succ (p :: ps') [0, 1] 1 2 0 1 hall hbase
+    have hsum := sum_pred_eq hall
+    have h2 : ([0, 1] : List Nat).length = 2 := rfl
+    rw [hWeq]
+    omega
+
+/-- Recorded block classes never exceed the final word's max. -/
+theorem blockRecordsAux_classes_le_listMax (ps : List Nat) (w : List Nat)
+    (b next lprev llast : Nat)
+    (hall : ∀ p ∈ ps, 2 ≤ p) (hinv : PacketInv w b next lprev llast) :
+    ∀ r ∈ blockRecordsAux ps b next lprev llast,
+      r.1 ≤ listMax (packetWordAux ps w b next lprev llast) := by
+  induction ps generalizing w b next lprev llast with
+  | nil =>
+    intro r hr
+    simp [blockRecordsAux] at hr
+  | cons p ps ih =>
+    have hp2 : 2 ≤ p := hall p (by simp)
+    have hps : ∀ q ∈ ps, 2 ≤ q := fun q hq => hall q (List.mem_cons_of_mem p hq)
+    have hstep := packetStep_invariant hp2 hinv
+    have hrec : blockRecordsAux (p :: ps) b next lprev llast =
+        (lprev, b - 1, b - 1 + p) ::
+          blockRecordsAux ps (b - 1 + p) (next + (p - 2))
+            (if p = 2 then llast else next + (p - 3)) lprev := rfl
+    have hW : packetWordAux (p :: ps) w b next lprev llast =
+        packetWordAux ps (w ++ (List.range' next (p - 2) ++ [lprev])) (b - 1 + p)
+          (next + (p - 2)) (if p = 2 then llast else next + (p - 3)) lprev := rfl
+    obtain ⟨_, _, _, hnext2, _, _, hlprev_le, _, _⟩ := hinv
+    have hnext_le : next ≤
+        listMax (packetWordAux (p :: ps) w b next lprev llast) + 1 := by
+      rw [hW, packetWordAux_listMax_succ _ _ _ _ _ _ hps hstep]
+      have hnn : 0 ≤ (ps.map (fun p => p - 2)).sum := Nat.zero_le _
+      omega
+    intro r hr
+    rw [hrec, List.mem_cons] at hr
+    rcases hr with rfl | hmem
+    · show lprev ≤ listMax (packetWordAux (p :: ps) w b next lprev llast)
+      omega
+    · rw [hW]
+      exact ih _ _ _ _ _ hps hstep _ hmem
+
+/-- An elementary return's class occurs at least twice. -/
+theorem two_le_card_occurrences_of_elementary {w : List Nat} {c a b : Nat}
+    (h : IsElementaryReturn w c a b) : 2 ≤ (occurrences w c).card := by
+  obtain ⟨hab, hblen, ha, hb, -⟩ := h
+  have ha' : a ∈ occurrences w c := by
+    simp only [occurrences, Finset.mem_filter, Finset.mem_range]
+    exact ⟨by omega, ha⟩
+  have hb' : b ∈ occurrences w c := by
+    simp only [occurrences, Finset.mem_filter, Finset.mem_range]
+    exact ⟨by omega, hb⟩
+  have hsub : ({a, b} : Finset Nat) ⊆ occurrences w c := by
+    intro x hx
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+    rcases hx with rfl | rfl
+    · exact ha'
+    · exact hb'
+  have hcard : ({a, b} : Finset Nat).card = 2 := by
+    rw [Finset.card_insert_of_notMem (by simp only [Finset.mem_singleton]; omega),
+      Finset.card_singleton]
+  calc 2 = ({a, b} : Finset Nat).card := hcard.symm
+    _ ≤ (occurrences w c).card := Finset.card_le_card hsub
+
+/-- If every term of a finset sum is `≥ k` and the sum equals `k * card`,
+    every term equals `k`. -/
+theorem forall_eq_of_sum_eq_card_mul {s : Finset Nat} {f : Nat → Nat} {k : Nat}
+    (hge : ∀ x ∈ s, k ≤ f x) (hsum : s.sum f = k * s.card) :
+    ∀ x ∈ s, f x = k := by
+  have hdecomp : s.sum f = s.sum (fun x => (f x - k) + k) := by
+    apply Finset.sum_congr rfl
+    intro x hx
+    exact (Nat.sub_add_cancel (hge x hx)).symm
+  rw [Finset.sum_add_distrib] at hdecomp
+  have hk_sum : s.sum (fun _ => k) = k * s.card := by
+    simp [Finset.sum_const, mul_comm]
+  rw [hsum, hk_sum] at hdecomp
+  have hzero : s.sum (fun x => f x - k) = 0 := by omega
+  have hall0 := (Finset.sum_eq_zero_iff_of_nonneg
+    (s := s) (f := fun x => f x - k) (fun x _ => Nat.zero_le _)).mp hzero
+  intro x hx
+  have h0 := hall0 x hx
+  have hkx := hge x hx
+  omega
+
+/-- `k * card ≤ sum` from pointwise `k ≤ f`, with the `•` resolved. -/
+theorem card_le_sum_of_forall_le {s : Finset Nat} {f : Nat → Nat} {k : Nat}
+    (h : ∀ x ∈ s, k ≤ f x) : k * s.card ≤ s.sum f := by
+  have h' := Finset.card_nsmul_le_sum s f k h
+  rw [nsmul_eq_mul, Nat.cast_id, mul_comm] at h'
+  exact h'
+
+/-- Counting master lemma: for strictly increasing `ps` (all `≥ 2`), every
+    block-record class of `packetWord ps` occurs exactly twice, lies `≤ max`,
+    and every other class `≤ max` occurs exactly once. -/
+theorem packetWord_class_card (ps : List Nat)
+    (hsort : ps.SortedLT) (hall : ∀ p ∈ ps, 2 ≤ p) :
+    (∀ c ∈ (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux ps 1 2 0 1)).toFinset,
+      (occurrences (packetWord ps) c).card = 2) ∧
+    (∀ c ∈ (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux ps 1 2 0 1)).toFinset,
+      c ≤ listMax (packetWord ps)) ∧
+    (∀ c, c ≤ listMax (packetWord ps) →
+      c ∉ (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux ps 1 2 0 1)).toFinset →
+      (occurrences (packetWord ps) c).card = 1) := by
+  -- The block classes are strictly increasing, hence distinct.
+  have hsorted : (List.map (fun r : Nat × Nat × Nat => r.1)
+      (blockRecordsAux ps 1 2 0 1)).SortedLT :=
+    packetWord_classes_sorted ps hsort hall
+  have hnodup : (List.map (fun r : Nat × Nat × Nat => r.1)
+      (blockRecordsAux ps 1 2 0 1)).Nodup :=
+    List.nodup_iff_pairwise_ne.mpr
+      ((List.SortedLT.pairwise hsorted).imp (fun h => ne_of_lt h))
+  have hcard_cls : (List.map (fun r : Nat × Nat × Nat => r.1)
+      (blockRecordsAux ps 1 2 0 1)).toFinset.card = ps.length := by
+    rw [List.toFinset_card_of_nodup hnodup, List.length_map]
+    have hsup := blockRecordsAux_support ps 1 2 0 1
+    have hlen := congrArg List.length hsup
+    simp only [List.length_map] at hlen
+    exact hlen
+  cases ps with
+  | nil =>
+    refine ⟨?_, ?_, ?_⟩
+    · intro c hc
+      simp [blockRecordsAux] at hc
+    · intro c hc
+      simp [blockRecordsAux] at hc
+    · intro c hc _
+      have hc0 : c = 0 := by
+        have hmax0 : listMax (packetWord []) = 0 := rfl
+        omega
+      subst hc0
+      decide
+  | cons p ps' =>
+    have hW : packetWord (p :: ps') =
+        packetWordAux (p :: ps') [0, 1] 1 2 0 1 := rfl
+    have hbase : PacketInv [0, 1] 1 2 0 1 := by
+      refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+      · apply IsReturnWord.step _ _ IsReturnWord.base _ _
+        · decide
+        · decide
+      · rfl
+      · rfl
+      · decide
+      · decide
+      · rfl
+      · decide
+      · decide
+      · rfl
+    -- Every recorded class occurs ≥ 2 (its block's elementary return).
+    have hge2 : ∀ c ∈ (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset,
+        2 ≤ (occurrences (packetWord (p :: ps')) c).card := by
+      intro c hc
+      rw [List.mem_toFinset, List.mem_map] at hc
+      obtain ⟨r, hr, rfl⟩ := hc
+      exact two_le_card_occurrences_of_elementary
+        (packetWord_blocks_elementary (p :: ps') hall r hr)
+    -- Every recorded class is ≤ max.
+    have hle_max : ∀ c ∈ (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset,
+        c ≤ listMax (packetWord (p :: ps')) := by
+      intro c hc
+      rw [List.mem_toFinset, List.mem_map] at hc
+      obtain ⟨r, hr, rfl⟩ := hc
+      rw [hW]
+      exact blockRecordsAux_classes_le_listMax (p :: ps') [0, 1] 1 2 0 1
+        hall hbase r hr
+    -- Every class ≤ max occurs ≥ 1 (return-word coverage).
+    have hge1 : ∀ c, c ≤ listMax (packetWord (p :: ps')) →
+        1 ≤ (occurrences (packetWord (p :: ps')) c).card := fun c hc =>
+      one_le_card_occurrences_of_mem
+        (returnWord_mem_of_le_max (isReturnWord_packetWord (p :: ps') hall) hc)
+    have hsub : (List.map (fun r : Nat × Nat × Nat => r.1)
+          (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset
+          ⊆ Finset.range (listMax (packetWord (p :: ps')) + 1) := by
+      intro c hc
+      simp only [Finset.mem_range]
+      have := hle_max c hc
+      omega
+    -- Split the total count into recorded classes vs. the rest.
+    have hsplit := Finset.sum_sdiff (s₁ := (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset)
+      (s₂ := Finset.range (listMax (packetWord (p :: ps')) + 1))
+      (f := fun c => (occurrences (packetWord (p :: ps')) c).card) hsub
+    have hsum_total := sum_card_occurrences_eq_length (packetWord (p :: ps'))
+    have hlen_eq := packetWord_length_eq (p :: ps') hall
+    have hcard_rest' : (Finset.range (listMax (packetWord (p :: ps')) + 1) \
+        (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset).card +
+        (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset.card =
+        listMax (packetWord (p :: ps')) + 1 := by
+      have hsd := Finset.card_sdiff (s := (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset)
+        (t := Finset.range (listMax (packetWord (p :: ps')) + 1))
+      rw [Finset.inter_eq_left.mpr hsub, Finset.card_range] at hsd
+      have hle := Finset.card_le_card hsub
+      simp only [Finset.card_range] at hle
+      omega
+    have hge1_rest : ∀ c ∈ Finset.range (listMax (packetWord (p :: ps')) + 1) \
+        (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset,
+        1 ≤ (occurrences (packetWord (p :: ps')) c).card := by
+      intro c hc
+      obtain ⟨hcr, -⟩ := Finset.mem_sdiff.mp hc
+      simp only [Finset.mem_range] at hcr
+      exact hge1 c (by omega)
+    -- Forcing equality: recorded classes sum to exactly `2n`, rest to `1` each.
+    have hforce : ((List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset).sum
+        (fun c => (occurrences (packetWord (p :: ps')) c).card)
+        = 2 * (p :: ps').length := by
+      have h1 := card_le_sum_of_forall_le
+        (s := (List.map (fun r : Nat × Nat × Nat => r.1)
+          (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset)
+        (f := fun c => (occurrences (packetWord (p :: ps')) c).card)
+        (k := 2) (fun c hc => hge2 c hc)
+      have h2 := card_le_sum_of_forall_le
+        (s := Finset.range (listMax (packetWord (p :: ps')) + 1) \
+          (List.map (fun r : Nat × Nat × Nat => r.1)
+          (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset)
+        (f := fun c => (occurrences (packetWord (p :: ps')) c).card)
+        (k := 1) hge1_rest
+      rw [hcard_cls] at h1
+      omega
+    have heq_cls : ((List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset).sum
+        (fun c => (occurrences (packetWord (p :: ps')) c).card)
+        = 2 * (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset.card := by
+      rw [hcard_cls]
+      exact hforce
+    have hexact2 := forall_eq_of_sum_eq_card_mul (fun c hc => hge2 c hc) heq_cls
+    have heq_rest : (Finset.range (listMax (packetWord (p :: ps')) + 1) \
+        (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset).sum
+        (fun c => (occurrences (packetWord (p :: ps')) c).card)
+        = 1 * (Finset.range (listMax (packetWord (p :: ps')) + 1) \
+        (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset).card := by
+      have h2 := card_le_sum_of_forall_le
+        (s := Finset.range (listMax (packetWord (p :: ps')) + 1) \
+          (List.map (fun r : Nat × Nat × Nat => r.1)
+          (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset)
+        (f := fun c => (occurrences (packetWord (p :: ps')) c).card)
+        (k := 1) hge1_rest
+      omega
+    have hexact1 := forall_eq_of_sum_eq_card_mul hge1_rest heq_rest
+    refine ⟨?_, hle_max, ?_⟩
+    · intro c hc
+      exact hexact2 c hc
+    · intro c hc hnc
+      have hmem : c ∈ Finset.range (listMax (packetWord (p :: ps')) + 1) \
+          (List.map (fun r : Nat × Nat × Nat => r.1)
+          (blockRecordsAux (p :: ps') 1 2 0 1)).toFinset := by
+        rw [Finset.mem_sdiff]
+        simp only [Finset.mem_range]
+        exact ⟨by omega, hnc⟩
+      exact hexact1 c hmem
+
+/-- Exact packet: for strictly increasing `ps` (all `≥ 2`), the complete
+    return packet of `packetWord ps` is exactly the set of block-record
+    classes — no more, no fewer. Each class corresponds to one input prime:
+    `blockRecordsAux_support` gives the class's elementary return support
+    length `ps[k]`, the bidirectional correspondence of paper
+    `thm:return-combination` (ii). -/
+theorem packetWord_packet_exact (ps : List Nat)
+    (hsort : ps.SortedLT) (hall : ∀ p ∈ ps, 2 ≤ p) :
+    ReturnPacket (packetWord ps) =
+      (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux ps 1 2 0 1)).toFinset := by
+  obtain ⟨h2, hle, h1⟩ := packetWord_class_card ps hsort hall
+  ext c
+  simp only [ReturnPacket, Finset.mem_filter, Finset.mem_range]
+  constructor
+  · rintro ⟨hc_lt, hc_card⟩
+    by_contra hcon
+    have h1c := h1 c (by omega) hcon
+    omega
+  · intro hc
+    exact ⟨by have := hle c hc; omega, h2 c hc⟩
+
+/-- Every recurrent class of the sorted packet word occurs exactly twice
+    (count-only simple-return for the general packet). -/
+theorem isSimpleReturn_packetWord (ps : List Nat)
+    (hsort : ps.SortedLT) (hall : ∀ p ∈ ps, 2 ≤ p) :
+    IsSimpleReturn (packetWord ps) := by
+  obtain ⟨h2, -, h1⟩ := packetWord_class_card ps hsort hall
+  intro c hc
+  unfold IsRecurrent at hc
+  by_cases hmax : c ≤ listMax (packetWord ps)
+  · by_cases hmem : c ∈ (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux ps 1 2 0 1)).toFinset
+    · exact h2 c hmem
+    · have h1c := h1 c hmax hmem
+      omega
+  · -- `c` exceeds the max: no occurrences at all.
+    have hempty : occurrences (packetWord ps) c = ∅ := by
+      rw [Finset.eq_empty_iff_forall_notMem]
+      intro i hi
+      simp only [occurrences, Finset.mem_filter, Finset.mem_range] at hi
+      obtain ⟨hi_len, hi_eq⟩ := hi
+      rw [List.getElem?_eq_getElem hi_len] at hi_eq
+      have hcc : (packetWord ps)[i] = c := Option.some_inj.mp hi_eq
+      have hmem : (packetWord ps)[i] ∈ packetWord ps := List.getElem_mem hi_len
+      have hle := le_listMax hmem
+      omega
+    rw [hempty] at hc
+    simp at hc
+
 end PrimeMother
