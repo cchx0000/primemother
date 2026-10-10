@@ -169,6 +169,18 @@ theorem crk_orderIso_origin : crk_orderIso .origin = 0 := rfl
 theorem crk_orderIso_step (c : Chain) : crk_orderIso (.step c) = crk_orderIso c + 1 := by
   simp only [crk_orderIso_apply, crk]
 
+/-- Clock reconstruction (Prop. 2.4, uniqueness): any candidate
+    `f : Chain → Nat` that preserves the root (`f .origin = 0`) and the
+    atomic successor (`f (.step c) = f c + 1`) coincides with posterior rank.
+    This is the paper's "any order isomorphism preserving the root and
+    atomic successor must give the same values". -/
+theorem crk_unique {f : Chain → Nat} (hroot : f .origin = 0)
+    (hsucc : ∀ c, f (.step c) = f c + 1) : f = crk := by
+  funext a
+  induction a with
+  | origin => rw [hroot]; rfl
+  | step c ih => rw [hsucc]; simp [crk, ih]
+
 /-! ## (b) Rank model (transport along `clock_iso`) -/
 
 /-- A retained prefix is identified with its posterior rank (edge count).
