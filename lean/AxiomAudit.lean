@@ -88,5 +88,6 @@ open PrimeMother
 #print axioms isReturnWord_append_fresh
 #print axioms getLast?_append_fresh
 #print axioms packetStep_invariant
+#print axioms packetStep_elementary
 #print axioms packetWordAux_invariant
 #print axioms isReturnWord_packetWord
