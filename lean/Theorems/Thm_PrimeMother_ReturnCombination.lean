@@ -595,4 +595,242 @@ theorem packetWord_two_three_adjacent :
   ⟨by decide, 0, 2, 1, 4, packetWord_two_three_return_two,
     packetWord_two_three_return_three, by unfold ReturnsOverlap; decide⟩
 
+/-!
+P2.1c(v): the singleton packet word's complete classification — paper
+`thm:return-combination`, part (ii), the one-prime case.
+
+For p ≥ 2, `packetWord [p] = [0,1] ++ (List.range' 2 (p-2) ++ [0])`:
+label 0 occurs at positions 0 and p (the elementary return of support
+length p), label 1 occurs once at position 1, and every other label is
+fresh and occurs exactly once. Hence the complete return packet is
+exactly {0} and the word is simple-return.
+-/
+
+/-- Interior positions of the singleton packet word carry their own
+    index as label: position i (2 ≤ i < p) holds the fresh label i. -/
+theorem packetWord_singleton_get_interior (p i : Nat) (hp : 2 ≤ p)
+    (h2 : 2 ≤ i) (hilt : i < p) :
+    ([0, 1] ++ (List.range' 2 (p - 2) ++ [0]))[i]? = some i := by
+  have h1 : ([0, 1] : List Nat).length ≤ i := by simp; omega
+  rw [List.getElem?_append_right h1]
+  have hsub : i - ([0, 1] : List Nat).length = i - 2 := by simp
+  rw [hsub]
+  have hlen1 : (List.range' 2 (p - 2)).length = p - 2 := List.length_range'
+  have h2' : i - 2 < (List.range' 2 (p - 2)).length := by omega
+  rw [List.getElem?_append_left h2']
+  have hr : (List.range' 2 (p - 2))[i - 2]? = some (2 + 1 * (i - 2)) :=
+    List.getElem?_range' (by omega)
+  rw [hr]
+  have heq : 2 + 1 * (i - 2) = i := by omega
+  rw [heq]
+
+/-- Position p of the singleton packet word holds the closing label 0. -/
+theorem packetWord_singleton_get_p (p : Nat) (hp : 2 ≤ p) :
+    ([0, 1] ++ (List.range' 2 (p - 2) ++ [0]))[p]? = some 0 := by
+  have h1 : ([0, 1] : List Nat).length ≤ p := by simp; omega
+  rw [List.getElem?_append_right h1]
+  have hsub : p - ([0, 1] : List Nat).length = p - 2 := by simp
+  rw [hsub]
+  have hlen1 : (List.range' 2 (p - 2)).length = p - 2 := List.length_range'
+  have h2 : (List.range' 2 (p - 2)).length ≤ p - 2 := by omega
+  rw [List.getElem?_append_right h2]
+  have hsub2 : p - 2 - (List.range' 2 (p - 2)).length = 0 := by omega
+  rw [hsub2]
+  decide
+
+/-- Every position of the singleton packet word is classified: label 0 at
+    position 0, label 1 at position 1, label 0 at position p, and every
+    other position 2 ≤ i < p carries label i. -/
+theorem packetWord_singleton_label (p i : Nat) (hp : 2 ≤ p) (hi : i < p + 1) :
+    (([0, 1] ++ (List.range' 2 (p - 2) ++ [0]))[i]? = some 0 ∧ i = 0) ∨
+    (([0, 1] ++ (List.range' 2 (p - 2) ++ [0]))[i]? = some 1 ∧ i = 1) ∨
+    (([0, 1] ++ (List.range' 2 (p - 2) ++ [0]))[i]? = some 0 ∧ i = p) ∨
+    (([0, 1] ++ (List.range' 2 (p - 2) ++ [0]))[i]? = some i ∧ 2 ≤ i ∧ i < p) := by
+  rcases eq_or_ne i 0 with rfl | h0
+  · refine Or.inl ⟨?_, rfl⟩
+    simp
+  · rcases eq_or_ne i 1 with rfl | h1
+    · refine Or.inr (Or.inl ⟨?_, rfl⟩)
+      simp
+    · rcases eq_or_ne i p with hpi | hpi
+      · refine Or.inr (Or.inr (Or.inl ⟨?_, hpi⟩))
+        rw [hpi]
+        exact packetWord_singleton_get_p p hp
+      · refine Or.inr (Or.inr (Or.inr ⟨?_, by omega, by omega⟩))
+        exact packetWord_singleton_get_interior p i hp (by omega) (by omega)
+
+/-- Two occurrences of a nonzero class in the singleton packet word
+    coincide: every nonzero class occurs at most once. -/
+theorem packetWord_singleton_occ_unique (p c : Nat) (hp : 2 ≤ p) (hc : c ≠ 0)
+    (i j : Nat)
+    (hi : i ∈ occurrences (packetWord [p]) c)
+    (hj : j ∈ occurrences (packetWord [p]) c) :
+    i = j := by
+  rw [packetWord_singleton] at hi hj
+  simp only [occurrences, Finset.mem_filter, Finset.mem_range] at hi hj
+  obtain ⟨hilt, hgeti⟩ := hi
+  obtain ⟨hjlt, hgetj⟩ := hj
+  have hlen : (([0, 1] ++ (List.range' 2 (p - 2) ++ [0])) : List Nat).length = p + 1 := by
+    have h := packetWord_singleton_length p hp
+    rw [packetWord_singleton] at h
+    exact h
+  have hleni : i < p + 1 := by omega
+  have hlenj : j < p + 1 := by omega
+  have hzero : ∀ x : Nat, (some (0 : Nat) = some x) → x = 0 :=
+    fun x h => (Option.some_inj.mp h).symm
+  rcases packetWord_singleton_label p i hp hleni with h | h | h | h
+  · obtain ⟨hgi, rfl⟩ := h
+    rw [hgi] at hgeti
+    exact absurd (hzero c hgeti) hc
+  · obtain ⟨hgi, rfl⟩ := h
+    rw [hgi] at hgeti
+    have hci : c = 1 := (Option.some_inj.mp hgeti).symm
+    rcases packetWord_singleton_label p j hp hlenj with h' | h' | h' | h'
+    · obtain ⟨hgj, rfl⟩ := h'
+      rw [hgj] at hgetj
+      exact absurd (hzero c hgetj) hc
+    · obtain ⟨hgj, rfl⟩ := h'
+      rfl
+    · obtain ⟨hgj, rfl⟩ := h'
+      rw [hgj] at hgetj
+      exact absurd (hzero c hgetj) hc
+    · obtain ⟨hgj, -, -⟩ := h'
+      rw [hgj] at hgetj
+      have hcj : j = c := Option.some_inj.mp hgetj
+      omega
+  · obtain ⟨hgi, rfl⟩ := h
+    rw [hgi] at hgeti
+    exact absurd (hzero c hgeti) hc
+  · obtain ⟨hgi, -, -⟩ := h
+    rw [hgi] at hgeti
+    have hci : i = c := Option.some_inj.mp hgeti
+    rcases packetWord_singleton_label p j hp hlenj with h' | h' | h' | h'
+    · obtain ⟨hgj, rfl⟩ := h'
+      rw [hgj] at hgetj
+      exact absurd (hzero c hgetj) hc
+    · obtain ⟨hgj, rfl⟩ := h'
+      rw [hgj] at hgetj
+      have hcj : (1 : Nat) = c := Option.some_inj.mp hgetj
+      omega
+    · obtain ⟨hgj, rfl⟩ := h'
+      rw [hgj] at hgetj
+      exact absurd (hzero c hgetj) hc
+    · obtain ⟨hgj, -, -⟩ := h'
+      rw [hgj] at hgetj
+      have hcj : j = c := Option.some_inj.mp hgetj
+      omega
+
+/-- The singleton packet word has the elementary return of support length
+    p: label 0 at endpoints 0 and p, nothing in between. -/
+theorem packetWord_singleton_elementary (p : Nat) (hp : 2 ≤ p) :
+    IsElementaryReturn (packetWord [p]) 0 0 p := by
+  rw [packetWord_singleton]
+  refine ⟨by omega, ?_, ?_, ?_, ?_⟩
+  · simp only [List.length_append, List.length_range', List.length_cons,
+      List.length_nil]
+    omega
+  · simp
+  · exact packetWord_singleton_get_p p hp
+  · intro k hk1 hk2
+    by_cases hk : k = 1
+    · subst hk
+      rw [List.getElem?_append_left (by simp : (1 : Nat) < ([0, 1] : List Nat).length)]
+      decide
+    · have h2 : 2 ≤ k := by omega
+      rw [packetWord_singleton_get_interior p k hp h2 hk2]
+      intro hcon
+      have hkk := Option.some_inj.mp hcon
+      omega
+
+/-- Class 0 occurs exactly at the two endpoints in the singleton packet
+    word. -/
+theorem packetWord_singleton_occ_zero (p : Nat) (hp : 2 ≤ p) :
+    (occurrences (packetWord [p]) 0) = {0, p} := by
+  ext i
+  rw [packetWord_singleton]
+  simp only [occurrences, Finset.mem_filter, Finset.mem_range,
+    Finset.mem_insert, Finset.mem_singleton]
+  constructor
+  · intro ⟨hilt, hget⟩
+    have hlen : (([0, 1] ++ (List.range' 2 (p - 2) ++ [0])) : List Nat).length = p + 1 := by
+      have h := packetWord_singleton_length p hp
+      rw [packetWord_singleton] at h
+      exact h
+    have hleni : i < p + 1 := by omega
+    rcases packetWord_singleton_label p i hp hleni with h | h | h | h
+    · obtain ⟨-, rfl⟩ := h
+      left
+      rfl
+    · obtain ⟨hgi, rfl⟩ := h
+      rw [hgi] at hget
+      have h10 : (1 : Nat) = 0 := Option.some_inj.mp hget
+      omega
+    · obtain ⟨-, rfl⟩ := h
+      right
+      rfl
+    · obtain ⟨hgi, h2, -⟩ := h
+      rw [hgi] at hget
+      have hi0 : i = 0 := Option.some_inj.mp hget
+      omega
+  · intro h
+    rcases h with rfl | hpi
+    · refine ⟨?_, ?_⟩
+      · have hlen := packetWord_singleton_length p hp
+        rw [packetWord_singleton] at hlen
+        omega
+      · simp
+    · rw [hpi]
+      refine ⟨?_, ?_⟩
+      · have hlen := packetWord_singleton_length p hp
+        rw [packetWord_singleton] at hlen
+        omega
+      · exact packetWord_singleton_get_p p hp
+
+/-- The complete return packet of the singleton packet word is exactly
+    {0}: no other class occurs twice. -/
+theorem packetWord_singleton_packet (p : Nat) (hp : 2 ≤ p) :
+    ReturnPacket (packetWord [p]) = {0} := by
+  ext c
+  simp only [ReturnPacket, Finset.mem_filter, Finset.mem_range,
+    Finset.mem_singleton]
+  constructor
+  · intro ⟨_, hcard⟩
+    by_cases hc : c = 0
+    · exact hc
+    · have h2 : 1 < (occurrences (packetWord [p]) c).card := by omega
+      rw [Finset.one_lt_card] at h2
+      obtain ⟨i, hi, j, hj, hne⟩ := h2
+      have heq := packetWord_singleton_occ_unique p c hp hc i j hi hj
+      exact absurd heq hne
+  · intro hc
+    subst hc
+    have hne : p ≠ 0 := by omega
+    have h02 : (({0, p} : Finset Nat)).card = 2 := by
+      rw [Finset.card_insert_of_notMem (fun h => hne (Finset.mem_singleton.mp h).symm),
+        Finset.card_singleton]
+    refine ⟨?_, ?_⟩
+    · simp
+    · rw [packetWord_singleton_occ_zero p hp]
+      exact h02
+
+/-- The singleton packet word is simple-return: every recurrent class
+    occurs exactly twice. -/
+theorem packetWord_singleton_simpleReturn (p : Nat) (hp : 2 ≤ p) :
+    IsSimpleReturn (packetWord [p]) := by
+  intro c hrec
+  unfold IsRecurrent at hrec
+  by_cases hc : c = 0
+  · subst hc
+    have hne : p ≠ 0 := by omega
+    have h02 : (({0, p} : Finset Nat)).card = 2 := by
+      rw [Finset.card_insert_of_notMem (fun h => hne (Finset.mem_singleton.mp h).symm),
+        Finset.card_singleton]
+    rw [packetWord_singleton_occ_zero p hp]
+    exact h02
+  · have h2 : 1 < (occurrences (packetWord [p]) c).card := by omega
+    rw [Finset.one_lt_card] at h2
+    obtain ⟨i, hi, j, hj, hne⟩ := h2
+    have heq := packetWord_singleton_occ_unique p c hp hc i j hi hj
+    exact absurd heq hne
+
 end PrimeMother
