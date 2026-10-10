@@ -446,4 +446,12 @@ theorem packetWord_singleton (p : Nat) :
   unfold packetWord packetWordAux
   rfl
 
+/-- Singleton packet word length: 2 + (p - 1) = p + 1. -/
+theorem packetWord_singleton_length (p : Nat) (hp : 2 ≤ p) :
+    (packetWord [p]).length = p + 1 := by
+  rw [packetWord_singleton]
+  simp only [List.length_append, List.length_cons, List.length_nil,
+    List.length_range']
+  omega
+
 end PrimeMother

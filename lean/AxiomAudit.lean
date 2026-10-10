@@ -95,3 +95,4 @@ open PrimeMother
 #print axioms isReturnWord_packetWord
 #print axioms elementaryReturn_append_preserved
 #print axioms packetWord_singleton
+#print axioms packetWord_singleton_length
