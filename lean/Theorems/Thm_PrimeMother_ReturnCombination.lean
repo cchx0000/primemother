@@ -59,6 +59,12 @@ theorem isReturnWord_spine (n : Nat) : IsReturnWord (spine n) := by
     Word: [0, 1, ..., p, 1]. Label 1 spans p atomic edges. -/
 def singlePrimeWord (p : Nat) : List Nat := spine p ++ [1]
 
+/-- Word length is p + 2. -/
+theorem singlePrimeWord_length (p : Nat) :
+    (singlePrimeWord p).length = p + 2 := by
+  unfold singlePrimeWord
+  simp only [List.length_append, List.length_singleton, spine_length]
+
 /-- It's a return word (for p ≥ 2): 1 ≠ last label (p), 1 ≤ max + 1. -/
 theorem isReturnWord_singlePrime (p : Nat) (hp : 2 ≤ p) :
     IsReturnWord (singlePrimeWord p) := by
@@ -95,5 +101,54 @@ theorem singlePrimeWord_one_at_one (p : Nat) (hp : 1 ≤ p) :
     have h := spine_length p
     omega)]
   exact spine_one_at_one p hp
+
+/-- Label 1 occurs at the final position p+1. -/
+theorem singlePrimeWord_one_at_end (p : Nat) :
+    (singlePrimeWord p)[p + 1]? = some 1 := by
+  unfold singlePrimeWord
+  have hlen : (spine p).length = p + 1 := spine_length p
+  rw [List.getElem?_append_right (by omega)]
+  simp [hlen]
+
+/-- Spine position k holds label k. -/
+theorem spine_get (n k : Nat) (hk : k ≤ n) : (spine n)[k]? = some k := by
+  induction n with
+  | zero =>
+    have hk0 : k = 0 := by omega
+    subst hk0
+    rfl
+  | succ n ih =>
+    simp only [spine]
+    by_cases hk2 : k ≤ n
+    · rw [List.getElem?_append_left (by
+        have hl := spine_length n
+        omega)]
+      exact ih hk2
+    · have hk3 : k = n + 1 := by omega
+      subst hk3
+      have hlen : (spine n).length = n + 1 := spine_length n
+      rw [List.getElem?_append_right (by omega), hlen]
+      simp
+
+/-- The single-prime word has an elementary return of support length p:
+    label 1 at positions 1 and p+1, nothing in between. -/
+theorem singlePrimeWord_elementary (p : Nat) (hp : 2 ≤ p) :
+    IsElementaryReturn (singlePrimeWord p) 1 1 (p + 1) := by
+  refine ⟨by omega, ?_, ?_, ?_, ?_⟩
+  · have h := singlePrimeWord_length p
+    omega
+  · exact singlePrimeWord_one_at_one p (by omega)
+  · exact singlePrimeWord_one_at_end p
+  · intro k hk1 hk2
+    -- 1 < k < p+1, so (singlePrimeWord p)[k]? = (spine p)[k]? = some k ≠ some 1
+    have hkle : k ≤ p := by omega
+    have hget : (singlePrimeWord p)[k]? = (spine p)[k]? := by
+      unfold singlePrimeWord
+      rw [List.getElem?_append_left (by
+        have hl := spine_length p
+        omega)]
+    rw [hget, spine_get p k hkle]
+    simp
+    omega
 
 end PrimeMother
