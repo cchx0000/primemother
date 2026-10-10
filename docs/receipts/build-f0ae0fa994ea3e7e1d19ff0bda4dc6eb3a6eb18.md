@@ -1,6 +1,6 @@
 # Build receipt
 
-- SHA: `a518361683ca53381346932721bf9b73cc1b754f`
+- SHA: `f0ae0fa994ea3e7e1d19ff0bda4dc6eb3a6eb18`
 - Date (UTC): 2026-10-10T12:07:20Z
 - Toolchain: Lean 4.33.1 (x86_64-unknown-linux-gnu, commit `819816b2e0a3bf405af45ae5c7af2491d8f5bee6`, Release); Lake `5.0.0-src+819816b` (mathlib pinned in lean/lake-manifest.json)
 - Command: `cd lean && lake build`
