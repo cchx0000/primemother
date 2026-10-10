@@ -1133,4 +1133,114 @@ theorem packetWord_blocks_support_sorted (ps : List Nat) (hsort : ps.SortedLT) :
   rw [hsup]
   exact hsort
 
+/-!
+### Exact-packet counting infrastructure (P2.1)
+
+For a strictly increasing list of primes `≥ 2`, the complete return packet
+of `packetWord ps` is exactly the set of block-record classes: each occurs
+twice (its block's elementary-return endpoints) and no other class occurs
+twice. The proof is a counting argument: the `n` recorded classes are
+pairwise distinct (strictly increasing) with `≥ 2` occurrences each, every
+other class `0..max` occurs `≥ 1` time (return-word coverage), and the word
+length equals `(max + 1) + n` — forcing equality everywhere.
+-/
+
+/-- Builder output length: each block appends `p - 1` positions. -/
+theorem packetWordAux_length (ps : List Nat) (w : List Nat)
+    (b next lprev llast : Nat) (hall : ∀ p ∈ ps, 2 ≤ p) :
+    (packetWordAux ps w b next lprev llast).length
+      = w.length + (ps.map (fun p => p - 1)).sum := by
+  induction ps generalizing w b next lprev llast with
+  | nil =>
+    have h0 : packetWordAux [] w b next lprev llast = w := rfl
+    rw [h0]
+    simp
+  | cons p ps ih =>
+    have hp2 : 2 ≤ p := hall p (by simp)
+    have hps : ∀ q ∈ ps, 2 ≤ q := fun q hq => hall q (List.mem_cons_of_mem p hq)
+    have hrec : packetWordAux (p :: ps) w b next lprev llast =
+        packetWordAux ps (w ++ (List.range' next (p - 2) ++ [lprev])) (b - 1 + p)
+          (next + (p - 2)) (if p = 2 then llast else next + (p - 3)) lprev := rfl
+    rw [hrec, ih _ _ _ _ _ hps]
+    simp only [List.length_append, List.length_range', List.length_singleton,
+      List.map_cons, List.sum_cons]
+    omega
+
+/-- Builder max: `listMax + 1` grows by `p - 2` per block (the invariant
+    carries the max, so no direct segment-max computation is needed). -/
+theorem packetWordAux_listMax_succ (ps : List Nat) (w : List Nat)
+    (b next lprev llast : Nat)
+    (hall : ∀ p ∈ ps, 2 ≤ p) (hinv : PacketInv w b next lprev llast) :
+    listMax (packetWordAux ps w b next lprev llast) + 1
+      = next + (ps.map (fun p => p - 2)).sum := by
+  induction ps generalizing w b next lprev llast with
+  | nil =>
+    obtain ⟨_, _, hmax, hnext2, _, _, _, _, _⟩ := hinv
+    have h0 : packetWordAux [] w b next lprev llast = w := rfl
+    rw [h0, hmax]
+    simp only [List.map_nil, List.sum_nil, Nat.add_zero]
+    omega
+  | cons p ps ih =>
+    have hp2 : 2 ≤ p := hall p (by simp)
+    have hps : ∀ q ∈ ps, 2 ≤ q := fun q hq => hall q (List.mem_cons_of_mem p hq)
+    have hstep := packetStep_invariant hp2 hinv
+    have hrec : packetWordAux (p :: ps) w b next lprev llast =
+        packetWordAux ps (w ++ (List.range' next (p - 2) ++ [lprev])) (b - 1 + p)
+          (next + (p - 2)) (if p = 2 then llast else next + (p - 3)) lprev := rfl
+    rw [hrec, ih _ _ _ _ _ hps hstep]
+    simp only [List.map_cons, List.sum_cons]
+    omega
+
+/-- Every label `≤ listMax` of a return word occurs in it (first-occurrence
+    normalization: new labels are forced to be exactly `max + 1`). -/
+theorem returnWord_mem_of_le_max {w : List Nat} (h : IsReturnWord w)
+    {c : Nat} (hc : c ≤ listMax w) : c ∈ w := by
+  induction h with
+  | base =>
+    have hc0 : c = 0 := by
+      simp only [listMax_cons, listMax_nil] at hc
+      omega
+    subst hc0
+    simp
+  | step w l hw _ _ ih =>
+    rw [listMax_append_single] at hc
+    by_cases hcl : c = l
+    · subst hcl
+      exact List.mem_append_right w (by simp)
+    · have hc' : c ≤ listMax w := by omega
+      exact List.mem_append_left [l] (ih hc')
+
+/-- A label occurring in `w` has positive occurrence count. -/
+theorem one_le_card_occurrences_of_mem {w : List Nat} {c : Nat} (h : c ∈ w) :
+    1 ≤ (occurrences w c).card := by
+  obtain ⟨i, hi, hiw⟩ := List.getElem_of_mem h
+  have hmem : i ∈ occurrences w c := by
+    simp only [occurrences, Finset.mem_filter, Finset.mem_range]
+    exact ⟨hi, by rw [List.getElem?_eq_getElem hi, hiw]⟩
+  exact Finset.card_pos.mpr ⟨i, hmem⟩
+
+/-- Occurrence counts partition the word: they sum to its length. -/
+theorem sum_card_occurrences_eq_length (w : List Nat) :
+    (Finset.range (listMax w + 1)).sum (fun c => (occurrences w c).card)
+      = w.length := by
+  have hdisj : Set.PairwiseDisjoint (↑(Finset.range (listMax w + 1)))
+      (fun c => occurrences w c) := by
+    intro c _ c' _ hne
+    simp only [Finset.disjoint_left, occurrences, Finset.mem_filter,
+      Finset.mem_range]
+    intro i hi hi'
+    exact hne (Option.some_inj.mp (hi.2.symm.trans hi'.2))
+  have hunion : (Finset.range (listMax w + 1)).biUnion (fun c => occurrences w c)
+      = Finset.range w.length := by
+    ext i
+    simp only [Finset.mem_biUnion, Finset.mem_range, occurrences,
+      Finset.mem_filter]
+    constructor
+    · rintro ⟨c, -, hi, -⟩
+      exact hi
+    · intro hi
+      refine ⟨w[i], Nat.lt_succ_of_le (le_listMax (List.getElem_mem hi)), hi, ?_⟩
+      rw [List.getElem?_eq_getElem hi]
+  rw [← Finset.card_biUnion hdisj, hunion, Finset.card_range]
+
 end PrimeMother
