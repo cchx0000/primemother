@@ -15,7 +15,7 @@ import Definitions.Def_PrimeMother_ReturnWord
 import Definitions.Def_PrimeMother_ReturnPacket
 import Theorems.Thm_PrimeMother_ReturnCombination
 open PrimeMother
--- Source (7)
+-- Source (11)
 #print axioms crk_mono
 #print axioms crk_strict_mono
 #print axioms crk_chainOf
@@ -23,6 +23,10 @@ open PrimeMother
 #print axioms clock_iso
 #print axioms clock_surjective
 #print axioms chainLE_iff_crk_le
+#print axioms crk_orderIso
+#print axioms crk_orderIso_apply
+#print axioms crk_orderIso_origin
+#print axioms crk_orderIso_step
 -- Atlas: ranks (5)
 #print axioms rk_root
 #print axioms rk_E

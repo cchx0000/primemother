@@ -17,6 +17,9 @@ The old `clock_reconstruction : rk H = H` is kept as the rank-model
 triviality; the genuine source-level statement is `clock_iso`.
 -/
 
+import Mathlib.Order.Basic
+import Mathlib.Order.Hom.Basic
+
 namespace PrimeMother
 
 /-! ## (a) Abstract unlabelled source -/
@@ -99,12 +102,12 @@ theorem clock_surjective : Function.Surjective crk := clock_iso.2
 /-! ### Order structure of the source -/
 
 /-- Prefix order is reflexive: every prefix is a prefix of itself. -/
-private theorem chainLE_refl : ∀ a : Chain, ChainLE a a
+private theorem chainLE_refl : ∀ _a : Chain, ChainLE _a _a
   | .origin => ChainLE.origin_le _
   | .step c => ChainLE.step_le (chainLE_refl c)
 
 /-- Prefix order is transitive. -/
-private theorem chainLE_trans : ∀ {a b c : Chain}, ChainLE a b → ChainLE b c → ChainLE a c
+private theorem chainLE_trans : ∀ {_a _b _c : Chain}, ChainLE _a _b → ChainLE _b _c → ChainLE _a _c
   | _, _, _, ChainLE.origin_le _, _hbc => ChainLE.origin_le _
   | _, _, _, ChainLE.step_le hab, ChainLE.step_le hbc => ChainLE.step_le (chainLE_trans hab hbc)
 
@@ -137,6 +140,34 @@ theorem chainLE_iff_crk_le {a b : Chain} : ChainLE a b ↔ crk a ≤ crk b := by
     have hle : ChainLE a (chainOf (crk b)) := chainLE_of_crk_le a (crk b) h
     rw [chain_eq_chainOf_crk b]
     exact hle
+
+/-- The prefix relation is the order structure of the source. -/
+instance : Preorder Chain where
+  le := ChainLE
+  le_refl := fun a => chainLE_refl a
+  le_trans := fun _a _b _c hab hbc => chainLE_trans hab hbc
+  lt_iff_le_not_ge := fun _a _b => Iff.rfl
+
+/-- Clock reconstruction (Prop. 2.4, bundled): the posterior-rank map is an
+    order isomorphism `Chain ≃o Nat`.  Root compatibility
+    (`crk .origin = 0`) and successor compatibility
+    (`crk (.step c) = crk c + 1`) hold definitionally, since `toFun` is `crk`. -/
+def crk_orderIso : Chain ≃o Nat where
+  toFun := crk
+  invFun := chainOf
+  left_inv := fun a => (chain_eq_chainOf_crk a).symm
+  right_inv := crk_chainOf
+  map_rel_iff' := fun {_a _b} => chainLE_iff_crk_le.symm
+
+/-- The bundled isomorphism acts as rank on the nose. -/
+theorem crk_orderIso_apply (a : Chain) : crk_orderIso a = crk a := rfl
+
+/-- Root compatibility of the bundled isomorphism. -/
+theorem crk_orderIso_origin : crk_orderIso .origin = 0 := rfl
+
+/-- Successor compatibility of the bundled isomorphism. -/
+theorem crk_orderIso_step (c : Chain) : crk_orderIso (.step c) = crk_orderIso c + 1 := by
+  simp only [crk_orderIso_apply, crk]
 
 /-! ## (b) Rank model (transport along `clock_iso`) -/
 
