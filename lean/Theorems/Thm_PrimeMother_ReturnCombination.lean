@@ -833,4 +833,139 @@ theorem packetWord_singleton_simpleReturn (p : Nat) (hp : 2 ≤ p) :
     have heq := packetWord_singleton_occ_unique p c hp hc i j hi hj
     exact absurd heq hne
 
+/-!
+P2.1c(v): per-block geometric records for the multi-prime packet word.
+
+`blockRecordsAux` threads the same state as `packetWordAux` and records,
+for each prime block, the triple `(c, a, b)` = (left-endpoint label, left
+endpoint, right endpoint). The results below show that every recorded block
+is an elementary return of the final packet word
+(`packetWordAux_blocks_elementary`, `packetWord_blocks_elementary`) and that
+the support length `b - a` of each block is exactly the corresponding input
+prime (`blockRecordsAux_support`). Together with `isReturnWord_packetWord`,
+this is the per-block geometric data for the forward construction of paper
+`thm:return-combination` (ii).
+-/
+
+/-- Per-block geometric records threaded alongside `packetWordAux`: each
+    record `(c, a, b)` is the left-endpoint label, the left endpoint, and
+    the right endpoint of one prime block's elementary return. The state
+    threading is identical to `packetWordAux`, so the records line up with
+    the blocks of the final packet word. -/
+def blockRecordsAux : List Nat → Nat → Nat → Nat → Nat → List (Nat × Nat × Nat)
+  | [], _, _, _, _ => []
+  | p :: ps, b, next, lprev, llast =>
+    let lprev' := if p = 2 then llast else next + (p - 3)
+    (lprev, b - 1, b - 1 + p) ::
+      blockRecordsAux ps (b - 1 + p) (next + (p - 2)) lprev' lprev
+
+/-- The packet-word builder only ever appends: its output is the input word
+    followed by a suffix. Technical lemma so that per-step elementary
+    returns (proved on `w ++ seg`) promote to the final word. -/
+theorem packetWordAux_append_suffix (ps : List Nat) (w : List Nat)
+    (b next lprev llast : Nat) :
+    ∃ suffix, packetWordAux ps w b next lprev llast = w ++ suffix := by
+  induction ps generalizing w b next lprev llast with
+  | nil =>
+    exact ⟨[], by simp [packetWordAux]⟩
+  | cons p ps ih =>
+    -- One builder step, definitionally:
+    -- `packetWordAux (p::ps) w … = packetWordAux ps (w ++ seg) (b-1+p) … lprev`.
+    show ∃ suffix, packetWordAux ps (w ++ (List.range' next (p - 2) ++ [lprev]))
+      (b - 1 + p) (next + (p - 2)) (if p = 2 then llast else next + (p - 3)) lprev
+      = w ++ suffix
+    obtain ⟨suf, hsuf⟩ := ih (w ++ (List.range' next (p - 2) ++ [lprev]))
+      (b - 1 + p) (next + (p - 2)) (if p = 2 then llast else next + (p - 3)) lprev
+    exact ⟨(List.range' next (p - 2) ++ [lprev]) ++ suf,
+      hsuf.trans (List.append_assoc _ _ _)⟩
+
+/-- Every recorded block is an elementary return of the final packet word.
+    The head record comes from `packetStep_elementary` on `w ++ seg` and
+    survives the remaining suffix by `elementaryReturn_append_preserved`;
+    tail records come from the induction hypothesis via `packetStep_invariant`.
+    This is the geometric heart of the forward construction of paper
+    `thm:return-combination` (ii): each input prime contributes one
+    elementary return. -/
+theorem packetWordAux_blocks_elementary (ps : List Nat) (w : List Nat)
+    (b next lprev llast : Nat) (hall : ∀ p ∈ ps, 2 ≤ p)
+    (hinv : PacketInv w b next lprev llast) :
+    ∀ r ∈ blockRecordsAux ps b next lprev llast,
+      IsElementaryReturn (packetWordAux ps w b next lprev llast) r.1 r.2.1 r.2.2 := by
+  induction ps generalizing w b next lprev llast with
+  | nil =>
+    intro r hr
+    simp [blockRecordsAux] at hr
+  | cons p ps ih =>
+    intro r hr
+    have hp2 : 2 ≤ p := hall p (by simp)
+    have hps : ∀ q ∈ ps, 2 ≤ q := fun q hq => hall q (List.mem_cons_of_mem p hq)
+    have hstep := packetStep_invariant hp2 hinv
+    -- Unfold one step of the record builder (definitional, as for `packetWordAux`).
+    have hrec : blockRecordsAux (p :: ps) b next lprev llast =
+        (lprev, b - 1, b - 1 + p) ::
+          blockRecordsAux ps (b - 1 + p) (next + (p - 2))
+            (if p = 2 then llast else next + (p - 3)) lprev := rfl
+    rw [hrec, List.mem_cons] at hr
+    rcases hr with rfl | hmem
+    · -- Head record: the step's elementary return, promoted past the suffix.
+      obtain ⟨suf, hsuf⟩ := packetWordAux_append_suffix ps
+        (w ++ (List.range' next (p - 2) ++ [lprev])) (b - 1 + p) (next + (p - 2))
+        (if p = 2 then llast else next + (p - 3)) lprev
+      have hbase := packetStep_elementary hp2 hinv
+      have hprom := elementaryReturn_append_preserved (seg := suf) hbase
+      rw [← hsuf] at hprom
+      exact hprom
+    · -- Tail records: induction hypothesis at the stepped state.
+      exact ih _ _ _ _ _ hps hstep _ hmem
+
+/-- The support length `b - a` of each recorded block equals the
+    corresponding input prime: the packet's elementary returns have exactly
+    the prescribed support lengths. Used in the forward construction of
+    paper `thm:return-combination` (ii) to read the prime list off the
+    geometry. -/
+theorem blockRecordsAux_support (ps : List Nat) (b next lprev llast : Nat) :
+    List.map (fun r => r.2.2 - r.2.1) (blockRecordsAux ps b next lprev llast)
+      = ps := by
+  induction ps generalizing b next lprev llast with
+  | nil =>
+    simp [blockRecordsAux]
+  | cons p ps ih =>
+    have hrec : blockRecordsAux (p :: ps) b next lprev llast =
+        (lprev, b - 1, b - 1 + p) ::
+          blockRecordsAux ps (b - 1 + p) (next + (p - 2))
+            (if p = 2 then llast else next + (p - 3)) lprev := rfl
+    have hdiff : (b - 1 + p) - (b - 1) = p := by omega
+    rw [hrec, List.map_cons, ih _ _ _ _]
+    show ((b - 1 + p) - (b - 1)) :: ps = p :: ps
+    rw [hdiff]
+
+/-- Public version for `packetWord`: every block record of the multi-prime
+    packet word is an elementary return of that word. Packages
+    `packetWordAux_blocks_elementary` at the base state `[0, 1]`, completing
+    the per-block geometric data for the forward construction of paper
+    `thm:return-combination` (ii). -/
+theorem packetWord_blocks_elementary (ps : List Nat) (h : ∀ p ∈ ps, 2 ≤ p) :
+    ∀ r ∈ blockRecordsAux ps 1 2 0 1,
+      IsElementaryReturn (packetWord ps) r.1 r.2.1 r.2.2 := by
+  cases ps with
+  | nil =>
+    intro r hr
+    simp [blockRecordsAux] at hr
+  | cons p ps =>
+    have hbase : PacketInv [0, 1] 1 2 0 1 := by
+      refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+      · apply IsReturnWord.step _ _ IsReturnWord.base _ _
+        · decide
+        · decide
+      · rfl
+      · rfl
+      · decide
+      · decide
+      · rfl
+      · decide
+      · decide
+      · rfl
+    -- `packetWord (p::ps)` is definitionally `packetWordAux (p::ps) [0,1] 1 2 0 1`.
+    exact packetWordAux_blocks_elementary (p :: ps) [0, 1] 1 2 0 1 h hbase
+
 end PrimeMother
