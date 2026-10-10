@@ -968,4 +968,169 @@ theorem packetWord_blocks_elementary (ps : List Nat) (h : ∀ p ∈ ps, 2 ≤ p)
     -- `packetWord (p::ps)` is definitionally `packetWordAux (p::ps) [0,1] 1 2 0 1`.
     exact packetWordAux_blocks_elementary (p :: ps) [0, 1] 1 2 0 1 h hbase
 
+/-!
+P2.1c(vi): block-record class labels strictly increase for strictly
+increasing input.
+
+Paper `thm:return-combination` (ii) realizes "every nonempty finite set of
+distinct primes" — after increasing sort. For a strictly increasing prime
+list, the per-block class labels (`lprev` values) are pairwise distinct: no
+two blocks share a class. This is the combinatorial prerequisite for the
+exact-packet theorem (each block class then occurs exactly twice, with no
+extra returns). The increasing sort is essential: e.g.
+`packetWord [3, 2, 5] = [0, 1, 2, 0, 2, 3, 4, 5, 0]` reuses class 0 three
+times, because a `p = 2` block swaps `lprev`/`llast` (see `packetWordAux`).
+-/
+
+/-- Lower bound: every block-record class is at least the current `lprev`.
+    The `p = 2` step swaps `lprev`/`llast`, so it needs `lprev < llast` when
+    the head is `2`; with a strictly increasing list, a later head can never
+    be `2` again, so the condition is only ever needed at the top level. -/
+theorem blockRecordsAux_classes_lb (ps : List Nat) (w : List Nat)
+    (b next lprev llast : Nat)
+    (hsort : ps.SortedLT) (hall : ∀ p ∈ ps, 2 ≤ p)
+    (hinv : PacketInv w b next lprev llast)
+    (hhead : ps.head? = some 2 → lprev < llast) :
+    ∀ r ∈ blockRecordsAux ps b next lprev llast, lprev ≤ r.1 := by
+  induction ps generalizing w b next lprev llast with
+  | nil =>
+    intro r hr
+    simp [blockRecordsAux] at hr
+  | cons p ps ih =>
+    have hp2 : 2 ≤ p := hall p (by simp)
+    have hsort' : ps.SortedLT :=
+      List.Pairwise.sortedLT
+        (List.pairwise_cons.mp (List.SortedLT.pairwise hsort)).2
+    have hall' : ∀ q ∈ ps, 2 ≤ q := fun q hq => hall q (List.mem_cons_of_mem p hq)
+    have hstep := packetStep_invariant hp2 hinv
+    have hrec : blockRecordsAux (p :: ps) b next lprev llast =
+        (lprev, b - 1, b - 1 + p) ::
+          blockRecordsAux ps (b - 1 + p) (next + (p - 2))
+            (if p = 2 then llast else next + (p - 3)) lprev := rfl
+    obtain ⟨_, _, _, hnext2, _, _, hlprev_le, _, _⟩ := hinv
+    -- the next state's `lprev` is at least the current one
+    have hle : lprev ≤ (if p = 2 then llast else next + (p - 3)) := by
+      by_cases hpeq : p = 2
+      · subst hpeq
+        rw [if_pos rfl]
+        exact le_of_lt (hhead rfl)
+      · rw [if_neg hpeq]
+        have h3 : 3 ≤ p := by omega
+        omega
+    -- the tail's head can never be `2` again
+    have hhead' : ps.head? = some 2 →
+        (if p = 2 then llast else next + (p - 3)) < lprev := by
+      intro h2head
+      have h2mem : 2 ∈ ps := List.mem_of_mem_head? (by simp [h2head])
+      have hpw := List.pairwise_cons.mp (List.SortedLT.pairwise hsort)
+      have hpq : p < 2 := hpw.1 2 h2mem
+      omega
+    intro r hr
+    rw [hrec, List.mem_cons] at hr
+    rcases hr with rfl | hmem
+    · exact le_refl lprev
+    · exact le_trans hle
+        (ih _ _ _ _ _ hsort' hall' hstep hhead' _ hmem)
+
+/-- For a strictly increasing prime list, the block-record class labels are
+    strictly increasing — hence pairwise distinct. With
+    `blockRecordsAux_support` (support lengths = the input list) this says
+    distinct blocks have distinct classes and distinct support lengths, the
+    input data for the exact-packet theorem of paper
+    `thm:return-combination` (ii). -/
+theorem blockRecordsAux_classes_sorted (ps : List Nat) (w : List Nat)
+    (b next lprev llast : Nat)
+    (hsort : ps.SortedLT) (hall : ∀ p ∈ ps, 2 ≤ p)
+    (hinv : PacketInv w b next lprev llast)
+    (hhead : ps.head? = some 2 → lprev < llast) :
+    (List.map (fun r : Nat × Nat × Nat => r.1)
+      (blockRecordsAux ps b next lprev llast)).SortedLT := by
+  induction ps generalizing w b next lprev llast with
+  | nil =>
+    have hnil : (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux [] b next lprev llast)).Pairwise (· < ·) := by
+      simp [blockRecordsAux]
+    exact List.Pairwise.sortedLT hnil
+  | cons p ps ih =>
+    have hp2 : 2 ≤ p := hall p (by simp)
+    have hsort' : ps.SortedLT :=
+      List.Pairwise.sortedLT
+        (List.pairwise_cons.mp (List.SortedLT.pairwise hsort)).2
+    have hall' : ∀ q ∈ ps, 2 ≤ q := fun q hq => hall q (List.mem_cons_of_mem p hq)
+    have hstep := packetStep_invariant hp2 hinv
+    have hrec : blockRecordsAux (p :: ps) b next lprev llast =
+        (lprev, b - 1, b - 1 + p) ::
+          blockRecordsAux ps (b - 1 + p) (next + (p - 2))
+            (if p = 2 then llast else next + (p - 3)) lprev := rfl
+    obtain ⟨_, _, _, hnext2, _, _, hlprev_le, _, _⟩ := hinv
+    have hlt : lprev < (if p = 2 then llast else next + (p - 3)) := by
+      by_cases hpeq : p = 2
+      · subst hpeq
+        rw [if_pos rfl]
+        exact hhead rfl
+      · rw [if_neg hpeq]
+        have h3 : 3 ≤ p := by omega
+        omega
+    have hhead' : ps.head? = some 2 →
+        (if p = 2 then llast else next + (p - 3)) < lprev := by
+      intro h2head
+      have h2mem : 2 ∈ ps := List.mem_of_mem_head? (by simp [h2head])
+      have hpw := List.pairwise_cons.mp (List.SortedLT.pairwise hsort)
+      have hpq : p < 2 := hpw.1 2 h2mem
+      omega
+    rw [hrec, List.map_cons]
+    apply List.Pairwise.sortedLT
+    rw [List.pairwise_cons]
+    refine ⟨?_, List.SortedLT.pairwise
+      (ih _ _ _ _ _ hsort' hall' hstep hhead')⟩
+    intro c hc
+    rw [List.mem_map] at hc
+    obtain ⟨r, hr, rfl⟩ := hc
+    have hlb := blockRecordsAux_classes_lb ps
+      (w ++ (List.range' next (p - 2) ++ [lprev]))
+      (b - 1 + p) (next + (p - 2))
+      (if p = 2 then llast else next + (p - 3)) lprev
+      hsort' hall' hstep hhead' r hr
+    exact lt_of_lt_of_le hlt hlb
+
+/-- Public version at the `packetWord` base state: for a strictly increasing
+    list of primes `≥ 2`, the block classes of the multi-prime packet word
+    are strictly increasing. -/
+theorem packetWord_classes_sorted (ps : List Nat)
+    (hsort : ps.SortedLT) (hall : ∀ p ∈ ps, 2 ≤ p) :
+    (List.map (fun r : Nat × Nat × Nat => r.1)
+      (blockRecordsAux ps 1 2 0 1)).SortedLT := by
+  cases ps with
+  | nil =>
+    have hnil : (List.map (fun r : Nat × Nat × Nat => r.1)
+        (blockRecordsAux [] 1 2 0 1)).Pairwise (· < ·) := by
+      simp [blockRecordsAux]
+    exact List.Pairwise.sortedLT hnil
+  | cons p ps =>
+    have hbase : PacketInv [0, 1] 1 2 0 1 := by
+      refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+      · apply IsReturnWord.step _ _ IsReturnWord.base _ _
+        · decide
+        · decide
+      · rfl
+      · rfl
+      · decide
+      · decide
+      · rfl
+      · decide
+      · decide
+      · rfl
+    have hhead : (p :: ps).head? = some 2 → 0 < 1 := fun _ => Nat.zero_lt_one
+    exact blockRecordsAux_classes_sorted (p :: ps) [0, 1] 1 2 0 1
+      hsort hall hbase hhead
+
+/-- The block support lengths are strictly increasing for strictly increasing
+    input — the distinct-length input for `sector_of_distinct_support_lengths`. -/
+theorem packetWord_blocks_support_sorted (ps : List Nat) (hsort : ps.SortedLT) :
+    (List.map (fun r : Nat × Nat × Nat => r.2.2 - r.2.1)
+      (blockRecordsAux ps 1 2 0 1)).SortedLT := by
+  have hsup := blockRecordsAux_support ps 1 2 0 1
+  rw [hsup]
+  exact hsort
+
 end PrimeMother
