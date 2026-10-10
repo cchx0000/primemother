@@ -1602,4 +1602,85 @@ theorem isSimpleReturn_packetWord (ps : List Nat)
     rw [hempty] at hc
     simp at hc
 
+/-!
+### Endpoint iff-classification of elementary returns (P2.1)
+
+For a strictly increasing input list (all `≥ 2`), every elementary return
+of the final packet word is one of the per-block records: the endpoints
+give a full iff-classification (`packetWord_elementary_iff`). The reverse
+direction is `packetWord_blocks_elementary`; the forward direction uses the
+exact-packet theorem (`packetWord_packet_exact`): an elementary return's
+class is recurrent, hence a record class, and its two endpoints must be the
+record's endpoints because each record class occurs exactly twice.
+-/
+
+/-- Endpoint iff-classification: every elementary return of the general
+    packet word is exactly one of the block records (class, left endpoint,
+    right endpoint). -/
+theorem packetWord_elementary_iff (ps : List Nat)
+    (hsort : ps.SortedLT) (hall : ∀ p ∈ ps, 2 ≤ p) (c a b : Nat) :
+    IsElementaryReturn (packetWord ps) c a b ↔
+      ∃ r ∈ blockRecordsAux ps 1 2 0 1, (c, a, b) = (r.1, r.2.1, r.2.2) := by
+  constructor
+  · intro h
+    have hmem := elementaryReturn_mem_occs h
+    obtain ⟨hab, hblen, ha, hb, -⟩ := h
+    have hne : a ≠ b := by omega
+    have hsub : ({a, b} : Finset Nat) ⊆ occurrences (packetWord ps) c := by
+      intro x hx
+      simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+      rcases hx with rfl | rfl
+      · exact hmem.1
+      · exact hmem.2
+    have hcard_ab : ({a, b} : Finset Nat).card = 2 := by
+      rw [Finset.card_insert_of_notMem (by simp [hne]), Finset.card_singleton]
+    have hrec : IsRecurrent (packetWord ps) c := by
+      unfold IsRecurrent
+      have hle := Finset.card_le_card hsub
+      omega
+    have hcard2 : (occurrences (packetWord ps) c).card = 2 :=
+      isSimpleReturn_packetWord ps hsort hall c hrec
+    -- `c` is a record class, by the exact-packet theorem.
+    have hc_pkt : c ∈ ReturnPacket (packetWord ps) := by
+      simp only [ReturnPacket, Finset.mem_filter, Finset.mem_range]
+      have hwa : (packetWord ps)[a] = c := by
+        have h1 := List.getElem?_eq_getElem (by omega : a < (packetWord ps).length)
+        rw [h1] at ha
+        exact Option.some_inj.mp ha
+      have hle := le_listMax (List.getElem_mem (by omega : a < (packetWord ps).length))
+      refine ⟨by omega, hcard2⟩
+    rw [packetWord_packet_exact ps hsort hall] at hc_pkt
+    rw [List.mem_toFinset, List.mem_map] at hc_pkt
+    obtain ⟨r, hr, hrc⟩ := hc_pkt
+    -- The record's elementary return has the same endpoints.
+    have hrel : IsElementaryReturn (packetWord ps) c r.2.1 r.2.2 := by
+      have hbase := packetWord_blocks_elementary ps hall r hr
+      rwa [hrc] at hbase
+    have hmem' := elementaryReturn_mem_occs hrel
+    have heq : ({a, b} : Finset Nat) = occurrences (packetWord ps) c :=
+      Finset.eq_of_subset_of_card_le hsub (by omega)
+    have e1 : r.2.1 ∈ ({a, b} : Finset Nat) := by rw [heq]; exact hmem'.1
+    have e2 : r.2.2 ∈ ({a, b} : Finset Nat) := by rw [heq]; exact hmem'.2
+    obtain ⟨hrab, -, hra, hrb, -⟩ := hrel
+    simp only [Finset.mem_insert, Finset.mem_singleton] at e1 e2
+    -- `r.2.1 = a`: it cannot be `b`, since `r.2.1 < r.2.2 ∈ {a, b}`.
+    have hra_eq : r.2.1 = a := by
+      rcases e1 with h | h
+      · exact h
+      · exfalso
+        rcases e2 with h2 | h2 <;> omega
+    have hrb_eq : r.2.2 = b := by
+      rcases e2 with h2 | h2
+      · omega
+      · exact h2
+    refine ⟨r, hr, ?_⟩
+    exact Prod.ext hrc.symm (Prod.ext hra_eq.symm hrb_eq.symm)
+  · rintro ⟨r, hr, hrfl⟩
+    have h := packetWord_blocks_elementary ps hall r hr
+    have e1 : c = r.1 := congrArg Prod.fst hrfl
+    have e2 : a = r.2.1 := congrArg (Prod.fst ∘ Prod.snd) hrfl
+    have e3 : b = r.2.2 := congrArg (Prod.snd ∘ Prod.snd) hrfl
+    rw [e1, e2, e3]
+    exact h
+
 end PrimeMother
