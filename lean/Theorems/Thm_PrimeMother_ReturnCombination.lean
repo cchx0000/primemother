@@ -454,4 +454,11 @@ theorem packetWord_singleton_length (p : Nat) (hp : 2 ≤ p) :
     List.length_range']
   omega
 
+/-- Regression: packetWord [2,2] = [0,1,0,1]. Repeated prime 2 gives
+    repeated support length 2 (both labels span 2 edges) — this is why
+    the forward construction needs DISTINCT primes. -/
+theorem packetWord_two_two : packetWord [2, 2] = [0, 1, 0, 1] := by
+  unfold packetWord packetWordAux
+  rfl
+
 end PrimeMother
