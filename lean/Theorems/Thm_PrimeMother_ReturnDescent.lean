@@ -644,4 +644,136 @@ theorem not_isElementaryReturn_splitClass_self {w : List Nat} {v a b : Nat}
     Finset.one_lt_card.mpr ⟨a, ha', b, hb', by omega⟩
   omega
 
+/-!
+## P2.2 unit 2b: count/sector preservation under class deletion
+
+The exact deletion equation (`ReturnPacket_splitClass_erase`) removes the
+deleted class from the packet. This unit closes the remaining
+count/sector half of the P2.2 source operations: splitting a packet
+class preserves the count-only simple-return condition and the cut-open
+sector condition (hence return-rank distinctness) for the remaining
+word. Together with `isElementaryReturn_splitClass` (every remaining
+class's elementary returns are unchanged) this is the paper's "the atlas
+ledger of every remaining return is unchanged" for the descent step.
+-/
+
+/-- Occurrence-count preservation for a class different from both the
+    deleted class and the fresh label (no `c ≤ listMax w` side condition
+    needed — the fresh label is out of range of `c` by hypothesis). -/
+theorem occurrences_splitClass_of_ne {w : List Nat} {v c : Nat}
+    (hcv : c ≠ v) (hcf : c ≠ listMax w + 1) :
+    occurrences (splitClass w v) c = occurrences w c := by
+  have hpt := get?_splitFirst (w := w) (v := v) (fresh := listMax w + 1)
+    (c := c) hcv hcf
+  unfold splitClass occurrences
+  rw [splitFirst_length]
+  apply Finset.ext
+  intro i
+  simp only [Finset.mem_filter, Finset.mem_range]
+  rw [hpt i]
+
+/-- A label of the split word is either an old label or the fresh one. -/
+theorem mem_splitFirst_of_mem {w : List Nat} {v fresh c : Nat}
+    (h : c ∈ splitFirst w v fresh) : c ∈ w ∨ c = fresh := by
+  induction w with
+  | nil => simp [splitFirst] at h
+  | cons x xs ih =>
+    have h' : c ∈ (if x = v then fresh :: xs
+        else x :: splitFirst xs v fresh) := by
+      simpa [splitFirst] using h
+    by_cases hxv : x = v
+    · rw [if_pos hxv] at h'
+      simp only [List.mem_cons] at h'
+      rcases h' with rfl | h'
+      · exact Or.inr rfl
+      · exact Or.inl (List.mem_cons_of_mem x h')
+    · rw [if_neg hxv] at h'
+      simp only [List.mem_cons] at h'
+      rcases h' with rfl | h'
+      · exact Or.inl (List.mem_cons.mpr (Or.inl rfl))
+      · rcases ih h' with h'' | h''
+        · exact Or.inl (List.mem_cons_of_mem x h'')
+        · exact Or.inr h''
+
+/-- An elementary return forces at least two occurrences of its class. -/
+theorem card_ge_two_of_isElementaryReturn {w : List Nat} {c a b : Nat}
+    (h : IsElementaryReturn w c a b) : 2 ≤ (occurrences w c).card := by
+  have hmem := elementaryReturn_mem_occs h
+  obtain ⟨hab, -, -, -, -⟩ := h
+  obtain ⟨ha', hb'⟩ := hmem
+  have h2 : 1 < (occurrences w c).card :=
+    Finset.one_lt_card.mpr ⟨a, ha', b, hb', by omega⟩
+  omega
+
+/-- An elementary return in the split word belongs to a class different
+    from the deleted class and from the fresh label, hence bounded by the
+    old running max. -/
+theorem class_mem_of_isElementaryReturn_splitClass {w : List Nat} {v c a b : Nat}
+    (hc : IsElementaryReturn (splitClass w v) c a b)
+    (hv : v ∈ ReturnPacket w) :
+    c ≠ v ∧ c ≠ listMax w + 1 ∧ c ≤ listMax w := by
+  have hcard := card_ge_two_of_isElementaryReturn hc
+  have hcv : c ≠ v := by
+    rintro rfl
+    exact not_isElementaryReturn_splitClass_self hv hc
+  have hcf : c ≠ listMax w + 1 := by
+    rintro rfl
+    rw [occurrences_splitClass_fresh_card hv] at hcard
+    omega
+  have hcle : c ≤ listMax w := by
+    obtain ⟨-, -, ha, -, -⟩ := hc
+    have hmem : c ∈ splitClass w v := List.mem_of_getElem? ha
+    rcases mem_splitFirst_of_mem hmem with h | h
+    · exact le_listMax h
+    · exact absurd h hcf
+  exact ⟨hcv, hcf, hcle⟩
+
+/-- Deleting a packet class preserves the count-only simple-return
+    condition: the deleted class and the fresh label occur exactly once
+    afterwards, and every other class keeps its occurrences. -/
+theorem IsSimpleReturn_splitClass {w : List Nat} {v : Nat}
+    (hs : IsSimpleReturn w) (hv : v ∈ ReturnPacket w) :
+    IsSimpleReturn (splitClass w v) := by
+  intro c hc
+  unfold IsRecurrent at hc
+  by_cases hcv : c = v
+  · subst hcv
+    rw [occurrences_splitClass_self_card hv] at hc
+    omega
+  · by_cases hcf : c = listMax w + 1
+    · subst hcf
+      rw [occurrences_splitClass_fresh_card hv] at hc
+      omega
+    · rw [occurrences_splitClass_of_ne hcv hcf] at hc ⊢
+      exact hs c hc
+
+/-- Deleting a packet class preserves the cut-open sector condition:
+    remaining elementary returns transport back to `w` (their classes
+    are neither the deleted class nor the fresh label), the cut-open
+    paths carry no label data, so pairwise nonisomorphism is inherited. -/
+theorem sectorCutOpen_splitClass {w : List Nat} {v : Nat}
+    (hsec : IsSimpleReturnSectorCutOpen w) (hv : v ∈ ReturnPacket w) :
+    IsSimpleReturnSectorCutOpen (splitClass w v) := by
+  obtain ⟨hs, hpair⟩ := hsec
+  refine ⟨IsSimpleReturn_splitClass hs hv,
+    fun c a b c' a' b' hc hc' hne hso => ?_⟩
+  obtain ⟨hcv, hcf, hcle⟩ := class_mem_of_isElementaryReturn_splitClass hc hv
+  obtain ⟨hcv', hcf', hcle'⟩ :=
+    class_mem_of_isElementaryReturn_splitClass hc' hv
+  have hc_w := (isElementaryReturn_splitClass hcv hcle).mp hc
+  have hc'_w := (isElementaryReturn_splitClass hcv' hcle').mp hc'
+  exact hpair c a b c' a' b' hc_w hc'_w hne hso
+
+/-- Return-rank distinctness is preserved by class deletion (the sector
+    bridge makes this the rank form of `sectorCutOpen_splitClass`). -/
+theorem distinct_ranks_splitClass {w : List Nat} {v : Nat}
+    (hsec : IsSimpleReturnSectorCutOpen w) (hv : v ∈ ReturnPacket w)
+    {c a b c' a' b' : Nat}
+    (hc : IsElementaryReturn (splitClass w v) c a b)
+    (hc' : IsElementaryReturn (splitClass w v) c' a' b')
+    (hne : c ≠ c') :
+    b - a ≠ b' - a' :=
+  distinct_edge_counts_of_sectorCutOpen
+    (sectorCutOpen_splitClass hsec hv) hc hc' hne
+
 end PrimeMother
