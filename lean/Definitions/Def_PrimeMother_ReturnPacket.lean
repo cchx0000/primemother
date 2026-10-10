@@ -107,11 +107,17 @@ as the count-only part; the accurate condition and its
 distinct-length bridge are defined here.
 -/
 
-/-- Normalized support of the elementary return spanning positions
-    `[a, b]`: the label sequence `w[a], …, w[b]`. Return words are
-    first-occurrence-normalized by construction (each new label is the
-    running max `+ 1`), so the raw support sequence *is* the normalized
-    support — no extra normalization pass is needed. -/
+/-- Raw label slice of the elementary return spanning positions `[a, b]`:
+    the label sequence `w[a], …, w[b]`.
+
+    NOTE (P2.1 cut-open repair): this raw slice is **not** automatically
+    first-occurrence normalized. E.g. `[0,1,0,2,1]` is a legal return word,
+    but its `[1,4]` slice `[1,0,2,1]` is not the first-occurrence numbering
+    `[0,1,2,0]`. Hence the raw slice cannot serve as the paper's normalized
+    support: the paper (L994–997) defines unary normalization as the cut-open
+    ordered path `N(J) := J`, which drops the quotient vertex-identification
+    data — see `cutOpenPath`, `CutOpenPathIso` and
+    `IsSimpleReturnSectorCutOpen` below. -/
 def returnSupport (w : List Nat) (a b : Nat) : List Nat :=
   (w.drop a).take (b + 1 - a)
 
@@ -166,5 +172,139 @@ theorem sector_of_distinct_support_lengths {w : List Nat}
   have hne2 := hd c a b c' a' b' hc hc' hne
   have hlen : (returnSupport w a b).length ≠ (returnSupport w a' b').length := by omega
   exact not_supportIso_of_length_ne hlen hso
+
+/-!
+P2.1 cut-open semantic repair (paper L994–997, L1220–1224).
+
+The paper defines the unary normalization of a return support `J = [a, b]`
+as the *cut-open ordered path* `N(J) := J`: the interval itself, viewed as
+an ordered atomic path. In particular, the vertex-identification data of the
+quotient trace `q` — which the raw label equality pattern retained by
+`SupportIso` records — is *not* carried into the normalized path. Two
+normalized elementary return supports are therefore isomorphic as ordered
+atomic paths exactly when they have the same number of atomic edges;
+posteriorly, the sector's nonisomorphism condition is exactly that the
+return ranks are distinct (paper L1220–1224). `IsSimpleReturnSector` and
+`sector_of_distinct_support_lengths` above are kept unchanged;
+`IsSimpleReturnSectorCutOpen` is the paper-faithful version, strictly
+narrower than the old sector condition.
+-/
+
+/-- The cut-open ordered path of the elementary return support `[a, b]`
+    (paper L994–997: `N(J) := J`). It is the plain vertex list
+    `[0, …, b - a]` with `b - a` atomic edges — the same vertex count as the
+    raw slice `returnSupport w a b` (see `cutOpenPath_length_eq`), but
+    carrying no label-equality pattern, unlike the raw slice compared by
+    `SupportIso`. The word is kept as an explicit parameter (unused in the
+    vertex list itself, which is the point: the cut-open path drops all
+    label data) so that cut-open paths are indexed by the same support
+    they normalize. -/
+def cutOpenPath (_w : List Nat) (a b : Nat) : List Nat :=
+  List.range (b + 1 - a)
+
+/-- Isomorphism of cut-open ordered atomic paths: the cut-open version of
+    `SupportIso` (paper L1220–1224). An ordered atomic path is determined up
+    to isomorphism by its number of atomic edges — the order-preserving
+    vertex bijection exists exactly when the two paths have the same number
+    of vertices — so isomorphism is stated directly via equal length. -/
+def CutOpenPathIso (p p' : List Nat) : Prop :=
+  p.length = p'.length
+
+/-- The cut-open path keeps the raw support's vertex count while dropping
+    all label data. -/
+theorem cutOpenPath_length_eq {w : List Nat} {a b : Nat}
+    (hle : a ≤ b) (hlt : b < w.length) :
+    (cutOpenPath w a b).length = (returnSupport w a b).length := by
+  unfold cutOpenPath
+  rw [List.length_range, returnSupport_length hle hlt]
+
+/-- Paper L1220–1224, both directions: two cut-open paths are isomorphic
+    exactly when the supports have the same edge count (rank). -/
+theorem cutOpenPathIso_iff_rank {w w' : List Nat} {a b a' b' : Nat}
+    (hab : a ≤ b) (hab' : a' ≤ b') :
+    CutOpenPathIso (cutOpenPath w a b) (cutOpenPath w' a' b') ↔
+      b - a = b' - a' := by
+  unfold CutOpenPathIso cutOpenPath
+  simp only [List.length_range]
+  omega
+
+/-- Forward direction: equal return ranks give isomorphic cut-open paths. -/
+theorem cutOpenPathIso_of_rank_eq {w w' : List Nat} {a b a' b' : Nat}
+    (hab : a ≤ b) (hab' : a' ≤ b') (h : b - a = b' - a') :
+    CutOpenPathIso (cutOpenPath w a b) (cutOpenPath w' a' b') :=
+  (cutOpenPathIso_iff_rank hab hab').mpr h
+
+/-- Reverse direction: isomorphic cut-open paths have equal return ranks. -/
+theorem rank_eq_of_cutOpenPathIso {w w' : List Nat} {a b a' b' : Nat}
+    (hab : a ≤ b) (hab' : a' ≤ b')
+    (h : CutOpenPathIso (cutOpenPath w a b) (cutOpenPath w' a' b')) :
+    b - a = b' - a' :=
+  (cutOpenPathIso_iff_rank hab hab').mp h
+
+/-- The paper's simple-return sector condition under the cut-open semantics
+    (paper L994–997, L1220–1224): the count condition plus pairwise
+    *cut-open* nonisomorphism of elementary return supports. Posteriorly the
+    second condition is exactly that the return ranks are distinct. This is
+    the semantically accurate replacement for `IsSimpleReturnSector`, whose
+    raw-pattern `SupportIso` retained the quotient vertex-identification
+    data and was therefore too wide (it accepts e.g.
+    `w = [0,1,2,3,1,0,4,2]`, whose support edge counts are `5, 3, 5`). -/
+def IsSimpleReturnSectorCutOpen (w : List Nat) : Prop :=
+  IsSimpleReturn w ∧ ∀ c a b c' a' b',
+    IsElementaryReturn w c a b → IsElementaryReturn w c' a' b' →
+    c ≠ c' → ¬ CutOpenPathIso (cutOpenPath w a b) (cutOpenPath w a' b')
+
+/-- Cut-open sector bridge, forward direction: distinct return ranks (edge
+    counts) plus the count condition give the cut-open sector condition.
+    This is the semantically accurate version of
+    `sector_of_distinct_support_lengths`. -/
+theorem sectorCutOpen_of_distinct_edge_counts {w : List Nat}
+    (hs : IsSimpleReturn w)
+    (hd : ∀ c a b c' a' b', IsElementaryReturn w c a b →
+      IsElementaryReturn w c' a' b' → c ≠ c' → b - a ≠ b' - a') :
+    IsSimpleReturnSectorCutOpen w := by
+  refine ⟨hs, fun c a b c' a' b' hc hc' hne hso => ?_⟩
+  obtain ⟨⟨hab, -, -, -, -⟩, ⟨hab', -, -, -, -⟩⟩ :
+    IsElementaryReturn w c a b ∧ IsElementaryReturn w c' a' b' := ⟨hc, hc'⟩
+  exact hd c a b c' a' b' hc hc' hne
+    (rank_eq_of_cutOpenPathIso (by omega) (by omega) hso)
+
+/-- Cut-open sector bridge, reverse direction: in the cut-open model the
+    sector condition implies distinct return ranks. Together with the forward
+    bridge this is the exact rank-distinctness equivalence of paper
+    L1220–1224. -/
+theorem distinct_edge_counts_of_sectorCutOpen {w : List Nat}
+    (hsec : IsSimpleReturnSectorCutOpen w)
+    {c a b c' a' b' : Nat}
+    (hc : IsElementaryReturn w c a b) (hc' : IsElementaryReturn w c' a' b')
+    (hne : c ≠ c') :
+    b - a ≠ b' - a' := by
+  obtain ⟨-, hpair⟩ := hsec
+  obtain ⟨⟨hab, -, -, -, -⟩, ⟨hab', -, -, -, -⟩⟩ :
+    IsElementaryReturn w c a b ∧ IsElementaryReturn w c' a' b' := ⟨hc, hc'⟩
+  intro heq
+  exact hpair c a b c' a' b' hc hc' hne
+    (cutOpenPathIso_of_rank_eq (by omega) (by omega) heq)
+
+/-- The cut-open sector condition implies the old raw-pattern sector
+    condition: distinct edge counts give distinct vertex counts, hence
+    nonisomorphic raw supports. The converse is false (the
+    `[0,1,2,3,1,0,4,2]` example), so the cut-open sector is the strictly
+    narrower, paper-faithful condition; all consequences of the old sector
+    remain available from the new one. -/
+theorem sectorCutOpen_imp_sector {w : List Nat}
+    (hsec : IsSimpleReturnSectorCutOpen w) : IsSimpleReturnSector w := by
+  obtain ⟨hs, hpair⟩ := hsec
+  refine ⟨hs, fun c a b c' a' b' hc hc' hne hso => ?_⟩
+  obtain ⟨⟨hab, hblen, -, -, -⟩, ⟨hab', hblen', -, -, -⟩⟩ :
+    IsElementaryReturn w c a b ∧ IsElementaryReturn w c' a' b' := ⟨hc, hc'⟩
+  obtain ⟨hlen, -⟩ := hso
+  have hl1 := returnSupport_length (a := a) (b := b) (by omega) hblen
+  have hl2 := returnSupport_length (a := a') (b := b') (by omega) hblen'
+  have hcut : CutOpenPathIso (cutOpenPath w a b) (cutOpenPath w a' b') := by
+    unfold CutOpenPathIso cutOpenPath
+    simp only [List.length_range]
+    omega
+  exact hpair c a b c' a' b' hc hc' hne hcut
 
 end PrimeMother
