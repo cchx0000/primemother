@@ -151,4 +151,199 @@ theorem singlePrimeWord_elementary (p : Nat) (hp : 2 ≤ p) :
     simp
     omega
 
+/-!
+P2.1c(iii): multi-prime packet word — paper `thm:return-combination`, part (ii).
+
+The paper writes the primes increasingly p₁<…<pₖ and sets
+  a₁ = 0, b₁ = p₁,   aᵢ = bᵢ₋₁ − 1, bᵢ = aᵢ + pᵢ  (i ≥ 2),
+making {aᵢ, bᵢ} a two-element class and every other vertex a singleton.
+
+As a *normalized* return word we cannot use vertex indices as labels: a
+fresh vertex j would receive label j, violating c ≤ (running max)+1.
+Instead we thread a fresh-label counter `next`: genuinely new singleton
+vertices receive labels next, next+1, … (each exactly (running max)+1),
+while the new right endpoint bᵢ reuses the label of vertex aᵢ = bᵢ₋₁−1.
+
+Threaded state:
+  w     — word built so far (covers vertices 0..b),
+  b     — current last vertex,
+  next  — next fresh label (= listMax w + 1),
+  lprev — label of vertex b−1 (left endpoint of the next pair),
+  llast — label of vertex b (last label of w).
+-/
+
+/-- Packet word builder following the paper's endpoint recursion. -/
+def packetWordAux : List Nat → List Nat → Nat → Nat → Nat → Nat → List Nat
+  | [], w, _, _, _, _ => w
+  | p :: ps, w, b, next, lprev, llast =>
+    let seg := List.range' next (p - 2) ++ [lprev]
+    let lprev' := if p = 2 then llast else next + (p - 3)
+    packetWordAux ps (w ++ seg) (b - 1 + p) (next + (p - 2)) lprev' lprev
+
+/-- The multi-prime packet word for a list of primes (each ≥ 2). -/
+def packetWord : List Nat → List Nat
+  | [] => [0]
+  | p :: ps => packetWordAux (p :: ps) [0, 1] 1 2 0 1
+
+/-- Loop invariant of the packet-word builder. -/
+def PacketInv (w : List Nat) (b next lprev llast : Nat) : Prop :=
+  IsReturnWord w ∧ w.length = b + 1 ∧ listMax w = next - 1 ∧ 2 ≤ next ∧ 1 ≤ b ∧
+  w.getLast? = some llast ∧ lprev ≤ next - 1 ∧ lprev ≠ llast
+
+/-- A word's last label never exceeds its running max. -/
+theorem last_le_listMax {w : List Nat} {l : Nat} (h : w.getLast? = some l) :
+    l ≤ listMax w :=
+  le_listMax (List.mem_of_getLast? h)
+
+/-- Appending a run of fresh labels keeps the return-word property and
+    raises the running max by the run length. -/
+theorem isReturnWord_append_fresh {w : List Nat} (hw : IsReturnWord w) (k : Nat) :
+    IsReturnWord (w ++ List.range' (listMax w + 1) k) ∧
+    listMax (w ++ List.range' (listMax w + 1) k) = listMax w + k := by
+  induction k generalizing w with
+  | zero =>
+    have h0 : List.range' (listMax w + 1) 0 = [] := List.range'_zero
+    rw [h0, List.append_nil]
+    exact ⟨hw, by omega⟩
+  | succ k ih =>
+    set m := listMax w with hm
+    have hstep : IsReturnWord (w ++ [m + 1]) := by
+      apply IsReturnWord.step _ _ hw _ _
+      · intro hcon
+        have hle := last_le_listMax hcon
+        omega
+      · omega
+    have hmax1 : listMax (w ++ [m + 1]) = m + 1 := by
+      rw [listMax_append_single]
+      omega
+    have hsplit : List.range' (m + 1) (k + 1) = [m + 1] ++ List.range' (m + 1 + 1) k :=
+      List.range'_succ
+    rw [hsplit, ← List.append_assoc]
+    have hih := ih hstep
+    rw [hmax1] at hih
+    have h2 := hih.2
+    exact ⟨hih.1, by omega⟩
+
+/-- Last label after appending a nonempty run of fresh labels. -/
+theorem getLast?_append_fresh (w : List Nat) (m k : Nat) (hk : 1 ≤ k) :
+    (w ++ List.range' m k).getLast? = some (m + k - 1) := by
+  induction k generalizing w m with
+  | zero => omega
+  | succ n ih =>
+    cases n with
+    | zero =>
+      show (w ++ List.range' m 1).getLast? = some (m + 1 - 1)
+      have hr : List.range' m 1 = [m] := rfl
+      have hm : m + 1 - 1 = m := by omega
+      rw [hr, List.getLast?_concat, hm]
+    | succ n' =>
+      have hsplit : List.range' m (n' + 1 + 1) = [m] ++ List.range' (m + 1) (n' + 1) :=
+        List.range'_succ
+      rw [hsplit, ← List.append_assoc]
+      have hih := ih (w ++ [m]) (m + 1) (by omega)
+      rw [show m + 1 + (n' + 1) - 1 = m + (n' + 1 + 1) - 1 from by omega] at hih
+      exact hih
+
+/-- One builder step preserves the invariant. -/
+theorem packetStep_invariant {w : List Nat} {b next lprev llast p : Nat}
+    (hp : 2 ≤ p) (hinv : PacketInv w b next lprev llast) :
+    PacketInv (w ++ (List.range' next (p - 2) ++ [lprev]))
+      (b - 1 + p) (next + (p - 2))
+      (if p = 2 then llast else next + (p - 3)) lprev := by
+  obtain ⟨hrw, hlen, hmax, hnext, hb, hlast, hlprev_le, hlprev_ne⟩ := hinv
+  have hnext1 : listMax w + 1 = next := by omega
+  have hfresh := isReturnWord_append_fresh hrw (p - 2)
+  rw [hnext1] at hfresh
+  have hmaxw : listMax (w ++ List.range' next (p - 2)) = next + (p - 2) - 1 := by
+    have h2 := hfresh.2
+    omega
+  by_cases hp2 : p = 2
+  · subst hp2
+    rw [if_pos rfl]
+    have hseg : List.range' next (2 - 2) ++ [lprev] = [lprev] := by simp
+    rw [hseg]
+    refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+    · apply IsReturnWord.step _ _ hrw _ _
+      · intro hcon
+        rw [hlast] at hcon
+        exact hlprev_ne (Option.some_inj.mp hcon).symm
+      · omega
+    · simp only [List.length_append, List.length_singleton]
+      omega
+    · rw [listMax_append_single, hmax]
+      have h1 : next + (2 - 2) - 1 = next - 1 := by omega
+      rw [h1]
+      exact Nat.max_eq_left hlprev_le
+    · omega
+    · omega
+    · exact List.getLast?_concat
+    · have hll := last_le_listMax hlast
+      omega
+    · exact hlprev_ne.symm
+  · have hp3 : 3 ≤ p := by omega
+    rw [if_neg hp2]
+    have hgl : (w ++ List.range' next (p - 2)).getLast? = some (next + (p - 2) - 1) :=
+      getLast?_append_fresh w next (p - 2) (by omega)
+    refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+    · rw [← List.append_assoc]
+      apply IsReturnWord.step _ _ hfresh.1 _ _
+      · intro hcon
+        rw [hgl] at hcon
+        have heq : lprev = next + (p - 2) - 1 := Option.some_inj.mp hcon.symm
+        omega
+      · rw [hmaxw]
+        omega
+    · simp only [List.length_append, List.length_range', List.length_singleton]
+      omega
+    · rw [← List.append_assoc, listMax_append_single, hmaxw]
+      exact Nat.max_eq_left (by omega)
+    · omega
+    · omega
+    · rw [← List.append_assoc]
+      exact List.getLast?_concat
+    · omega
+    · intro hcon
+      omega
+
+/-- The builder invariant holds after processing the whole prime list. -/
+theorem packetWordAux_invariant (ps : List Nat) (w : List Nat) (b next lprev llast : Nat)
+    (hall : ∀ p ∈ ps, 2 ≤ p) (hinv : PacketInv w b next lprev llast) :
+    ∃ b' next' lprev' llast',
+      PacketInv (packetWordAux ps w b next lprev llast) b' next' lprev' llast' := by
+  induction ps generalizing w b next lprev llast with
+  | nil =>
+    exact ⟨b, next, lprev, llast, hinv⟩
+  | cons p ps ih =>
+    have hp2 : 2 ≤ p := hall p (by simp)
+    have hps : ∀ q ∈ ps, 2 ≤ q := fun q hq => hall q (List.mem_cons_of_mem p hq)
+    have hstep := packetStep_invariant hp2 hinv
+    obtain ⟨_b₂, _next₂, _lprev₂, _llast₂, hrest⟩ := ih _ _ _ _ _ hps hstep
+    exact ⟨_b₂, _next₂, _lprev₂, _llast₂, hrest⟩
+
+/-- The multi-prime packet word is a valid return word. This is the
+    forward-construction half of paper `thm:return-combination` (ii):
+    every list of primes ≥ 2 is realized by a return word. -/
+theorem isReturnWord_packetWord (ps : List Nat) (h : ∀ p ∈ ps, 2 ≤ p) :
+    IsReturnWord (packetWord ps) := by
+  cases ps with
+  | nil =>
+    show IsReturnWord [0]
+    exact IsReturnWord.base
+  | cons p ps =>
+    have hbase : PacketInv [0, 1] 1 2 0 1 := by
+      refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+      · apply IsReturnWord.step _ _ IsReturnWord.base _ _
+        · decide
+        · decide
+      · rfl
+      · rfl
+      · decide
+      · decide
+      · rfl
+      · decide
+      · decide
+    obtain ⟨_b', _next', _lprev', _llast', hinv⟩ :=
+      packetWordAux_invariant (p :: ps) [0, 1] 1 2 0 1 h hbase
+    exact hinv.1
+
 end PrimeMother
