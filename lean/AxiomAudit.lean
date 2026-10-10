@@ -1,7 +1,7 @@
 /-
 Prime-Distribution Birth Mother — Axiom audit entry point.
 
-Committed audit input: imports all 8 library modules and runs
+Committed audit input: imports all 9 library modules and runs
 `#print axioms` on every public theorem. Run with:
   cd lean && lake env lean AxiomAudit.lean
 Expected: every line lists only propext / Classical.choice / Quot.sound
@@ -14,6 +14,7 @@ import Theorems.Thm_PrimeMother_Distribution
 import Definitions.Def_PrimeMother_ReturnWord
 import Definitions.Def_PrimeMother_ReturnPacket
 import Theorems.Thm_PrimeMother_ReturnCombination
+import Theorems.Thm_PrimeMother_ReturnDescent
 open PrimeMother
 -- Source (12)
 #print axioms crk_mono
@@ -129,3 +130,13 @@ open PrimeMother
 #print axioms blockRecordsAux_classes_sorted
 #print axioms packetWord_classes_sorted
 #print axioms packetWord_blocks_support_sorted
+-- Return descent P2.2 (9)
+#print axioms splitFirst_length
+#print axioms splitClass_length
+#print axioms get?_splitFirst
+#print axioms occurrences_splitClass
+#print axioms listMax_le_listMax_splitFirst
+#print axioms listMax_le_listMax_splitClass
+#print axioms isElementaryReturn_splitClass
+#print axioms treeWalk_reaches_root
+#print axioms descent_leaf_delete
