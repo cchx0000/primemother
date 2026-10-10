@@ -74,7 +74,7 @@ open PrimeMother
 #print axioms returnSupport_length
 #print axioms not_supportIso_of_length_ne
 #print axioms sector_of_distinct_support_lengths
--- Return combination P2.1c (17)
+-- Return combination P2.1c (32)
 #print axioms listMax_spine
 #print axioms spine_length
 #print axioms getLast?_spine
@@ -97,3 +97,13 @@ open PrimeMother
 #print axioms packetWord_singleton
 #print axioms packetWord_singleton_length
 #print axioms packetWord_two_two
+#print axioms packetWord_two_three
+#print axioms packetWord_two_three_return_two
+#print axioms packetWord_two_three_return_three
+#print axioms packetWord_two_three_occ_two
+#print axioms packetWord_two_three_occ_three
+#print axioms packetWord_two_three_packet
+#print axioms packetWord_two_three_simpleReturn
+#print axioms packetWord_two_three_classify
+#print axioms packetWord_two_three_distinct_support
+#print axioms packetWord_two_three_adjacent

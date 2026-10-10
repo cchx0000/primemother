@@ -461,4 +461,138 @@ theorem packetWord_two_two : packetWord [2, 2] = [0, 1, 0, 1] := by
   unfold packetWord packetWordAux
   rfl
 
+/-!
+P2.1c(iv): the [2,3] two-prime packet regression — the smallest
+nontrivial distinct-prime case, mirroring `packetWord_two_two`.
+
+`packetWord [2,3]` unfolds to `[0,1,0,2,1]`: class 0 (prime 2's class)
+has the elementary return at endpoints 0, 2 (support length 2), class 1
+(prime 3's class) at endpoints 1, 4 (support length 3). Each occurs
+exactly twice, the packet is exactly {0, 1}, no class occurs three or
+more times, every elementary return is one of the two, and the two
+returns overlap (so the overlap graph is the path graph on 2 vertices).
+-/
+
+/-- Regression: packetWord [2,3] = [0,1,0,2,1]. -/
+theorem packetWord_two_three : packetWord [2, 3] = [0, 1, 0, 2, 1] := by
+  unfold packetWord packetWordAux
+  rfl
+
+/-- Class 0 (prime 2's class) has an elementary return at endpoints 0, 2:
+    support length 2. -/
+theorem packetWord_two_three_return_two :
+    IsElementaryReturn (packetWord [2, 3]) 0 0 2 := by
+  rw [packetWord_two_three]
+  refine ⟨by decide, by decide, by decide, by decide, ?_⟩
+  intro k hk1 hk2
+  have hk : k = 1 := by omega
+  subst hk
+  decide
+
+/-- Class 1 (prime 3's class) has an elementary return at endpoints 1, 4:
+    support length 3. -/
+theorem packetWord_two_three_return_three :
+    IsElementaryReturn (packetWord [2, 3]) 1 1 4 := by
+  rw [packetWord_two_three]
+  refine ⟨by decide, by decide, by decide, by decide, ?_⟩
+  intro k hk1 hk2
+  interval_cases k <;> decide
+
+/-- Class 0 occurs exactly twice. -/
+theorem packetWord_two_three_occ_two :
+    (occurrences (packetWord [2, 3]) 0).card = 2 := by
+  rw [packetWord_two_three]
+  decide
+
+/-- Class 1 occurs exactly twice. -/
+theorem packetWord_two_three_occ_three :
+    (occurrences (packetWord [2, 3]) 1).card = 2 := by
+  rw [packetWord_two_three]
+  decide
+
+/-- The complete return packet of `packetWord [2,3]` is exactly the two
+    classes {0, 1}: no other class occurs twice. -/
+theorem packetWord_two_three_packet :
+    ReturnPacket (packetWord [2, 3]) = {0, 1} := by
+  rw [packetWord_two_three]
+  decide
+
+/-- No class of `packetWord [2,3]` occurs three or more times. -/
+theorem packetWord_two_three_simpleReturn :
+    IsSimpleReturn (packetWord [2, 3]) := by
+  rw [packetWord_two_three]
+  intro c hc
+  have hpos : 0 < (occurrences [0, 1, 0, 2, 1] c).card := by
+    unfold IsRecurrent at hc
+    omega
+  obtain ⟨i, hi⟩ := Finset.card_pos.mp hpos
+  rw [occurrences, Finset.mem_filter] at hi
+  have hmem : c ∈ [0, 1, 0, 2, 1] := List.mem_of_getElem? hi.2
+  have hle : c ≤ 2 := by
+    have h := le_listMax hmem
+    have hmax : listMax [0, 1, 0, 2, 1] = 2 := rfl
+    omega
+  interval_cases c
+  · decide
+  · decide
+  · have h2 : (occurrences [0, 1, 0, 2, 1] 2).card = 1 := by decide
+    unfold IsRecurrent at hc
+    omega
+
+/-- No extra elementary returns: every elementary return of
+    `packetWord [2,3]` is one of the two prime-class returns. -/
+theorem packetWord_two_three_classify {c a b : Nat}
+    (h : IsElementaryReturn (packetWord [2, 3]) c a b) :
+    (c = 0 ∧ a = 0 ∧ b = 2) ∨ (c = 1 ∧ a = 1 ∧ b = 4) := by
+  rw [packetWord_two_three] at h
+  obtain ⟨hab, hblen, ha, hb, -⟩ := h
+  have hmem_a : a ∈ occurrences [0, 1, 0, 2, 1] c := by
+    simp only [occurrences, Finset.mem_filter, Finset.mem_range]
+    exact ⟨by omega, ha⟩
+  have hmem_b : b ∈ occurrences [0, 1, 0, 2, 1] c := by
+    simp only [occurrences, Finset.mem_filter, Finset.mem_range]
+    exact ⟨hblen, hb⟩
+  have hle : c ≤ 2 := by
+    rw [occurrences, Finset.mem_filter] at hmem_a
+    have hmem : c ∈ [0, 1, 0, 2, 1] := List.mem_of_getElem? hmem_a.2
+    have h := le_listMax hmem
+    have hmax : listMax [0, 1, 0, 2, 1] = 2 := rfl
+    omega
+  interval_cases c
+  · have hocc : occurrences [0, 1, 0, 2, 1] 0 = {0, 2} := by decide
+    rw [hocc] at hmem_a hmem_b
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hmem_a hmem_b
+    rcases hmem_a with rfl | rfl <;> rcases hmem_b with rfl | rfl <;> omega
+  · have hocc : occurrences [0, 1, 0, 2, 1] 1 = {1, 4} := by decide
+    rw [hocc] at hmem_a hmem_b
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hmem_a hmem_b
+    rcases hmem_a with rfl | rfl <;> rcases hmem_b with rfl | rfl <;> omega
+  · have hocc : occurrences [0, 1, 0, 2, 1] 2 = {3} := by decide
+    rw [hocc] at hmem_a hmem_b
+    simp only [Finset.mem_singleton] at hmem_a hmem_b
+    omega
+
+/-- The two class returns have distinct support lengths 2 and 3 — the
+    input primes — feeding the sector bridge
+    `sector_of_distinct_support_lengths`. -/
+theorem packetWord_two_three_distinct_support {a b a' b' : Nat}
+    (h1 : IsElementaryReturn (packetWord [2, 3]) 0 a b)
+    (h2 : IsElementaryReturn (packetWord [2, 3]) 1 a' b') :
+    (b - a) ≠ (b' - a') := by
+  have hc := packetWord_two_three_classify h1
+  have hc' := packetWord_two_three_classify h2
+  rcases hc with ⟨-, rfl, rfl⟩ | ⟨h01, -, -⟩
+  · rcases hc' with ⟨h10, -, -⟩ | ⟨-, rfl, rfl⟩
+    · omega
+    · decide
+  · omega
+
+/-- The two prime-class returns overlap: their open supports (0,2) and
+    (1,4) intersect, so the packet overlap graph is the single edge —
+    the path graph on the two vertices. -/
+theorem packetWord_two_three_adjacent :
+    PacketAdjacent (packetWord [2, 3]) 0 1 :=
+  ⟨by decide, 0, 2, 1, 4, packetWord_two_three_return_two,
+    packetWord_two_three_return_three, by unfold ReturnsOverlap; decide⟩
+
 end PrimeMother
