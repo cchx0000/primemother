@@ -440,4 +440,10 @@ theorem elementaryReturn_append_preserved {w seg : List Nat} {c a b : Nat}
     rw [List.getElem?_append_left (by omega : k < w.length)]
     exact hmid k hk1 hk2
 
+/-- Singleton packet word unfolds to the explicit block. -/
+theorem packetWord_singleton (p : Nat) :
+    packetWord [p] = [0, 1] ++ (List.range' 2 (p - 2) ++ [0]) := by
+  unfold packetWord packetWordAux
+  rfl
+
 end PrimeMother
