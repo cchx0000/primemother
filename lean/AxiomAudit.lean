@@ -150,7 +150,7 @@ open PrimeMother
 #print axioms packetWord_elementary_edge_counts_ne
 #print axioms isSimpleReturnSectorCutOpen_packetWord
 #print axioms isSimpleReturnSector_packetWord
--- Return descent P2.2 (9)
+-- Return descent P2.2 (17)
 #print axioms splitFirst_length
 #print axioms splitClass_length
 #print axioms get?_splitFirst
@@ -160,3 +160,11 @@ open PrimeMother
 #print axioms isElementaryReturn_splitClass
 #print axioms treeWalk_reaches_root
 #print axioms descent_leaf_delete
+#print axioms getElem?_splitFirst_fresh
+#print axioms getElem?_splitFirst_self
+#print axioms fresh_not_mem_getElem?
+#print axioms occurrences_splitClass_fresh_card
+#print axioms occurrences_splitClass_self_card
+#print axioms ReturnPacket_splitClass_erase
+#print axioms card_ReturnPacket_splitClass
+#print axioms not_isElementaryReturn_splitClass_self
