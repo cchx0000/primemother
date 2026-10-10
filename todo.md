@@ -1,26 +1,27 @@
 # PrimeMother TODO：Lean 状态与完成路线
 
-审计日期：2026-10-10 17:47（UTC）  
-已审计提交游标：`master` @ [d7a243df4c0d395b44fa4ef67161ed14b0783565](https://github.com/cchx0000/primemother/commit/d7a243df4c0d395b44fa4ef67161ed14b0783565)  
-当前 Lean 源码基线：[d7a243df4c0d395b44fa4ef67161ed14b0783565](https://github.com/cchx0000/primemother/commit/d7a243df4c0d395b44fa4ef67161ed14b0783565)（新增 cut-open 长度/秩模型、sector 与秩互异的双向桥接及旧 sector 蕴含；raw slice 注释已修正。9 个库模块、133 个公开 theorem；入口仍为 127 个唯一命令，遗漏本轮七项，补齐应为 134 项含 `crk_orderIso`。无新收据，未运行 Lean/Lake；旧 90/94 项来源对应与 98 项失联目标问题分别保留）  
+审计日期：2026-10-10 19:00（UTC）  
+已审计提交游标：`master` @ [a1cb0a25f36d502c1240d9a8b1533bdcf39e94ee](https://github.com/cchx0000/primemother/commit/a1cb0a25f36d502c1240d9a8b1533bdcf39e94ee)  
+当前 Lean 源码基线：[a1cb0a25f36d502c1240d9a8b1533bdcf39e94ee](https://github.com/cchx0000/primemother/commit/a1cb0a25f36d502c1240d9a8b1533bdcf39e94ee)（新增一般 packetWord 全端点分类、记录端点/支持对应、cut-open sector 接入及 raw full-packet 精确删除。9 个库模块、147 个公开 theorem；141 个唯一审计输入，仍漏原 cut-open 七项，补齐应为 148 项含 `crk_orderIso`。收到 `f7e25ac` 的 3020-job/127 项执行摘要及 clean checkout 声明，但不覆盖本轮 14 个新 theorem；未运行 Lean/Lake）  
 首次完整源码与论文审计：[258fb757f4712b18ce45310bbebbd34e9dc9226d](https://github.com/cchx0000/primemother/commit/258fb757f4712b18ce45310bbebbd34e9dc9226d)
 
-<!-- primemother-audit-cursor: d7a243df4c0d395b44fa4ef67161ed14b0783565 -->
+<!-- primemother-audit-cursor: a1cb0a25f36d502c1240d9a8b1533bdcf39e94ee -->
 
 ## 当前结论与验证边界
 
-当前仓库已有一元 prime-birth 秩模型、8 个匿名回归样例、规范 Chain 序同构/唯一性、秩区间 tiling/provenance 和 Nat 分布结果，以及 return-word/packet 构造。**本轮在明确的长度/秩模型内关闭 cut-open 语义及 sector/秩互异双向桥接的源码缺口。** 一般 SortedLT 且每项 ≥2 的次数、完整 packet 与 count-only simple-return 继续保留；packetWord 到新 sector 的接入、路径图、return birth 和历史双射仍未完成，P2.1/P2.2 总项及当前内核验收继续开放。
+当前仓库已有一元 prime-birth 秩模型、8 个匿名回归样例、规范 Chain 序同构/唯一性、秩区间 tiling/provenance 和 Nat 分布结果，以及 return-word/packet 构造。**一般 SortedLT 且每项 ≥2 的 packetWord 已有完整 packet、全部 elementary-return 端点 iff 分类及 cut-open sector 源码；任意 raw 词上的完整 packet 精确 split/erase 方程与基数减一也已提交。** 这些准确子项关闭；路径图、return birth、历史双射、合法源规范化和完整 descent/mixed fibres 仍未完成，P2.1/P2.2 总项及当前内核验收继续开放。
 
-- 从上次游标 `120cec57` 继续，确认 `5966d23e14c1c6177b9dad08bdd741debcbef032` 仅同步本 TODO；新增源码仅 `d7a243df4c0d395b44fa4ef67161ed14b0783565`，父链连续。只改 ReturnPacket（+145/−5），TODO blob 基线仍为 `2faf63a60c07d66d06cc808d898470f02dad5ffb`
-- `cutOpenPath` L202–203 为 `List.range (b+1−a)`，明确丢弃 quotient 标签识别；`CutOpenPathIso` L210–211 直接定义为顶点数相等。`cutOpenPath_length_eq` L215–219 在 a≤b、b<w.length 下对齐 raw slice 长度；`cutOpenPathIso_iff_rank` L223–229 及两向包装 L232–242 只需各自 a≤b，即给路径同构谓词 ⇔ 边数相等。这里完成的是明确限定的 cut-open 长度/秩模型刻画，未构造显式有序路径顶点双射或一般历史的源层 transport，不把这种范围说明误写为该模型修复仍未实现
-- `IsSimpleReturnSectorCutOpen` L252–255 使用次数条件和不同类的 cut-open 非同构；`sectorCutOpen_of_distinct_edge_counts` L261–270 与 `distinct_edge_counts_of_sectorCutOpen` L276–287 给准确双向桥接，`sectorCutOpen_imp_sector` L295–308 给新 sector 蕴含旧 raw-pattern sector。声明适用于任意 List Nat 的相应 elementary returns，不假设素数、非空或 IsReturnWord；合法历史对应仍需单独建立。正向桥接明确把秩互异作为输入，没有证明它是 packetWord 的性质
-- raw slice 自动规范化的错误注释已在 L110–120 修正。旧 `SupportIso` / `IsSimpleReturnSector` 定义保留，旧 5、3、5 对照仍被旧 sector 接纳，却被新 cut-open 条件排除；该对照及严格性尚无新增具名回归 theorem。L33–38、L101–107、L133–161 的旧“full sector/ordered-atomic-path”说明与新定义并存，后续应明确标成 legacy raw-pattern 语义并统一调用入口
-- 全量读取 9 库模块并去注释/字符串静态复计，直接 `sorry` / `admit` / `axiom` 均为 **0**；公开 theorem **126 → 133**，8 个 examples、5 个私有辅助未改。[当前 AxiomAudit](https://github.com/cchx0000/primemother/blob/d7a243df4c0d395b44fa4ef67161ed14b0783565/lean/AxiomAudit.lean) 未改，仍 **127 个唯一具名命令**，仅覆盖旧 126 theorem + `crk_orderIso`；七个新增 theorem 均未入入口，完整目标应为 **134 项**。ReturnPacket 分节应由 (7) 改为 (14)，四个 return 模块合计 **94 theorem**；入口覆盖与实际内核执行分开验收
-- 此 SHA 的 Actions/check-runs 均为 0，statuses/comments 均空；无新 build/公理收据。固定 Lean `v4.33.1`、mathlib `0df444a360eaa60ab8c11dca51a86af692955474`、锁文件/Lake 配置未改；默认 Theorems glob 导入新 ReturnPacket，根 AxiomAudit 仍须单独执行。不能由标题 “0 sorry” 推断编译成功或失败
-- 旧 90/94 项精确源码/入口对应与已收到输出保留；旧 98 项摘要/4 项输出也保留，其目标 `c0f8ab25db3ccefbb59d80d45519628855677f10` 本轮 commit API 仍返回 422 “No commit found”。历史输出不能拼接为当前同一 SHA 的完整执行日志。其余 8 个库模块、主定理/递归/模型假设、README、论文与收据未改；规范 Chain 已关闭的序反映/序同构/唯一性不重开，一般源及 atlas/birth/ledger 传输仍开放
-- packetWord 全 elementary-return 端点分类、支持秩集合/路径图、return birth、历史双射与 P2.2 完整 descent/mixed fibres 仍开放。ReturnDescent 仍只是任意 List Nat、给定 V⊆ReturnPacket 的树/非根叶下的保持，未给精确 full-packet 删除或终止塔；raw split 将合法 [0,1,0,2,1] 的类 1 分裂为 [0,3,0,2,1]，不保持规范词，仍须重编号/类端点传输或历史等价关系操作。P2.3–P2.5 尚未实现。根 `.gitignore` 仍忽略 `.github/`，无 CI workflow。本审计未运行 Lean/Lake，仅同步 `todo.md`
+- 从上次游标 `d7a243df` 继续，确认 `f7e25ac11ff8a81d4e3a5d3befa290d77f61942f` 仅同步本 TODO；此后六个作者提交父链连续，依次为 `7d21ed53`、`6781d52f`、`9d7c00c3`、`c8739269`、`213b4c13`、`a1cb0a25`。增量只涉及新收据、README、AxiomAudit、ReturnCombination、ReturnDescent；写入前 TODO 基线 blob 为 `f5175ad64724241461dea6690e34352a6dee8c86`
+- ReturnCombination L1620–1684 的 `packetWord_elementary_iff` 由 exact packet 与每记录两次出现，证明任意 elementary return 恰为记录三元组。L1701–1743 的记录端点对 Nodup、L1747–1758 的第 i 条支持边数 = ps[i]，再接入 L1777–1830 的异类边数不同和 L1837–1857 的新/旧两种 sector theorem。准确前提为 SortedLT + 每项 ≥2（第 i 条支持对应本身不需这两项）；空输入、递增合数均允许，无 prime/非空/结论型假设。singleton/[2,3] 的分类和 sector 也由一般结果覆盖，不再要求把这些源码桥接重做
+- `d7a243df` 已关闭的 `cutOpenPath := List.range (b+1−a)` / 长度同构模型及 sector⇔次数+秩互异继续保留，不因未构造显式 OrderIso 重开。packetWord 已实际接入新谓词；旧 ReturnPacket L33–38、L101–107、L133–161 的 raw-pattern“full sector”说明仍过时，5、3、5 的新旧 sector 严格性尚无具名回归。全支持秩集合可以由分类/有序支持等式得到，仍需正式集合包装与路径图/历史/birth 声明，不把它再说成缺通用端点或支持对应
+- ReturnDescent L458–540 证明被拆旧类和 fresh 类各一次；L546–615 的 `ReturnPacket_splitClass_erase` 仅需 `v ∈ ReturnPacket w`，给整个 packet（全部恰两次类）精确删除，不需合法词、simple-return、素数、树或叶假设。L619–622 给基数恰减一，L628–645 排除被删类 elementary return。已有条件树 theorem 可取 V=完整 packet 后用新等式识别余下顶点；不能继续说只能处理选定子集而没有 full-packet 删除
+- raw split 仍不保持规范词：合法 [0,1,0,2,1] 的类 1 拆成 [0,3,0,2,1]。还需重编号/类端点传输或历史等价关系分裂，正式 count-only/sector 保持、从连通性造树/非根叶以及迭代至指定 unary 成员的合法 descent。基数减一是终止量，尚不是已构造的终止塔；return atlas/ledger/birth 未定义。L624–625 把 elementary return 说成要求全局恰两次的注释不准确，实际证明正确使用 singleton 无两个不同端点
+- 九模块去嵌套注释/字符串后静态复计：直接 `sorry` / `admit` / `axiom` 为 **0**；公开 theorem **133 → 147**，8 个 examples，私有辅助 **5 → 7**。AxiomAudit **127 → 141 个唯一命令**，完整加入本轮十四项，但原 cut-open 七项仍缺，目标 **148 项**。ReturnCombination 分节仍写 (62)，实际 68；ReturnPacket 仍写 (7)，实际应 14；ReturnDescent 已同步 (17)。四个 return 模块共 **108 theorem**，输入覆盖与内核执行分开验收
+- 新收据 `build-f7e25ac11ff8a81d4e3a5d3befa290d77f61942f.md` 可绑定到确实可解析、仅 TODO 不同的 d7 源码与 127 项入口。作者报告 clean checkout、固定 Lean/Lake/mathlib、3020 jobs、0 errors/0 warnings、build/audit exit 0 与 127/127 标准公理摘要；不是逐项输出或原始日志。其“131 public theorems”应为 **133**（含两条 `@[simp] theorem`）；明确承认七项未入入口，不能把摘要验收成 134 项，更不覆盖本轮新十四项。旧 90/94 项精确来源及输出保留；旧 94 项没有 clean working tree 字段，旧 98 项目标 `c0f8ab25…` 本轮仍返回 422，历史输出不能拼成当前同一 SHA 的完整执行日志
+- README 已补模块/ledger、规范 Chain 与一般源范围、Nat 限定、收据/入口链接及单独审计命令。剩余是准确桥接名、当前 141/目标148 计数、本轮分类/sector/精确删除进展以及 “Verified/P0 complete” 的精确 SHA/作者报告边界；不再把已补文档项列为完全缺失。六个新 SHA 的 Actions/check-runs 均为 0，statuses/comments 为空，无 workflow；根 `.gitignore` 仍忽略 `.github/`
+- 固定 Lean `v4.33.1`、mathlib `0df444a360eaa60ab8c11dca51a86af692955474`、锁文件/Lake 配置、其余七模块、主定理/良基递归/模型假设及论文均未改。默认 Theorems glob 导入当前 return 模块，根 AxiomAudit 须单独执行。本审计仅源码/作者证据核对，未运行 Lean/Lake；只同步根 `todo.md`，P2.3–P2.5 未实现范围不变
 
-以下当前源码行号以 `d7a243df4c0d395b44fa4ef67161ed14b0783565` 为准；ReturnPacket 的 returnSupport 起旧声明下移 6 行，其他模块行号未变。历史增量记录保留当时证据状态，后续实现或收据不改写历史事实。
+以下当前源码行号以 `a1cb0a25f36d502c1240d9a8b1533bdcf39e94ee` 为准；旧声明行号未变，新内容均追加在 ReturnCombination/ReturnDescent 末尾。历史增量记录保留当时证据状态，后续实现或收据不改写历史事实。
 
 ## 增量审计记录
 
@@ -277,19 +278,48 @@
   - 全量静态复计为 133 个公开 theorem、8 examples、5 私有辅助，直接 sorry/admit/axiom 均 0。入口仍为 127 个唯一命令，遗漏 `cutOpenPath_length_eq`、`cutOpenPathIso_iff_rank`、`cutOpenPathIso_of_rank_eq`、`rank_eq_of_cutOpenPathIso`、`sectorCutOpen_of_distinct_edge_counts`、`distinct_edge_counts_of_sectorCutOpen`、`sectorCutOpen_imp_sector`；补齐应为 134 项含 crk_orderIso，ReturnPacket 分节应改为 (14)，四个 return 模块共 94 theorem
   - 本 SHA 的 Actions/check-runs 均 0，statuses/comments 空，无新收据；旧 90/94 项来源对应保留，98 项目标重查仍 422。未运行 Lean/Lake/公理入口；P0 当前 9 模块、补齐后的 134 项及独立重现待验收，P2.1/P2.2 总项不勾选
 
+- **2026-10-10：[`7d21ed53`](https://github.com/cchx0000/primemother/commit/7d21ed537a16c23135f77748dafef097207b2630)**，提交时间 18:05:17 UTC，新增 `build-f7e25ac11ff8a81d4e3a5d3befa290d77f61942f.md`
+  - 父 `f7e25ac` 仅同步 TODO，且与 `d7a243df` 的差异确实仅此文件；新收据不改变 Lean/依赖/论文。目标 SHA 可解析，报告构建时间 18:01:01、固定 Lean/Lake/mathlib、clean checkout（git status empty/no stash）、默认 build 退出 0、3020 jobs/0 errors/0 warnings
+  - 报告已执行已提交入口，127/127 项输出仅标准公理子集或无公理（其中 11 项无公理），audit exit 0；正文没有展示任何逐项原始输出或全日志。准确已收证据为作者执行摘要及来源/输入对应，不能称没有收据，也不能称审计器独立重现
+  - 收据承认 d7 的七条未入入口，完整目标 134 项正确；“131 public theorems”应为 133（含 listMax_nil/listMax_cons 两条带属性 theorem）。127 输入实际为 126 theorem+crk_orderIso。该报告不覆盖随后本轮十四个新 theorem；历史 90/94 项有效对应及旧 98 项失联目标问题保留
+
+- **2026-10-10：[`6781d52f`](https://github.com/cchx0000/primemother/commit/6781d52f83b4e6f2b010f565731e1fafeca2b487)**，提交时间 18:06:09 UTC，仅同步 README（+31/−15）
+  - L14–23 扩展九模块/ledger/return 进展，L29–36 正确区分规范 Chain、一般源和 atlas/birth/ledger transport；L18 明列 Nat 而非实数测度。L48–58 增加收据与 AxiomAudit 链接、九模块覆盖及单独审计命令。这些文档子项已实现
+  - L21 的 `sector_of_distinct_support_lengths` 实为旧 raw-pattern 桥，不能标为新 cut-open 桥；`Packet` 应准确指向 ReturnPacket，正式路径图仍未实现。L56 的127输入及 L22–23 的进度随后已落后本轮源码；L48/L63 的 Verified/P0 complete 须限定精确来源及作者报告，不替代完整输出与独立验收。无源码/依赖变化
+
+- **2026-10-10：[`9d7c00c3`](https://github.com/cchx0000/primemother/commit/9d7c00c36ff198e66161cab6f9ea07224c973825)**，提交时间 18:11:27 UTC，新增一般 elementary-return 端点 iff 分类
+  - 仅 ReturnCombination +81 行及一条 AxiomAudit 输入。L1620–1684 从 elementary-return 的两个不同位置构造 recurrent/packet 成员，再由 exact packet 选中记录；该类恰两次迫使两端点等于记录端点，反向直接用 packetWord_blocks_elementary
+  - 前提为 SortedLT + 每项≥2，无 prime/非空；量化最终词所有 c/a/b，关闭此前仅逐记录正向而缺全端点反向覆盖的源码缺口。公开 theorem 133→134，输入127→128；原七条入口遗漏仍在
+
+- **2026-10-10：[`c8739269`](https://github.com/cchx0000/primemother/commit/c8739269cc5e355a36975e10b46ff0370828cc1d)**，提交时间 18:17:04 UTC，新增记录端点互异与显式支持对应
+  - 仅 ReturnCombination +74 行及两条输入。L1701–1743 用记录类严格递增与左端点所载标签证明端点对列表 Nodup；结论是不同端点对，不要求支持区间不相交，也不声称每个端点值全局互异
+  - L1747–1758 从 map-support=ps 给任意 i<ps.length 时第 i 记录边数 ps[i]，不需 SortedLT/≥2。公开 theorem134→136，输入128→130；正式图/连通性与 birth 不随该几何对应自动成立
+
+- **2026-10-10：[`213b4c13`](https://github.com/cchx0000/primemother/commit/213b4c135106a898e95abef05226b6c3d5f082f1)**，提交时间 18:19:01 UTC，新增一般 packetWord sector 桥
+  - 仅 ReturnCombination +103 行及三条输入。L1777–1830 由端点 iff 取得记录索引、异类推出不同索引，再由 SortedLT 与第 i 支持对应证明任意不同类 elementary returns 边数不同
+  - L1837–1843 明确调用 `sectorCutOpen_of_distinct_edge_counts` 给新 cut-open sector；L1848–1857 经旧长度充分条件另给 legacy sector。两条都只需 SortedLT + 每项≥2，允许空输入/合数；一般 packetWord、singleton/[2,3] 的 sector 接入关闭，不再列缺。路径图、合法历史/源桥、return birth 及 born 正反分类仍开放
+  - 公开 theorem136→139，输入130→133；ReturnCombination 分节仍写62，实际68。旧 ReturnPacket 七项尚未加入入口，不能由本轮依赖它们的定理有命令推断各项完整具名审计已覆盖
+
+- **2026-10-10：[`a1cb0a25`](https://github.com/cchx0000/primemother/commit/a1cb0a25f36d502c1240d9a8b1533bdcf39e94ee)**，提交时间 18:46:26 UTC，新增 raw full-packet 精确删除
+  - 仅 ReturnDescent +348 行，AxiomAudit 加八条并把 Descent 分节9→17。L312/378 刻画 split 后 fresh/旧 v 位置，L436 排除原词 fresh 标签，L444/452 为两个私有辅助；L458/500 从 occurrences 的最小元/擦除证明 fresh 与 v 各一次
+  - `ReturnPacket_splitClass_erase` L546–615 对任意 List Nat，仅假设 v∈ReturnPacket w，分 v/fresh/旧有界类/界外类给完整 packet 精确 erase；L619–622 基数减一，L628–645 排除 v 的剩余 elementary return。该 full-packet gap 已关闭，不需 supplied V、tree/leaf 或 simple/合法词/prime 前提
+  - ReturnPacket 在此是所有恰两次类，不自动排除别的类出现≥3次。现有条件树 theorem 可在 V=全 packet 时结合新等式，但规范化、正式 sector 保持、树/叶存在、合法终止塔与 ledger/birth 仍待补。raw split 的 [0,1,0,2,1]→[0,3,0,2,1] 对照继续有效；L624–625 的“exact-two-occurrence requirement”仅是注释误述，实际 singleton 论证无此问题
+  - 全库147公开 theorem、8 examples、7私有辅助；141唯一审计命令覆盖140 theorem+crk_orderIso，仍只漏原cut-open七条，补齐应148。四个return模块共108 theorem。去注释/字符串后直接sorry/admit/axiom为0；本轮六个SHA的Actions/check-runs均0、statuses/comments空；无覆盖新增十四项的新收据。工具链/配置/其余七模块/论文未改，未运行Lean/Lake，P0/P2总项继续开放
+
 ## P0：先让当前一元模型成为可复现、无占位的内核检查结果
 
 - [ ] **P0.1 建立当前完整构建基线**
   - 路径：`lean/lean-toolchain`、`lean/lakefile.lean`、`lean/lake-manifest.json`；当前 9 个库模块为原 Source、Atlas、PrimeBirth、Regression、Distribution，加 ReturnWord、ReturnPacket、ReturnCombination、ReturnDescent。默认 Theorems glob 含 ReturnCombination/ReturnDescent → ReturnPacket → ReturnWord；旧 Distribution → PrimeBirth → Atlas → Source 链未改
   - [x] 已收到旧 5 模块精确 SHA 的构建摘要：`docs/receipts/build-5b13173eecd3863ed99fb0633d18499521a843c7.md:3–14` 报告 `cd lean && lake build`、退出 0、3016 jobs / 0 errors 和 5 模块覆盖。`5b13173e` 对应当时 5 模块/依赖，不含后来新增的 4 模块，也不覆盖后续 Source 扩展；旧 614-job 收据作为历史证据保留
   - [x] 旧 5 模块收据已补 Lean/Lake 版本文字、0 warnings 与 clean working tree 报告。它们是维护者已提交的证据文本，不是本审计器独立运行所得；不再将这些字段列为完全缺失
-  - [x] 已收到 `f63b59db` 的 3019-job / 0 errors / 0 warnings / 退出 0 维护者摘要，目标 `fbaca6225b108cd54364cf56964ec2c1c81e540c` 已解析并位于当前父链；其 8 模块库源码与 `3d0c1e9b` 相同。该收据给 Lean/Lake 版本并替代旧失联目标报告；它只对应历史 68 项范围，不覆盖随后新增的 65 个 theorem 或 `crk_orderIso` 定义
+  - [x] 已收到 `f63b59db` 的 3019-job / 0 errors / 0 warnings / 退出 0 维护者摘要，目标 `fbaca6225b108cd54364cf56964ec2c1c81e540c` 已解析并位于当前父链；其 8 模块库源码与 `3d0c1e9b` 相同。该收据给 Lean/Lake 版本并替代旧失联目标报告；它只对应历史 68 项范围，不覆盖随后新增的 79 个 theorem 或 `crk_orderIso` 定义
   - [x] 历史 `15670425` / `d0041c5d` 的 3019-job / 82 项 clean 摘要与 10 项 [2,3] 输出已收到；其更正目标 `f0ae0fa994ea3e7e1d19ff0bda4dc6eb3a6eb18` 和原目标 `a5183616…` 仍是上轮已确认的失联字段。该历史来源缺陷不改写，也不套用于下述可解析的 90/94 项报告
   - [x] 历史 `23a3dcc3` 收据明确指向可解析源码 `23b93b81baac87ab07bd85c70bde5a010f8d329d`，报告 3019 jobs / 0 errors / 0 warnings / 退出 0、固定 Lean/Lake 版本和 clean working tree；目标已含 90 项入口。该报告的来源对应保留，不把其 clean 字段转用于后续源码
-  - [x] 上轮 `dfbe1671e5d66e24afff7c1f48737dc7906bd9dc` 收据指向实际直接父源码 `fbc8fb7ec89ccd20b5da86ba9e4e9f1315eabc37`，报告 3019 jobs / 0 errors / 0 warnings / 退出 0、固定 Lean/Lake 版本和 94 项 clean。目标与当时收据提交的 Lean tree 相同，已含全部 94 项入口；该历史源码/输入对应仍有效，不覆盖其后类/长度有序四声明、后续 Source 扩展及后续计数/descent/cut-open
+  - [x] 上轮 `dfbe1671e5d66e24afff7c1f48737dc7906bd9dc` 收据指向实际直接父源码 `fbc8fb7ec89ccd20b5da86ba9e4e9f1315eabc37`，报告 3019 jobs / 0 errors / 0 warnings / 退出 0、固定 Lean/Lake 版本和 94 项无异常公理/退出 0 摘要（无 clean checkout 字段）。目标与当时收据提交的 Lean tree 相同，已含全部 94 项入口；该历史源码/输入对应仍有效，不覆盖其后类/长度有序四声明、后续 Source 扩展及后续计数/descent/cut-open
   - [x] 历史 `3526d4e1` 的 3019-job / 98 项 clean 摘要及 4 项输出已收到；所写目标 `c0f8ab25db3ccefbb59d80d45519628855677f10` 经 commit API 返回 422，Git commit/目标入口返回 404，暂不能绑定到实际源码 `8d2a7c65…`
-  - 剩余：先补旧 98 项收据的可解析精确目标，或可核验的内容等价/执行来源；上轮五条入口缺口已在 `120cec57` 补齐，本轮七条 cut-open theorem 尚须加入入口。提供当前 `d7a243df4c0d395b44fa4ef67161ed14b0783565` 对应源码的完整 9 模块 build/audit 原始日志、补齐后全部 134 项逐项输出、clean checkout 和模块/回归执行记录，并独立重现。旧 98 项收据没有 clean working tree 字段，旧 90 项中的文字不能补足；旧 94 项已核实的来源保留。没有可访问 CI run，不把来源待核或未独立验证解释为实际构建失败
-  - [x] 当前 Atlas/Distribution 保留旧 34 项逐项文本；`120cec57` 的 127 项入口曾完整覆盖当时 126 theorem + crk_orderIso，本轮 `d7a243df` 的七项未加入。旧 98 项收据目标与其历史输入的执行对应仍待核，后续 Source 五 theorem/一 def、descent 九 theorem、计数基础五 theorem、精确 packet 九 theorem 及本轮 cut-open 七 theorem 均尚无当次输出。根入口不在默认 target/glob 内，仍须单独运行 `cd lean && lake env lean AxiomAudit.lean` 并保存完整原始输出；旧 `40fb96b3`/`5b13173e` 的脚本时间差只作为历史证据边界保留
+  - [x] 本轮 `7d21ed53` 新收据准确指向可解析 `f7e25ac11ff8a81d4e3a5d3befa290d77f61942f`，其库源码/127项入口与 d7 相同；已收 3020 jobs/0 errors/0 warnings/build 与 audit exit 0、clean checkout 及127/127标准公理执行摘要。正文131公开 theorem应133；未展示逐项输出。它覆盖本轮前源码，不能把当前新增十四项当作已执行
+  - 剩余：补原cut-open七条入口至148项，在当前 `a1cb0a25f36d502c1240d9a8b1533bdcf39e94ee` 对应源码保存完整九模块build/audit原始日志、全部逐项输出、clean checkout和模块/回归记录，并独立重现。旧98项目标仍须补可解析SHA或可核验执行来源；旧94项也没有clean working tree字段，旧90项的文字不能转用。新f7收据自己的clean声明与来源已收到，不列为缺失；没有CI不等于实际构建失败
+  - [x] 当前 Atlas/Distribution 保留旧34项逐项文本；本轮前的126 theorem+crk_orderIso已收到f7的127项整体执行报告，原d7七项明确未纳入。当前另增十四条命令至141项但无本次执行报告，全部逐项原始输出仍待补。根入口不在默认target/glob内，须单独运行 `cd lean && lake env lean AxiomAudit.lean`；旧脚本时间差仅保留其历史边界
   - 在固定工具链干净 checkout 上运行 `cd lean && lake build` 及 `lake build Definitions Theorems`，覆盖全部 9 模块。另检查 ReturnWord 单模块及新 ReturnDescent 导入链，不凭有无显式 import 推断编译成败。必要时先取固定依赖及 mathlib cache；记录精确 SHA、Lean/Lake 版本、checkout 状态、命令、退出码、warning 和原始日志
   - 验收：当前同一精确源码提交的完整默认构建退出 0，9 个库模块和当前完整审计入口实际包含；说明所有 warning。缓存、单模块或文字 “Verified” 不替代该收据，不通过移除默认 target 凑通过
 
@@ -297,14 +327,14 @@
   - 路径：`lean/Definitions/Def_PrimeMother_Atlas.lean:129–172`；声明 `birth`、`birth_E` L139、`birth_root` L144、`birth_succ_succ` L153
   - [x] 源码修复：`36add88e` 已消除最后直接占位。既有 P1.2/P2.1/Source 扩展及后续计数/descent/cut-open 新增均未改变 birth 定义、这三个引理的目标/脚本或严格先前阶段依赖
   - [x] 旧 34 项收据（对应当前未改模块）L33–35 给出这三个引理的具名公理文本，均列 `propext`、`Classical.choice`、`Quot.sound`，没有 `sorryAx`，并报告构建/审计退出 0；入口已保存
-  - 剩余：P0.1 的完整原始执行日志及独立重现；旧 94 项报告的源码/入口定位继续有效，旧 98 项来源问题及当前补齐后全部 134 项执行按 P0.1 补齐。复核 `WellFounded.fix_eq` 展开、`show` / `congr 1` / `propext`、见证重组和 0/1 边界。不再把已收到的报告写成缺失
+  - 剩余：P0.1 的完整原始执行日志及独立重现；旧 94 项报告的源码/入口定位继续有效，旧 98 项来源问题及当前补齐后全部 148 项执行按 P0.1 补齐。复核 `WellFounded.fix_eq` 展开、`show` / `congr 1` / `propext`、见证重组和 0/1 边界。不再把已收到的报告写成缺失
   - 验收：固定工具链上的当前三个引理编译成功，完整传递公理输出无 `sorryAx`；定义没有素数判定或最终结论型输入。收到当前源码报告与独立重现须区分
 
 - [ ] **P0.3 验证已提交的主定理证明链**
   - 路径：`lean/Theorems/Thm_PrimeMother_PrimeBirth.lean:19–115`；声明 `birth_ge_two` L21、`birth_iff_no_earlier_mother` L36、`birth_iff_prime` L58
   - 当前状态：主定理自 `3e9d7d3` 已无直接占位；`36add88e` 补齐其展开依赖。本轮 PrimeBirth/Atlas/Source 的源码未改；上轮 Source 新增序结构/唯一性与两个 import，旧 crk/rk/Prefix 定义及原目标、递归与模型假设保留。历史源码证据不替代新导入环境下的全量重跑
   - [x] 旧 34 项收据（对应当前未改模块）L48–50 给出 `birth_ge_two`、`birth_iff_no_earlier_mother`、`birth_iff_prime` 输出，均只有三项标准公理；对应当时 Atlas/Distribution 所在的精确源码/依赖；相关三个证明脚本未改，审计入口已保存，后续 Source/return 扩展后仍需当前完整重跑
-  - 剩余：P0.1 完整原始日志和独立重现；旧 94 项入口与其目标 SHA 的对应保留，旧 98 项执行来源和当前补齐后全部 134 项执行按 P0.1 补齐。检查 L21–32 的 0/1 边界；L36–55 的展开/if 两分支；L71–82 的非平凡素因子和严格范围；L85–104 的归纳、商非 0/1 与 atlas 见证；L107–115 的素数定义方向
+  - 剩余：P0.1 完整原始日志和独立重现；旧 94 项入口与其目标 SHA 的对应保留，旧 98 项执行来源和当前补齐后全部 148 项执行按 P0.1 补齐。检查 L21–32 的 0/1 边界；L36–55 的展开/if 两分支；L71–82 的非平凡素因子和严格范围；L85–104 的归纳、商非 0/1 与 atlas 见证；L107–115 的素数定义方向
   - API 依据：[固定版本 Basic.lean L68–77](https://github.com/leanprover-community/mathlib4/blob/0df444a360eaa60ab8c11dca51a86af692955474/Mathlib/Data/Nat/Prime/Basic.lean#L68-L77)、[Defs.lean L107–120](https://github.com/leanprover-community/mathlib4/blob/0df444a360eaa60ab8c11dca51a86af692955474/Mathlib/Data/Nat/Prime/Defs.lean#L107-L120)、[Defs.lean L407–408](https://github.com/leanprover-community/mathlib4/blob/0df444a360eaa60ab8c11dca51a86af692955474/Mathlib/Data/Nat/Prime/Defs.lean#L407-L408)
   - 验收：原始目标 `∀ n, 2 ≤ n → (birth n = true ↔ Nat.Prime n)` 不削弱、不添加结论型假设；当前完整文件编译且整个证明链不依赖占位
 
@@ -313,12 +343,12 @@
   - [x] `9473ec06` 的 0、1、2、3、4、6、9、25 共 8 个证明式 examples 保留，仍在默认 glob 范围内。`birth` 为 noncomputable，样例是等式证明；25 借用主定理在 5 上的实例，不是主定理独立正确性证据
   - [x] 既有收据 L22–55 给出旧 5 模块全部 34 个公开 theorem 的具名公理文本，审计入口的 34 个命令与该范围逐项匹配；Source 9 + Atlas 17 + PrimeBirth 3 + Distribution 5 均已覆盖。各项是标准公理子集或无公理；此完成子项仅指收到文本并核对覆盖，不等于实际重跑
   - [x] 旧 5 模块完整审计输入与调用已提交，包含 Regression 导入；维护者报告该范围审计退出 0。默认 build 不包含此根入口，必须单独调用
-  - [x] `ade6c9ee` 已扩展至 8 模块导入闭包；`fbaca622` 补齐 listMax 两条；`5771ac97` 的 104 项曾完整覆盖当时 103 theorem+crk_orderIso。`52b7379c` 添加 ReturnDescent 导入与九条，闭包为 9 模块；`120cec57` 再补 14 项至 127 个唯一命令、无重复，本轮入口未改
-  - [ ] 当前输入覆盖：`120cec57` 已关闭当时五条遗漏，但 `d7a243df` 新增七 theorem 后入口仍 127 项，只覆盖旧 126 theorem + crk_orderIso。须新增 `cutOpenPath_length_eq`、`cutOpenPathIso_iff_rank`、`cutOpenPathIso_of_rank_eq`、`rank_eq_of_cutOpenPathIso`、`sectorCutOpen_of_distinct_edge_counts`、`distinct_edge_counts_of_sectorCutOpen`、`sectorCutOpen_imp_sector`，补齐到 **134 项**；ReturnPacket 分节 (7) 改为 (14)。ReturnCombination (62)、Source (12)/Descent (9) 现有分节命令数未变，执行另行验收
-  - [x] 旧失联目标的两条 packetStep 输出、可解析 68 项摘要、历史 82 项的 10 个 [2,3] 输出及 90 项的 8 个 singleton 输出保留原适用范围。上轮 `dfbe1671e5d66e24afff7c1f48737dc7906bd9dc` 报告实际源码 `fbc8fb7ec89ccd20b5da86ba9e4e9f1315eabc37` 的 94 项 clean/退出 0，展示四条记录/支持几何的标准公理输出；该对应继续保留。上轮收到另四条类/长度有序输出文本，名字与当前入口相符，但收据目标来源待核
-  - 当前缺口：补七项入口并核实旧 98 项收据目标后，在当前同一精确 SHA 提交全部 **134 项**逐项输出及完整执行日志。四个 return 模块为 ReturnWord 9 + ReturnPacket 14 + ReturnCombination 62 + ReturnDescent 9 = 94 个 theorem；旧 98 项收据只展示当时新增 4 项，未附其余 94 项当次输出；后续 Source 五 theorem/一个定义、descent 九 theorem、计数基础五 theorem、精确 packet 九 theorem 及本轮 cut-open 七 theorem 尚无当次输出。历史文本不能拼接为同一 SHA 的完整执行日志；执行目标、完整输出、checkout/执行记录和独立内核重现仍待补
-  - [x] 已提交 [2,2] 词等式、singleton 展开/长度、[2,3] 的完整 packet/端点分类/边数互异/邻接 10 项，以及上轮 p≥2 的 singleton 位置/次数/elementary/完整 packet/count-only simple-return 8 项。`packetWord [2]` 与 `[4]` 的这些性质已有一般 singleton theorem 覆盖，不再列为源码缺失；其具体内核实例/sector/birth 验收仍开放。保留旧 `singlePrimeWord` p=2/p=4、packetWord []/[2,3,5]/[2,2,2]、[0,1,0,1] 的重复长度/sector 判决及 5、3、5/raw slice 对照。singleton 8 项及上轮四项记录/支持几何均保留其精确源码对应输出，[3,2,5] 顺序对照保留；上轮四项类/长度有序的输出来源待核。上轮一般定理已覆盖 []/[2]/[4]/[2,3,5] 及递增合数（如 [4,6]）的次数/完整 packet/count-only 部分；继续补这些具体内核实例、新旧 sector 的 5、3、5/重复秩对照及含 0/1 输入的前提边界，不能从几何结论推出 birth；均未独立执行 Lean
-  - 剩余：在当前已含入口的精确 SHA 保存完整执行日志和每个模块/样例检查记录。旧 34/94 项文本以及新 98 项报告不能扩张成所有匿名样例/私有辅助声明都有具名输出；8 个 examples 与私有辅助的独立输出尚未提交。旧 `5b13173e` 的历史脚本来源时间差不再列作当前入口缺失
+  - [x] `ade6c9ee` 扩展至8模块导入闭包；`fbaca622` 补齐listMax两条；`5771ac97` 的104项曾完整覆盖103 theorem+crk_orderIso；`52b7379c` 加入Descent九条及第九模块，`120cec57` 补14项至127。本轮新14个公开theorem均加入入口，现141唯一命令，无重复；两条新增私有辅助不计入公开清单
+  - [ ] 当前输入覆盖：147公开theorem中140项+crk_orderIso已有141个唯一命令；仍缺 `cutOpenPath_length_eq`、`cutOpenPathIso_iff_rank`、`cutOpenPathIso_of_rank_eq`、`rank_eq_of_cutOpenPathIso`、`sectorCutOpen_of_distinct_edge_counts`、`distinct_edge_counts_of_sectorCutOpen`、`sectorCutOpen_imp_sector`，目标 **148项**。ReturnPacket分节(7)须改(14)，ReturnCombination(62)须改(68)；Descent已改(17)，Source(12)未变。逐项覆盖与执行分别验收
+  - [x] 旧失联目标的两条 packetStep 输出、可解析 68 项摘要、历史 82 项的 10 个 [2,3] 输出及 90 项的 8 个 singleton 输出保留原适用范围。上轮 `dfbe1671e5d66e24afff7c1f48737dc7906bd9dc` 报告实际源码 `fbc8fb7ec89ccd20b5da86ba9e4e9f1315eabc37` 的 94 项无异常公理/退出 0 摘要（无 clean checkout 字段），展示四条记录/支持几何的标准公理输出；该对应继续保留。上轮收到另四条类/长度有序输出文本，名字与当前入口相符，但收据目标来源待核
+  - 当前缺口：补七项入口并核实旧98项来源后，在当前同一精确SHA保存全部148项逐项输出和完整执行日志。四个return模块为ReturnWord 9+ReturnPacket 14+ReturnCombination 68+ReturnDescent 17=108 theorem。新f7收据仅给127项整体报告，未附逐项raw输出且不覆盖本轮十四项；旧90/94项具名文本及98项四行文本保留各自证据边界，不能拼接成当前完整执行日志。执行目标、全输出、checkout/模块记录及独立内核重现仍待补
+  - [x] 已提交[2,2]词等式、singleton展开/长度/八项完整packet、[2,3]十项几何回归，以及一般SortedLT且每项≥2的次数/完整packet/全端点iff/新旧sector。一般定理覆盖[]/[2]/[4]/[2,3]/[2,3,5]和递增合数[4,6]，不再要求补这些域内的通用分类/sector源码。继续补具体内核实例、5/3/5新旧sector严格性、重复秩/[2,2,2]/[3,2,5]及含0/1前提边界、raw split精确erase及不规范对照。旧singlePrimeWord p=2/p=4与return birth另行验收；旧90/94项对应输出和98项来源边界保持，未独立执行Lean
+  - 剩余：在当前精确SHA补齐入口并保存完整执行日志和模块/样例记录。现有34/90/94项文本、新f7的127项摘要不能扩张成所有匿名样例或私有辅助的具名输出；8 examples、7 private的编译覆盖需由实际模块日志确认，独立具名输出未提交。旧5b收据脚本时间差不列作当前入口缺失
   - 已收到的新增公理覆盖：`block_edge_count`、`block_adjacent_meet`、`block_interior_disjoint`、`block_cover`、`tiling_exists_iff`、`qualified_is_mother`、0/1 的裸母体/非合格母体四声明、`provenance_complete` / `provenance_witness`；Distribution 的 `chainIso_preserves_crk`、`mem_cone_iff`、`path_sieve_identity`、`birthCount_eq_primeCounting`、`birth_support_eq_primes`
   - 验收：相同当前 SHA 的完整 build、全部样例与依赖审计共同通过，审计入口实际执行且日志可访问；拒绝 `sorryAx` / 偷渡结论的自定义公理。源码 grep 不代替内核检查
 
@@ -348,51 +378,53 @@
   - [x] `MotherCone` L43 与 `mem_cone_iff` L46 已给母锥的后续 r 倍（r≥2）秩刻画；`path_sieve_identity` L57 已给 n≥2 时较早 birth 母锥覆盖等价于非素数。MotherCone 本身是裸 atlas 关系，不预设 Pi 为素数；对 primitive/birth 前缀须结合主定理取得 Pi≥2/素数范围
   - [x] `birthCount` L97 按 `Finset.range (x+1)` 过滤 `2≤m ∧ birth m=true` 定义；`birthCount_eq_primeCounting` L103 的 Nat 截断计数脚本及 `birth_support_eq_primes` L121 的 Nat 出生集合等式已提交。它们通过主定理识别素数，未把最终结论放进 birth 定义
   - [x] 旧 34 项收据报告当时 5 模块的完整构建；本模块五个证明脚本未改，L51–55 列出本模块五个 theorem 的标准公理输出；审计入口已保存并逐项核对
-  - 剩余当前验证：依 P0 补完整原始日志并独立重现，检查 x=0/1 和含上端点的计数边界；旧 94 项入口/源码来源仍已核实，旧 98 项执行来源待核，当前补齐后全部 134 项执行待补；不把本模块的对应收据/五项历史输出改写为缺失
+  - 剩余当前验证：依 P0 补完整原始日志并独立重现，检查 x=0/1 和含上端点的计数边界；旧 94 项入口/源码来源仍已核实，旧 98 项执行来源待核，当前补齐后全部 148 项执行待补；不把本模块的对应收据/五项历史输出改写为缺失
   - 剩余论文范围：实现出生测度（Dirac 和）、测度相等及相应支持集声明；当前 `birth_support_eq_primes` 只是 Nat 的 Set 等式，不是已定义测度的 support。补实数 x≥2 的截断/取整桥接与计数恒等式；源码已明确仅声称 Nat 版本，不将该未实现范围当作隐藏假设
   - 重标记剩余范围依 P1.1/P1.2：`chainIso_preserves_crk` 仅证明规范 Chain 秩保持，未正式传输 provenance、mother、birth
   - 验收：每个声称完成的论文结论有准确 Lean 声明与当次内核证据；区分 Nat/实数、集合/测度和规范模型/一般源。支持集/计数恒等式不等于新的素数间隔估计
 
 - [ ] **P1.4 补齐 README 验证依据与 CI**
-  - 路径：`README.md:13–50`、根 `.gitignore:1`；建议 `.github/workflows/lean.yml`
+  - 路径：`README.md:14–67`、根 `.gitignore:1`；建议 `.github/workflows/lean.yml`
   - [x] `300036da` 新增 README，列出固定版本、默认构建、主定理与 finite-return / boundary 未实现范围
-  - [x] 历史 7/17 项、旧 5 模块 3016-job/34 项文本、可解析 68 项摘要及 90 项 clean working tree/8 项输出均保留；旧 82 项失联目标仍为历史缺陷。上轮 `dfbe1671e5d66e24afff7c1f48737dc7906bd9dc` 的实际可解析目标 `fbc8fb7ec89ccd20b5da86ba9e4e9f1315eabc37`、3019-job/94 项 clean 报告和 4 项输出继续保留正确源码/入口对应。历史 `3526d4e1` 的 98 项摘要/4 项输出已收到，但 c0f8ab25… 目标不可解析；来源、checkout、完整输出/日志及独立重现按 P0 补齐
-  - 剩余文档：README 链接收据、完整日志和审计入口，说明报告来源与适用 SHA；不要把 L50 “P0 complete” 或 L39 “Verified” 扩张为独立重现或论文全范围已完成。更新 L13–17 模块/ledger 覆盖、L23–25 源层范围，并加入 Distribution 的 Nat 限定、P2.1 词/packet/单返回、多块合法词与递增 ≥2 输入精确 packet、cut-open 秩模型与 sector 双向桥接的进展，P2.2 条件式单步 descent 进展，以及未实现测度/一般源/历史双射/一般素数族/完整 descent 范围
+  - [x] 历史 7/17 项、旧 5 模块 3016-job/34 项文本、可解析 68 项摘要及 90 项 clean working tree/8 项输出均保留；旧 82 项失联目标仍为历史缺陷。上轮 `dfbe1671e5d66e24afff7c1f48737dc7906bd9dc` 的实际可解析目标 `fbc8fb7ec89ccd20b5da86ba9e4e9f1315eabc37`、3019-job/94 项无异常公理/退出 0 摘要（无 clean checkout 字段）和 4 项输出继续保留正确源码/入口对应。历史 `3526d4e1` 的 98 项摘要/4 项输出已收到，但 c0f8ab25… 目标不可解析；来源、checkout、完整输出/日志及独立重现按 P0 补齐
+  - [x] `6781d52f` 已补README九模块/ledger覆盖、一般源与规范Chain边界、Distribution的Nat限定、P2构造/条件descent进展、收据及入口链接、单独执行AxiomAudit的命令；这些文档任务关闭
+  - 剩余文档：L21应把 `Packet` 写成准确的ReturnPacket，并把旧raw桥 `sector_of_distinct_support_lengths` 与新cut-open桥区分；正式路径图仍未实现。L22–23更新本轮全端点分类/sector与精确full-packet删除，保留规范化/终止塔/birth未实现范围；L56的127项应同步当前141/补齐目标148。L48“Verified”/L63“P0 complete”限定到精确f7源码与作者摘要，不能替代当前完整raw输出/独立验收；P1“uniqueness”应明确余下atlas唯一性，勿重开crk_unique
   - CI 仍未提交；根 `.gitignore` 仍忽略 `.github/`，添加 workflow 时须确保实际入库。本审计不修改 ignore、CI 或仓库设置
-  - CI 覆盖 push/PR、固定工具链、完整 `lake build`、9 模块/样例/补齐后的 134 项公理入口以及占位/依赖门禁；不能仅 grep 无 sorry 就声称证明可信
+  - CI 覆盖 push/PR、固定工具链、完整 `lake build`、9 模块/样例/补齐后的 148 项公理入口以及占位/依赖门禁；不能仅 grep 无 sorry 就声称证明可信
   - 验收：当前新源码有可访问成功 run，失败/缺失/未运行分别记录；README 清楚区分已实现且检查、实现待检查和未实现
 
 ## P2：论文最终结论的缺失实现，按依赖顺序推进
 
-P2.1 已有词/packet/单返回、多块合法词、逐块最终词几何、有序记录类/支持长度及具体回归；上轮补齐 SortedLT 且每项 ≥2 的一般精确次数、完整 packet 与 count-only simple-return，本轮补齐 cut-open 长度/秩模型及 sector/秩互异双向桥接。packetWord 接入新 sector、路径图、return birth 及历史双射仍开放。P2.2 已有 raw split 与给定树/非根叶的条件式单步保持，完整 descent/mixed fibres 仍待完成；P2.3–P2.5 仍为未实现的建议模块/目标。
+P2.1 已有词/packet/单返回、多块合法词、完整packet/次数、全部elementary-return端点iff、记录端点对互异/支持对应及一般cut-open sector；路径图、return birth和历史双射仍开放。P2.2已有raw split、给定树/非根叶的条件保持、完整packet精确erase和基数减一；规范化/sector正式保持、树叶存在、完整合法descent与mixed fibres仍待完成。P2.3–P2.5仍为未实现的建议模块/目标。
 
 - [ ] **P2.1 有限 return source 与实际 packet 几何**
-  - 现有路径：`lean/Definitions/Def_PrimeMother_ReturnWord.lean:21–105`、`lean/Definitions/Def_PrimeMother_ReturnPacket.lean:26–308`、`lean/Theorems/Thm_PrimeMother_ReturnCombination.lean:17–1603`；历史源桥接仍建议 `Def_PrimeMother_ReturnSource.lean`
+  - 现有路径：`lean/Definitions/Def_PrimeMother_ReturnWord.lean:21–105`、`lean/Definitions/Def_PrimeMother_ReturnPacket.lean:26–308`、`lean/Theorems/Thm_PrimeMother_ReturnCombination.lean:17–1857`；历史源桥接仍建议 `Def_PrimeMother_ReturnSource.lean`
   - 对应论文：`prop:return-normal-form` L1142–1174、simple-return sector L1220–1226、`thm:return-combination` L1238–1307
   - [x] 词层源码：`IsReturnWord` L54、`listMax` 与 9 个基础 theorem 已提交；new/old label 扩张条件不依赖素数列表。剩余：有限顶点等价关系、不合并相邻点、无标签同构、first-occurrence 规范化和逆构造，证明双向对应/唯一性；不能用词谓词本身代替历史双射
-  - [x] Packet 基础源码：`occurrences`、`IsRecurrent`、`IsElementaryReturn`、`ReturnPacket`、`ReturnsOverlap`、`PacketAdjacent` 与 4 个 theorem 已提交。剩余：在合法词和完整 packet 顶点域上构造图、证明 elementary-return 端点唯一及 packet 对应、共享原子边等价与连通性；`simpleReturn_packet_card` 只展开次数定义，不建立端点对应
-  - [x] 旧 raw-pattern sector 条件桥接源码：`ade6c9ee` 的 `IsSimpleReturn` L39–40 为次数部分；`returnSupport` L121、`SupportIso` L137、`IsSimpleReturnSector` L152 和 `sector_of_distinct_support_lengths` L162–174 保留。旧充分条件已实现；新 cut-open 语义用下述谓词，不再把旧 raw-pattern sector 当作论文完整条件。[2,3] 已有次数/分类及边数互异，singleton 已排除不同返回类，可支持后续显式新 sector theorem；两者及一般 packetWord 尚未实际接入新桥接
+  - [x] Packet基础源码：occurrences/IsRecurrent/IsElementaryReturn/ReturnPacket/ReturnsOverlap/PacketAdjacent及基础四theorem已提交。本轮一般packetWord的完整packet与端点唯一分类已闭合（见下）；任意合法词/历史的全packet端点对应及正式图、共享原子边等价/连通性仍须包装。旧simpleReturn_packet_card只展开次数定义，不把它单独说成已证明通用端点存在唯一性
+  - [x] 旧raw-pattern sector条件桥接：IsSimpleReturn L39–40为次数部分，returnSupport L121、SupportIso L137、IsSimpleReturnSector L152和旧充分条件L162–174保留。新cut-open语义见下；本轮 `isSimpleReturnSector_packetWord` 与 `isSimpleReturnSectorCutOpen_packetWord` 已分别接入，覆盖singleton/[2,3]/一般SortedLT且每项≥2的输入，不再列缺显式通用桥接
   - [x] **cut-open 长度/秩模型修复**：`d7a243df` 新增 `cutOpenPath` L202–203 为 range 顶点列表、`CutOpenPathIso` L210–211 为长度相等；`cutOpenPath_length_eq` L215、`cutOpenPathIso_iff_rank` L223 和两向包装 L232/238 在准确端点范围内对齐支持长度/边数。`IsSimpleReturnSectorCutOpen` L252、正向 L261/反向 L276 桥接及 L295 的新⇒旧 sector 已实现，关闭原先允许的 rank-model 路线；未构造显式路径 OrderIso，不以此重开已关闭的模型修复。5、3、5 对照仍反驳旧 raw-pattern sector 的精确性，新条件已排除等秩支持；尚须具名内核对照及合法历史/一般源对应
-  - [x] `returnSupport` L110–120 已修正“raw slice 自动首次出现规范化”的错误注释，并与 cut-open 丢弃 quotient 标签的语义分开。剩余文档/接入：L33–38、L101–107、L133–161 的旧说明仍称 full sector/ordered-atomic-path，须清楚标记 legacy raw-pattern 关系并把论文相关调用接到新谓词。所有语义谓词均应在合法历史/词的明确适用域使用，且与随后推出素数性的 theorem 分开
+  - [x] returnSupport L110–120已修正raw slice自动首次出现规范化的错误注释；packetWord调用已接入新cut-open谓词。剩余文档：ReturnPacket L33–38、L101–107、L133–161仍称旧raw-pattern为full sector/ordered-atomic-path，应准确标记legacy关系；新增ReturnDescent L624–625的elementary-return“全局恰两次”误述应修正。合法历史/词适用域及随后birth定理仍须单独建立
   - [x] 旧单返回构造源码：`spine`、`singlePrimeWord` 及 11 个 theorem 已提交；`singlePrimeWord_elementary (p) (hp : 2 ≤ p)` 得到端点 1、p+1 和无中间同类，支持长度 p。这个长 p+2 的旧构造仍缺完整 packet/count-only simple-return 的显式 theorem；既有 singleton 结果针对不同的长 p+1 的 `packetWord [p]`，见下。两个构造均还需 return birth/empty-atlas-ledger 判据及 unary 桥接，p≥2 本身允许合数
   - [x] 多块合法词源码：`4cd15d0d691432f45b80f8add8b990d4ab5db536` 新增 `packetWordAux` / `packetWord` / `PacketInv` 和上述 6 个 theorem；`isReturnWord_packetWord` 在每项 ≥2 下成立，不需素性/互异。这里只记录源码实现，未验收编译；不能据其注释勾选论文 (ii)
   - [x] 单步几何源码：`3d0c1e9b` 已给 `PacketInv` L192–195 增加 `w[b - 1]? = some lprev` 并维护它；`packetStep_elementary` L348–391 给出单步词上标签 lprev、端点 b−1/b−1+p、支持边数 p 和无中间同类。此位置缺口已补，不再列作完全缺失；当前构建/内核对应仍待 P0 验收
   - [x] 通用 append 保持源码：`fd00c30c` 的 `elementaryReturn_append_preserved` L423–441 已证明任意尾部追加保留旧 elementary return 的 c/a/b 及中间无同类。`packetWord_singleton` / `packetWord_singleton_length` L444–455 和 `packetWord_two_two` L460–462 也已提交；上轮已补完 singleton 次数/完整 packet，见下；append 引理本身不保持全词次数
-  - [x] [2,3] 具体完整 packet：`f0ae0fa7` 的 L477–573 已给词 [0,1,0,2,1]、端点 (0,2)/(1,4)、类 0/1 恰两次、packet={0,1}、count-only simple-return 及全部 elementary returns 分类。L578–596 又给指定两类边数互异与 `PacketAdjacent … 0 1`。剩余是显式 sector/正式图对象与 P₂ 同构及 birth；不能将具体案例扩大为一般族
-  - [x] singleton 完整 packet 源码：`23b93b81` L611–834 在 p≥2 下给所有位置分类、非零类至多一次、零类精确出现 {0,p}、端点 (0,p) 的 elementary return、`ReturnPacket (packetWord [p]) = {0}` 和 count-only simple-return。这里已排除三次及以上的隐藏类，完整 packet/次数不再缺失；尚无显式全 elementary-return iff 分类、singleton sector/图/连通性或 birth theorem，已有次数事实可作桥接。新 8 项输出来自可解析同一源码收据，独立内核执行仍待 P0
+  - [x] [2,3]具体完整packet：L477–573已有词[0,1,0,2,1]、端点(0,2)/(1,4)、类0/1各两次、packet={0,1}、count-only simple与全部returns分类；L578–596给边数互异及邻接。新一般theorem已覆盖该词新/旧sector；剩余正式图对象/P₂同构、历史与birth，不能由具体邻接扩大为一般路径图
+  - [x] singleton完整packet：L611–834在p≥2下给位置分类、非零类至多一次、零类位置{0,p}、elementary return(0,p)、packet={0}与count-only simple。新一般端点iff及sector theorem亦覆盖[p]（不另要求prime）；这些源码缺口关闭，图/连通性包装和birth仍开放。旧8项输出继续有可解析精确来源，独立内核执行待P0
   - [x] 最终词逐块记录源码：`fbc8fb7ec89ccd20b5da86ba9e4e9f1315eabc37` L855–969 已给 blockRecordsAux、任意 builder 的后缀分解、每项 ≥2 时全部记录在最终词上的 elementary return，以及 `map (b−a) records = ps` 的有序长度等式。不再把递归记录/最终词保留列为缺失；此处“全部”只量化记录，不是最终词所有 returns 的 iff 分类
-  - [x] 记录类互异源码：`8d2a7c65` L989–1125 给 aux 下界/有序及公开 `packetWord_classes_sorted`；公开版只需 SortedLT 与每项 ≥2，不需素性。L1129–1134 的支持有序只需 SortedLT。这关闭相应域内的记录类互异，本轮已进一步接入全词次数/完整 packet；sector 仍待桥接，旧 4 项输出收据的目标来源待 P0 核实
+  - [x] 记录类互异：L989–1125的aux下界/有序及公开packetWord_classes_sorted已完成；公开版只需SortedLT+每项≥2。L1129–1134支持有序只需SortedLT。本轮已接入全端点分类与新旧sector，不再列缺这段桥；旧4项输出收据的来源问题仍按P0核实
   - [x] 计数基础源码：`1570c48f` L1149–1244 已给 builder 长度/max+1、合法词标签覆盖、成员正次数与任意列表 occurrences 总和等于长度。前两项分别要求每项≥2、另加 PacketInv；其余按准确声明使用。该五项是本轮一般完整 packet 证明的基础，现已全部加入 AxiomAudit
   - [x] 一般精确 packet 源码：`120cec57` L1258–1603 已完成 packetWord 长度/max 预算（区分 [] 初态）、记录类恰两次、非记录 ≤max 类一次、完整 packet 等于记录类集合及 count-only simple-return。三个核心公开 theorem 为 `packetWord_class_card`、`packetWord_packet_exact`、`isSimpleReturn_packetWord`，前提仅 SortedLT + 每项≥2；包括空输入及递增合数，没有 prime/非空/结论型假设。一般次数与完整 packet 不再列为源码缺失，执行待 P0
-  - 下一步接入所有 elementary returns 的端点 iff 分类、不同记录端点互异及全部支持长度对应（不要求支持区间不相交），由有序记录秩正式得到新 `IsSimpleReturnSectorCutOpen (packetWord ps)`，再证明路径交叠图。准确条件仍保留：[3,2,5] 虽互异但类 0 三次，[2,2,2] 也重复类；每项≥2 或 append 保持不能单独替代 SortedLT。cut-open 模型/双向条件桥接已关闭，图、ledger/birth 或历史双射未完成
-  - 在已提交一般精确 packet 基础上，包装任意**非空**有限互异素数集经递增排列的历史构造，正式证明完整 packet 的支持秩集合等于输入集及交叠图为路径图；引入 return birth/ledger 并连接 unary theorem，同时完成 born packet 反向分类。一般几何/count-only 定理允许空集和合数；非空 prime 条件仍需用于论文 born-history 目标，packetWord 的新 sector 接入及 birth 尚未完成。论文定理 (ii) 写“every finite set”时应显式补非空前提以匹配总述
-  - 验收：词/历史双射、完整 cut-open simple-return 条件与秩互异等价、singleton birth 与一般族正向/反向分类分别有准确 Lean 定理；empty/singleton/重复支持长度/合数对照明确，predicate 不以待证素数集合直接作定义；依 P0 在同一精确 SHA 完成四个 return 模块的 94 个 theorem 及补齐后全库 134 项公理验证
+  - [x] 本轮全端点与sector接入：`packetWord_elementary_iff` L1620–1684给所有returns恰为记录；`packetWord_records_endpoints_nodup` L1701–1743为端点对列表Nodup（不声称区间不交），L1747–1758给第i支持边数ps[i]；L1777–1830给异类边数不同，L1837–1857给新/旧sector。端点支持对应本身只需i<ps.length，其余公开结论只需SortedLT+每项≥2。空输入/递增合数允许；[3,2,5]、[2,2,2]反例仍说明不能省略有序前提。下一步为正式支持秩集合包装、路径图/连通性及ledger/birth/历史，不重开这些通用源码桥
+  - 在已有exact packet、全端点/有序支持和sector基础上，包装支持秩集合恰为输入集，并把任意**非空**有限互异素数集递增排列接入历史构造；正式证明交叠图为路径图，引入return birth/ledger并连接unary theorem，完成born packet反向分类。数学上的支持对应已闭合，尚缺该集合/历史定理包装；一般几何/sector允许空输入与合数，非空prime限制只用于born-history目标。论文定理(ii)的every finite set仍应显式补非空以匹配总述
+  - 验收：词/历史双射、完整cut-open simple-return与秩互异等价、singleton birth和一般族正反分类分别有准确定理；区分已闭合的次数/端点/sector与未实现图/birth。empty/singleton/重复支持长度/合数对照明确，predicate不以待证素数集作定义；依P0完成四个return模块108 theorem及全库补齐后148项同一SHA的公理验证
 
 - [ ] **P2.2 Descent 与 mixed fibres**
-  - 现有路径：`lean/Theorems/Thm_PrimeMother_ReturnDescent.lean:40–297`（`52b7379c`，九个公开 theorem，已入公理入口，未收到执行输出）
+  - 现有路径：`lean/Theorems/Thm_PrimeMother_ReturnDescent.lean:40–645`（17公开theorem、2私有辅助；17项公开命令已入入口，新增八项尚无执行报告）
   - 对应论文：有限 packet 章节、`thm:return-combination`、`cor:boundary-mixed-fibres` 的有限核心
   - [x] raw split/条件式单步源码：定义 supplied parent/depth 树和非根叶；给长度、其他旧类次数/elementary-return iff、parent 迭代到根，以及给定树/叶下 V.erase v 的树证书与保留 returns。不要重开这些已实现的准确声明
-  - 剩余源操作：w 尚为任意 List Nat，V⊆ReturnPacket w 并非全 packet；补被删类与 fresh 类各一次、精确 packet 删除等式及次数/sector 保持。raw split 不保持首次出现规范词：[0,1,0,2,1] 删类 1 得 [0,3,0,2,1]；需规范化并传输类/端点，或形式化历史等价关系分裂再证明词桥接。保留 returns 的端点 iff 不自动证明尚未定义的 atlas ledger/birth 保持，须给独立声明
+  - [x] 完整raw-packet删除：L458–540给被删v和fresh各一次；`ReturnPacket_splitClass_erase` L546–615仅需v∈ReturnPacket w，证明精确整packet=erase v，L619–622基数恰减一，L628–645排除被删类return。它不限制其他类出现次数；不要把全packet定义误读为额外simple-return假设。给定树定理可专门取V=全packet后结合新等式；这些原先缺失的计数/精确删除子项关闭
+  - 剩余源操作：w仍为任意List Nat；正式包装IsSimpleReturn和cut-open sector保持，规范化raw split或建立历史等价关系分裂及类/端点传输。合法[0,1,0,2,1]拆类1得到[0,3,0,2,1]仍不规范；该对照不反驳raw删除定理。保留returns端点iff与基数下降不自动证明尚未定义的atlas ledger/birth保持，须给独立声明
   - 剩余树与终止：在完整 packet 的图上，从连通性构造 spanning tree；超过一个顶点时证明非指定根叶存在，再以 packet 基数下降迭代至任意指定 unary 成员，并保持实际 source/sector/ledger/birth。当前定理把树和叶作为前提，尚未闭合该存在与终止路线
   - 实现相同 unary ranks 的 born/unborn 对照，例如 `[0,2],[1,4]` 与 `[0,2],[3,6]`；共享端点不等于共享原子边。证明不同 overlap patterns 可给出不同 connected-face posets
   - 验收：每一步有实际源操作与不变量，非仅存在素数子集链；用同影子不同判决见证“不可由 divisor shadow 决定”
